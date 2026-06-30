@@ -173,6 +173,15 @@
       behaviors:
       - !type:GibBehavior
         recursive: false
+# DS14-start
+  - type: Bee
+    maxPollenCarry: 20
+    pollenCollectRate: 2
+    idleCooldown: 5
+    searchRadius: 15
+    arrivalThreshold: 0.5
+  - type: NPCSteering
+# DS14-end
 
 - type: entity
   name: bee

@@ -1,0 +1,17 @@
+- type: entity
+  id: MaterialBeeswax
+  name: material-beeswax-name
+  description: material-beeswax-desc
+  components:
+  - type: Sprite
+    sprite: Objects/Materials/beeswax.rsi
+    state: icon
+  - type: Item
+    size: Small
+  - type: Stack
+    stackType: Beeswax
+    count: 1
+  - type: Material           # позволяет использовать в крафте
+  - type: PhysicalComposition
+    materialComposition:
+      Beeswax: 100

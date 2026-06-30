@@ -1,0 +1,23 @@
+- type: entity
+  id: MaterialHoneycomb
+  name: пчелиные соты
+  description: Восковые пчелиные соты наполненные мёдом!
+  components:
+  - type: Sprite
+    sprite: _DeadSpace/Beekeeping/comb.rsi
+    state: icon
+  - type: Item
+    size: Small
+  - type: Stack
+    stackType: Honeycomb
+    count: 1
+  - type: Material
+  - type: PhysicalComposition
+    materialComposition:
+      Honeycomb: 100
+
+- type: stack
+  id: Honeycomb
+  name: honeycomb
+  spawn: MaterialHoneycomb
+  maxCount: 50

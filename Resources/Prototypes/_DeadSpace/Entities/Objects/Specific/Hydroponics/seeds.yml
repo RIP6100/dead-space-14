@@ -29,6 +29,13 @@
       seedId: CactusPlant
     - type: Sprite
       sprite: _DeadSpace/Objects/Specific/Hydroponics/cactus.rsi
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 20
+      growthSpeedBonus: 0.1
+      boostDuration: 200
+      pollinationCooldown: 120
+      instantAgeBonus: 0
 
 - type: entity
   parent: SeedBase
