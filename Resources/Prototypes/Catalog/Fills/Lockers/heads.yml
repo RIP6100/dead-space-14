@@ -9,6 +9,7 @@
     - id: SalvageShuttleConsoleCircuitboard #DS14
     - id: CigPackGreen
       prob: 0.50
+    - id: ClothingOuterHardsuitQM # DS14
     - id: ClothingHeadsetAltCargo
     - id: DoorRemoteCargo
     - id: AstroNavCartridge

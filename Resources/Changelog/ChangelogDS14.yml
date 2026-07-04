@@ -4138,3 +4138,52 @@ Entries:
   - type: Fix
     message: Цель на атмосию у ультра-предателей (больше не придется взрывать трейд
       ради газодобытчиков).
+- id: 409
+  author: RIP6100
+  time: '2026-07-02T21:50:40.905118+00:00'
+  pr: 1880
+  changes:
+  - type: Add
+    message: Флаги четырёх стран, баннеры четырёх стран, флаги на шесте четырёх стран,
+      куча новых постеров для отделов. Sprited by Urani.
+  - type: Tweak
+    message: Респрайт постеров "Нт лого" и "СБ видит".
+  - type: Fix
+    message: Баги на карте Box. by Amaliz.
+- id: 410
+  author: HavvaMariajmiPalmer
+  time: '2026-07-02T22:46:47.747498+00:00'
+  pr: 1879
+  changes:
+  - type: Add
+    message: секретный скаф кма в ящик кма
+- id: 411
+  author: GUSBOBERUS
+  time: '2026-07-03T14:20:28.242391+00:00'
+  pr: 1884
+  changes:
+  - type: Tweak
+    message: Дворфы теперь говорят названия профессий и рас в их стиле
+- id: 412
+  author: CyberBobeks
+  time: '2026-07-03T19:41:26.383059+00:00'
+  pr: 1889
+  changes:
+  - type: Add
+    message: Поддержка скейлинга у компонента "marking" (by sastr.).
+- id: 413
+  author: CyberBobeks
+  time: '2026-07-03T22:56:28.676208+00:00'
+  pr: 1890
+  changes:
+  - type: Fix
+    message: Невозможность атаковать в лежачем состоянии.
+- id: 414
+  author: Atickov
+  time: '2026-07-03T23:03:07.341430+00:00'
+  pr: 1891
+  changes:
+  - type: Fix
+    message: тело ревенанта при вселении больше не умирает через секунду
+  - type: Fix
+    message: РСУ больше нельзя использовать когда он не в руке
