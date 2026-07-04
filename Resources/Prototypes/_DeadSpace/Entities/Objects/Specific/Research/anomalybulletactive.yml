@@ -1,0 +1,340 @@
+# DS14: projectiles fired by AnomalyCoreAmmoProvider when an ACTIVE (non-decayed) anomaly core is loaded.
+# These are deliberately stronger/more unique than their Inert counterparts (see anomaly_core_projectiles.yml) -
+# while the core is still alive it grants free, unlimited shots, so the payoff for using a live core is a
+# more dangerous, more interesting shot. Once the core naturally decays into its Inert form, the weapon falls
+# back to the weaker, charge-limited Inert projectiles.
+
+# --- Pyroclastic (active): true fireball, explodes and ignites everything nearby ---
+- type: entity
+  id: AnomalyCoreBulletPyroclasticActive
+  name: pyroclastic fireball
+  parent: BaseBulletTrigger
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/magic.rsi
+    layers:
+    - state: fireball
+      shader: unshaded
+  - type: PointLight
+    enabled: true
+    color: "#E25822"
+    radius: 3.0
+    energy: 6.0
+  - type: Projectile
+    damage:
+      types:
+        Heat: 18
+  - type: ExplodeOnTrigger
+  - type: Explosive
+    explosionType: Default
+    totalIntensity: 60
+    intensitySlope: 4
+    maxIntensity: 15
+    tileBreakScale: 0
+    canCreateVacuum: false
+  - type: IgnitionSource
+    temperature: 500
+    ignited: true
+  - type: IgniteOnCollide
+    fireStacks: 2.5
+
+# --- Electricity (active): true tesla arc - embeds and chains lightning to nearby targets ---
+- type: entity
+  id: AnomalyCoreBulletElectricityActive
+  name: tesla arc
+  parent: BaseBullet
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: TimedDespawn
+    lifetime: 5
+  - type: Sprite
+    sprite: Structures/Power/Generation/Tesla/energy_miniball.rsi
+    layers:
+    - state: tesla_projectile
+      shader: unshaded
+  - type: PointLight
+    enabled: true
+    color: "#ffffaa"
+    radius: 2.5
+    energy: 6.0
+  - type: StaminaDamageOnCollide
+    damage: 45
+  - type: EmbeddableProjectile
+  - type: Projectile
+    damage:
+      types:
+        Shock: 4
+    deleteOnCollide: false
+    soundHit:
+      path: /Audio/Weapons/Guns/Hits/bullet_hit.ogg
+  - type: LightningArcShooter
+    arcDepth: 2
+    maxLightningArc: 3
+    shootMinInterval: 2.0
+    shootMaxInterval: 3.5
+    shootRange: 5
+    lightningPrototype: Lightning
+  - type: Electrified
+    requirePower: false
+  - type: Tag
+    tags:
+    - HideContextMenu
+
+# --- Ice (active): violent cryogenic burst - freezes and knocks down on top of heavy cold damage ---
+- type: entity
+  id: AnomalyCoreBulletIceActive
+  name: cryogenic burst
+  parent: BaseBulletTrigger
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      shader: unshaded
+      color: "#8ff2ff"
+  - type: PointLight
+    enabled: true
+    color: "#8ff2ff"
+    radius: 2.5
+    energy: 6.0
+  - type: Projectile
+    damage:
+      types:
+        Cold: 20
+  - type: StunOnCollide
+    stunAmount: 2
+    knockdownAmount: 2
+    slowdownAmount: 4
+    walkSpeedModifier: 0.4
+    sprintSpeedModifier: 0.4
+  - type: ExplodeOnTrigger
+  - type: Explosive
+    explosionType: Default
+    totalIntensity: 15
+    intensitySlope: 3
+    maxIntensity: 8
+    tileBreakScale: 0
+    canCreateVacuum: false
+
+# --- Gravity (active): a genuine gravitic implosion - much bigger blast than the Inert version ---
+- type: entity
+  id: AnomalyCoreBulletGravityActive
+  name: gravitic implosion charge
+  parent: BaseBulletTrigger
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      shader: unshaded
+      color: "#0a0210"
+  - type: PointLight
+    enabled: true
+    color: "#4b0082"
+    radius: 3.5
+    energy: 10.0
+  - type: Projectile
+    damage:
+      types:
+        Blunt: 10
+  - type: ExplodeOnTrigger
+  - type: Explosive
+    explosionType: Default
+    totalIntensity: 90
+    intensitySlope: 8
+    maxIntensity: 25
+    tileBreakScale: 0
+    canCreateVacuum: false
+
+# --- Rock (active): a concussive boulder impact - staggers on top of heavy armor-ignoring damage ---
+- type: entity
+  id: AnomalyCoreBulletRockActive
+  name: shattering boulder
+  parent: BaseBullet
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: piercing
+      color: "#8a8a8a"
+  - type: Projectile
+    damage:
+      types:
+        Blunt: 32
+    ignoreResistances: true
+  - type: StaminaDamageOnCollide
+    damage: 30
+
+# --- Flesh (active): a necrotic seed - roots into the target and sprouts a mass of tendons ---
+- type: entity
+  id: AnomalyCoreBulletFleshActive
+  name: necrotic seed
+  parent: BaseBulletTrigger
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      color: "#a32948"
+  - type: Projectile
+    damage:
+      types:
+        Slash: 14
+        Bloodloss: 10
+  - type: SpawnOnTrigger
+    proto: FleshKudzu
+
+# --- Liquid (active): a corrosive payload - bursts into a spreading cloud of acid ---
+- type: entity
+  id: AnomalyCoreBulletLiquidActive
+  name: corrosive payload
+  parent: BaseBulletTrigger
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      color: "#c6ff00"
+  - type: Projectile
+    damage:
+      types:
+        Caustic: 20
+  - type: SmokeOnTrigger
+    spreadAmount: 40
+    duration: 8
+    solution:
+      reagents:
+      - ReagentId: PolytrinicAcid
+        Quantity: 20
+
+# --- Bluespace (active): a violent spatial rupture - far heavier cellular disruption than the Inert shard ---
+- type: entity
+  id: AnomalyCoreBulletBluespaceActive
+  name: spatial rupture
+  parent: BaseBulletTrigger
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      shader: unshaded
+      color: "#00eaff"
+  - type: PointLight
+    enabled: true
+    color: "#00eaff"
+    radius: 3.0
+    energy: 8.0
+  - type: Projectile
+    damage:
+      types:
+        Cellular: 22
+  - type: ExplodeOnTrigger
+  - type: Explosive
+    explosionType: Default
+    totalIntensity: 20
+    intensitySlope: 4
+    maxIntensity: 10
+    tileBreakScale: 0
+    canCreateVacuum: false
+
+# --- Flora (active): a seed of aggressive kudzu that takes root on impact ---
+- type: entity
+  id: AnomalyCoreBulletFloraActive
+  name: feral seed
+  parent: BaseBulletTrigger
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      color: "#2fa84f"
+  - type: Projectile
+    damage:
+      types:
+        Poison: 18
+  - type: SpawnOnTrigger
+    proto: Kudzu
+
+# --- Shadow (active): a fragment of living darkness - batters stamina hard and leaves creeping shadow behind ---
+- type: entity
+  id: AnomalyCoreBulletShadowActive
+  name: living shadow fragment
+  parent: BaseBulletTrigger
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      color: "#4b1f57"
+  - type: Projectile
+    damage:
+      types:
+        Blunt: 10
+  - type: StaminaDamageOnCollide
+    damage: 60
+  - type: SpawnOnTrigger
+    proto: ShadowKudzu
+
+# --- Tech (active): a heavy-duty EMP overload - far larger range and disable duration than the Inert chip ---
+- type: entity
+  id: AnomalyCoreBulletTechActive
+  name: overload burst
+  parent: BaseBulletTrigger
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      shader: unshaded
+      color: "#0fd4ff"
+  - type: PointLight
+    enabled: true
+    color: "#0fd4ff"
+    radius: 3.0
+    energy: 7.0
+  - type: Projectile
+    damage:
+      types:
+        Shock: 8
+  - type: EmpOnTrigger
+    range: 6
+    energyConsumption: 60000
+    disableDuration: 16
+  - type: Ammo
+    muzzleFlash: null
+
+# --- Santa (active): a genuinely powerful festive blast - still a little silly, but not harmless anymore ---
+- type: entity
+  id: AnomalyCoreBulletSantaActive
+  name: overcharged festive charge
+  parent: BaseBulletTrigger
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      color: "#fc0303"
+  - type: Projectile
+    damage:
+      types:
+        Cold: 8
+        Blunt: 8
+  - type: ExplodeOnTrigger
+  - type: Explosive
+    explosionType: Default
+    totalIntensity: 15
+    intensitySlope: 3
+    maxIntensity: 6
+    tileBreakScale: 0
+    canCreateVacuum: false

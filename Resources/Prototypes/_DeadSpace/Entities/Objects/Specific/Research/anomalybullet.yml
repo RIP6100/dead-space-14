@@ -1,0 +1,288 @@
+# DS14: projectiles fired by anomaly-core powered weapons (WeaponAnomalyCondenser).
+# Each projectile corresponds 1:1 to one of the AnomalyCore* prototypes from
+# Resources/Prototypes/Entities/Structures/Specific/Anomaly/cores.yml
+
+# --- Pyroclastic: burning shard, sets the target on fire ---
+- type: entity
+  id: AnomalyCoreBulletPyroclastic
+  name: pyroclastic shard
+  parent: BaseBullet
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      shader: unshaded
+      color: "#E25822"
+  - type: PointLight
+    enabled: true
+    color: "#E25822"
+    radius: 2.0
+    energy: 5.0
+  - type: Projectile
+    damage:
+      types:
+        Heat: 12
+  - type: IgniteOnCollide
+    fireStacks: 1.5
+
+# --- Electricity: arcing bolt, stuns and knocks down ---
+- type: entity
+  id: AnomalyCoreBulletElectricity
+  name: electrified bolt
+  parent: BaseBullet
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Reflective
+    reflective:
+    - Energy
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: spark
+      shader: unshaded
+      color: "#ffffaa"
+  - type: PointLight
+    enabled: true
+    color: "#ffffaa"
+    radius: 2.0
+    energy: 5.0
+  - type: Projectile
+    damage:
+      types:
+        Shock: 6
+    soundHit:
+      path: "/Audio/Weapons/Guns/Hits/taser_hit.ogg"
+    forceSound: true
+  - type: StunOnCollide
+    stunAmount: 2
+    knockdownAmount: 3
+    slowdownAmount: 3
+    walkSpeedModifier: 0.6
+    sprintSpeedModifier: 0.6
+
+# --- Ice: frigid sliver, chills and slows but does not knock down ---
+- type: entity
+  id: AnomalyCoreBulletIce
+  name: frigid sliver
+  parent: BaseBullet
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      shader: unshaded
+      color: "#befaff"
+  - type: PointLight
+    enabled: true
+    color: "#befaff"
+    radius: 1.5
+    energy: 3.0
+  - type: Projectile
+    damage:
+      types:
+        Cold: 10
+  - type: StunOnCollide
+    stunAmount: 0
+    knockdownAmount: 0
+    slowdownAmount: 3
+    walkSpeedModifier: 0.5
+    sprintSpeedModifier: 0.5
+    drop: false
+
+# --- Gravity: collapses into a small singularity-like blast on impact ---
+- type: entity
+  id: AnomalyCoreBulletGravity
+  name: gravitic collapse charge
+  parent: BaseBulletTrigger
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      shader: unshaded
+      color: "#1e070e"
+  - type: PointLight
+    enabled: true
+    color: "#1e070e"
+    radius: 2.5
+    energy: 8.0
+  - type: Projectile
+    damage:
+      types:
+        Blunt: 4
+  - type: ExplodeOnTrigger
+  - type: Explosive
+    explosionType: Default
+    totalIntensity: 25
+    intensitySlope: 5
+    maxIntensity: 10
+    tileBreakScale: 0
+    canCreateVacuum: false
+
+# --- Rock: dense kinetic slug, ignores armor ---
+- type: entity
+  id: AnomalyCoreBulletRock
+  name: petrified slug
+  parent: BaseBullet
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: piercing
+      color: "#5ca8cb"
+  - type: Projectile
+    damage:
+      types:
+        Blunt: 22
+    ignoreResistances: true
+
+# --- Flesh: barbed thorn, causes bleeding ---
+- type: entity
+  id: AnomalyCoreBulletFlesh
+  name: flesh-bound thorn
+  parent: BaseBullet
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      color: "#cb5b7e"
+  - type: PointLight
+    enabled: true
+    color: "#cb5b7e"
+    radius: 1.5
+    energy: 3.0
+  - type: Projectile
+    damage:
+      types:
+        Slash: 8
+        Bloodloss: 6
+
+# --- Liquid: corrosive splash ---
+- type: entity
+  id: AnomalyCoreBulletLiquid
+  name: corrosive bead
+  parent: BaseBullet
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      color: "#ffffff"
+  - type: Projectile
+    damage:
+      types:
+        Caustic: 14
+
+# --- Bluespace: warps local space around the target ---
+- type: entity
+  id: AnomalyCoreBulletBluespace
+  name: warped fragment
+  parent: BaseBullet
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      shader: unshaded
+      color: "#00ccff"
+  - type: PointLight
+    enabled: true
+    color: "#00ccff"
+    radius: 2.0
+    energy: 5.0
+  - type: Projectile
+    damage:
+      types:
+        Cellular: 10
+
+# --- Flora: toxic spine ---
+- type: entity
+  id: AnomalyCoreBulletFlora
+  name: toxic spine
+  parent: BaseBullet
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      color: "#6270bb"
+  - type: Projectile
+    damage:
+      types:
+        Poison: 12
+
+# --- Shadow: a fragment of solid dark, batters the target's stamina ---
+- type: entity
+  id: AnomalyCoreBulletShadow
+  name: shadow fragment
+  parent: BaseBullet
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      color: "#793a80"
+  - type: Projectile
+    damage:
+      types:
+        Blunt: 6
+  - type: StaminaDamageOnCollide
+    damage: 35
+
+# --- Tech: discharges an EMP burst on impact ---
+- type: entity
+  id: AnomalyCoreBulletTech
+  name: overloaded chip
+  parent: BaseBulletTrigger
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      shader: unshaded
+      color: "#56c1e8"
+  - type: PointLight
+    enabled: true
+    color: "#56c1e8"
+    radius: 2.5
+    energy: 6.0
+  - type: Projectile
+    damage:
+      types:
+        Shock: 5
+  - type: EmpOnTrigger
+    range: 3
+    energyConsumption: 25000
+    disableDuration: 8
+  - type: Ammo
+    muzzleFlash: null
+
+# --- Santa: a festive misfire, mostly harmless ---
+- type: entity
+  id: AnomalyCoreBulletSanta
+  name: festive charge
+  parent: BaseBullet
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Guns/Projectiles/projectiles2.rsi
+    layers:
+    - state: bullet
+      color: "#fc0303"
+  - type: Projectile
+    damage:
+      types:
+        Cold: 3
+        Blunt: 3

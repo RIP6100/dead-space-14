@@ -1,0 +1,145 @@
+- type: entity
+  name: К.О.Н.Г
+  parent: BaseItem
+  id: WeaponKONG
+  suffix: Пистолет
+  description: Конденсатор Ограниченной Нуклонной Генерации. Или же просто "КОНГ". Устройство использует специфику и энергию ядер аномалий для локализированных направленных импульсов, подобных аномальным.
+  components:
+  - type: Sprite
+    sprite: _DeadSpace/Objects/Weapons/Guns/Battery/x01.rsi
+    layers:
+    - state: base
+      map: ["enum.GunVisualLayers.Base"]
+  - type: Item
+    size: Normal
+    sprite: _DeadSpace/Objects/Weapons/Guns/Battery/x01.rsi
+  - type: Gun
+    fireRate: 1
+    selectedMode: SemiAuto
+    availableModes:
+    - SemiAuto
+    soundGunshot:
+      path: /Audio/Weapons/Guns/Gunshots/laser_cannon.ogg
+    soundEmpty:
+      path: /Audio/Weapons/Guns/Empty/empty.ogg
+  - type: AmmoCounter
+  - type: AnomalyCoreAmmoProvider
+    coreSlotId: anomaly_core_slot
+    # energyCost - сколько зарядов ядра тратит один выстрел этим снарядом.
+    # Чем мощнее/опаснее эффект снаряда, тем выше должна быть его стоимость.
+    # Пока ядро ЖИВОЕ (не распалось) заряды не тратятся вообще - см. SharedAnomalyWeaponSystem.
+    # energyCost для активных ядер используется только в момент, когда ядро распадается прямо во время боя.
+    coreToProjectile:
+      # --- Инертные ядра: слабые, ограниченные по числу выстрелов снаряды ---
+      AnomalyCorePyroclasticInert:
+        proto: AnomalyCoreBulletPyroclastic
+        energyCost: 2
+      AnomalyCoreElectricityInert:
+        proto: AnomalyCoreBulletElectricity
+        energyCost: 2
+      AnomalyCoreIceInert:
+        proto: AnomalyCoreBulletIce
+        energyCost: 1
+      AnomalyCoreGravityInert:
+        proto: AnomalyCoreBulletGravity
+        energyCost: 3
+      AnomalyCoreRockInert:
+        proto: AnomalyCoreBulletRock
+        energyCost: 1
+      AnomalyCoreFleshInert:
+        proto: AnomalyCoreBulletFlesh
+        energyCost: 1
+      AnomalyCoreLiquidInert:
+        proto: AnomalyCoreBulletLiquid
+        energyCost: 1
+      AnomalyCoreBluespaceInert:
+        proto: AnomalyCoreBulletBluespace
+        energyCost: 2
+      AnomalyCoreFloraInert:
+        proto: AnomalyCoreBulletFlora
+        energyCost: 1
+      AnomalyCoreShadowInert:
+        proto: AnomalyCoreBulletShadow
+        energyCost: 2
+      AnomalyCoreTechInert:
+        proto: AnomalyCoreBulletTech
+        energyCost: 3
+      AnomalyCoreSantaInert:
+        proto: AnomalyCoreBulletSanta
+        energyCost: 1
+      # --- Активные (ещё не распавшиеся) ядра: мощные уникальные снаряды, бесплатные пока ядро живо ---
+      AnomalyCorePyroclastic:
+        proto: AnomalyCoreBulletPyroclasticActive
+        energyCost: 3
+      AnomalyCoreElectricity:
+        proto: AnomalyCoreBulletElectricityActive
+        energyCost: 3
+      AnomalyCoreIce:
+        proto: AnomalyCoreBulletIceActive
+        energyCost: 2
+      AnomalyCoreGravity:
+        proto: AnomalyCoreBulletGravityActive
+        energyCost: 4
+      AnomalyCoreRock:
+        proto: AnomalyCoreBulletRockActive
+        energyCost: 2
+      AnomalyCoreFlesh:
+        proto: AnomalyCoreBulletFleshActive
+        energyCost: 2
+      AnomalyCoreLiquid:
+        proto: AnomalyCoreBulletLiquidActive
+        energyCost: 2
+      AnomalyCoreBluespace:
+        proto: AnomalyCoreBulletBluespaceActive
+        energyCost: 3
+      AnomalyCoreFlora:
+        proto: AnomalyCoreBulletFloraActive
+        energyCost: 2
+      AnomalyCoreShadow:
+        proto: AnomalyCoreBulletShadowActive
+        energyCost: 3
+      AnomalyCoreTech:
+        proto: AnomalyCoreBulletTechActive
+        energyCost: 4
+      AnomalyCoreSanta:
+        proto: AnomalyCoreBulletSantaActive
+        energyCost: 2
+  - type: ItemSlots
+    slots:
+      anomaly_core_slot:
+        name: anomaly-condenser-core-slot-name
+        insertSound: /Audio/Weapons/Guns/MagIn/batrifle_magin.ogg
+        ejectSound: /Audio/Weapons/Guns/MagOut/pistol_magout.ogg
+        whitelist:
+          components:
+          - AnomalyCore
+  - type: ContainerContainer
+    containers:
+      anomaly_core_slot: !type:ContainerSlot
+  - type: Appearance
+  - type: Tag
+    tags:
+    - Sidearm
+  - type: StaticPrice
+    price: 9500
+  #DS14-Start
+  - type: EmitSoundOnPickup
+    sound:
+      path: /Audio/_DeadSpace/Items/Handing/gun/gun_pickup.ogg
+  - type: EmitSoundOnDrop
+    sound:
+      path: /Audio/_DeadSpace/Items/Handing/gun/gun_drop.ogg
+  - type: EmitSoundOnLand
+    sound:
+      path: /Audio/_DeadSpace/Items/Handing/gun/gun_drop.ogg
+  #DS14-End
+
+
+- type: entity
+  name: тест
+  parent: BaseItem
+  id: WeaponKONGTest
+  suffix: Тест
+  components:
+  - type: Item
+    size: Normal
