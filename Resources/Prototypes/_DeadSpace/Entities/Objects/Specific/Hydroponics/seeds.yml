@@ -7,6 +7,13 @@
       seedId: sakura
     - type: Sprite
       sprite: _DeadSpace/Objects/Specific/Hydroponics/sakura.rsi
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
 
 - type: entity
   parent: SeedBase
@@ -18,6 +25,13 @@
       seedId: tritiumCannabis
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/cannabis.rsi
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 0.5
+      boostDuration: 120
+      pollinationCooldown: 230
+      instantAgeBonus: 10
 
 - type: entity
   parent: SeedBase
@@ -31,11 +45,11 @@
       sprite: _DeadSpace/Objects/Specific/Hydroponics/cactus.rsi
     - type: SeedPollination
       isFlowering: true
-      pollenYield: 20
-      growthSpeedBonus: 0.1
+      pollenYield: 10
+      growthSpeedBonus: 2
       boostDuration: 200
-      pollinationCooldown: 120
-      instantAgeBonus: 0
+      pollinationCooldown: 230
+      instantAgeBonus: 10
 
 - type: entity
   parent: SeedBase
@@ -47,6 +61,13 @@
       seedId: CactusCoralPlant
     - type: Sprite
       sprite: _DeadSpace/Objects/Specific/Hydroponics/cactus_coral.rsi
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 0.5
+      boostDuration: 120
+      pollinationCooldown: 230
+      instantAgeBonus: 10
 
 - type: entity
   parent: SeedBase
@@ -58,6 +79,13 @@
       seedId: CactusBombPlant
     - type: Sprite
       sprite: _DeadSpace/Objects/Specific/Hydroponics/cactus_bomb.rsi
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
 
 - type: entity
   parent: SeedBase
@@ -69,6 +97,13 @@
       seedId: CactusBubblePlant
     - type: Sprite
       sprite: _DeadSpace/Objects/Specific/Hydroponics/cactus_bubble.rsi
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
 
 - type: entity
   parent: SeedBase
@@ -80,3 +115,10 @@
       seedId: MangoPlant
     - type: Sprite
       sprite: _DeadSpace/Objects/Specific/Hydroponics/mango.rsi
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10

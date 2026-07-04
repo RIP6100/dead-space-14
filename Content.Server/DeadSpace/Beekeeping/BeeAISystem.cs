@@ -3,9 +3,10 @@
 using Content.Server.NPC.Components;
 using Content.Server.NPC.HTN;
 using Content.Server.NPC.Systems;
-using Content.Shared.NPC;
 using Content.Shared.DeadSpace.Beekeeping;
 using Content.Shared.DoAfter;
+using Content.Shared.NPC;
+using Content.Shared.NPC.Components;
 using Robust.Server.GameObjects;
 using Robust.Shared.GameObjects;
 
@@ -16,44 +17,47 @@ public sealed class BeeAISystem : EntitySystem
     [Dependency] private readonly TransformSystem _transform = default!;
     [Dependency] private readonly SharedDoAfterSystem _doAfter = default!;
     [Dependency] private readonly NPCSteeringSystem _npcSteering = default!;
+    [Dependency] private readonly BeeHiveSystem _beeHive = default!;
 
     public override void Initialize()
     {
         base.Initialize();
-        SubscribeLocalEvent<BeeComponent, ComponentStartup>(OnBeeStartup);
+        SubscribeLocalEvent<BeeComponent, MapInitEvent>(OnBeeMapInit);
         SubscribeLocalEvent<BeeComponent, ComponentShutdown>(OnBeeShutdown);
         SubscribeLocalEvent<BeeComponent, BeePollinatingDoAfterEvent>(OnPollinatingDoAfter);
         SubscribeLocalEvent<BeeComponent, BeeDepositingDoAfterEvent>(OnDepositingDoAfter);
     }
 
     /// <summary>
-    /// Помечаем пчелу как активный NPC, чтобы её обрабатывал NPCSteeringSystem
-    /// (без этого компонента движок вообще не будет её двигать через физику/пафайндинг).
-    /// Также снимаем унаследованный от SimpleSpaceMobBase компонент HTN - иначе
-    /// встроенный ИИ (даже с IdleCompound) будет сам дёргать NPCSteeringSystem
-    /// параллельно с нашим BeeAISystem, что приводит к конфликтам за управление движением.
+    /// Настройка пчелы при появлении на карте:
+    ///  1. Вешаем ActiveNPCComponent - без него NPCSteeringSystem не двигает сущность.
+    ///  2. Снимаем унаследованный от SimpleSpaceMobBase компонент HTN.
+    ///
+    /// Почему RemComp, а не чистое yaml-наследование: движок RobustToolbox НЕ умеет
+    /// "вычитать" компонент родителя в дочернем прототипе. MobBee наследует HTN от
+    /// SimpleSpaceMobBase (ради здоровья/крови/атмосферы), и убрать только HTN в yaml,
+    /// сохранив остальное, нельзя. Снятие в рантайме - штатный приём SS14 для таких
+    /// случаев. Без этого встроенный ИИ (HTN) параллельно с нашим BeeAISystem дёргал бы
+    /// NPCSteeringSystem, и две системы конфликтовали бы за управление движением
+    /// (симптом: пчела "залипает" на месте - см. историю багов).
+    ///
+    /// MapInitEvent (а не ComponentStartup) - чтобы удаление гарантированно произошло
+    /// после полной сборки сущности из прототипа, когда HTN уже добавлен.
     /// </summary>
-    private void OnBeeStartup(EntityUid uid, BeeComponent bee, ComponentStartup args)
+    private void OnBeeMapInit(EntityUid uid, BeeComponent bee, MapInitEvent args)
     {
         EnsureComp<ActiveNPCComponent>(uid);
         RemComp<HTNComponent>(uid);
     }
 
     /// <summary>
-    /// При удалении пчелы снимаем регистрацию в NPCSteeringSystem и освобождаем
-    /// слот в счётчике пчёл её улья (иначе улей упрётся в MaxBees и перестанет
-    /// плодить новых пчёл после гибели старых).
+    /// При удалении пчелы снимаем регистрацию в NPCSteeringSystem.
+    /// (Счётчик пчёл улья больше не хранится - он вычисляется запросом в BeeHiveSystem,
+    /// поэтому уменьшать здесь ничего не нужно.)
     /// </summary>
     private void OnBeeShutdown(EntityUid uid, BeeComponent bee, ComponentShutdown args)
     {
         _npcSteering.Unregister(uid);
-
-        if (bee.HiveOwner is { } hiveUid &&
-            TryComp<BeeHiveComponent>(hiveUid, out var hive) &&
-            hive.BeeCount > 0)
-        {
-            hive.BeeCount--;
-        }
     }
 
     public override void Update(float frameTime)
@@ -97,6 +101,25 @@ public sealed class BeeAISystem : EntitySystem
 
         bee.State = newState;
         bee.StateTimer = 0f;
+    }
+
+    /// <summary>
+    /// Публичный API: приказать пчеле немедленно вернуться к улью.
+    /// Используется, например, BeeHiveSystem при извлечении матки, чтобы не менять
+    /// состояние пчелы напрямую из чужой системы (переход идёт через SetState, который
+    /// корректно отменяет DoAfter и снимает steering - логика перехода в одном месте).
+    /// Пчёл, уже находящихся дома или на пути домой, не трогаем.
+    /// </summary>
+    public void RecallToHive(EntityUid uid, BeeComponent? bee = null)
+    {
+        if (!Resolve(uid, ref bee, false))
+            return;
+
+        if (bee.State is BeeState.Idle or BeeState.ReturningToHive or BeeState.DepositingPollen)
+            return;
+
+        bee.TargetFlower = null;
+        SetState(uid, bee, BeeState.ReturningToHive);
     }
 
     /// <summary>
@@ -154,6 +177,10 @@ public sealed class BeeAISystem : EntitySystem
             return;
 
         if (!HasValidHive(uid, bee))
+            return;
+
+        // Не вылетаем, пока улей не активен (в нём нет матки).
+        if (!_beeHive.IsActive(bee.HiveOwner!.Value))
             return;
 
         SetState(uid, bee, BeeState.SearchingFlower);
@@ -299,18 +326,35 @@ public sealed class BeeAISystem : EntitySystem
         if (!HasValidHive(uid, bee))
             return;
 
-        // Защита от вечного зависания, если улей вдруг стал труднодостижим —
-        // periodically сбрасываем таймер, чтобы steering пересчитал путь.
-        if (bee.StateTimer > bee.MaxMovingTime)
-            bee.StateTimer = 0f;
-
         if (DistanceTo(bee.HiveOwner!.Value, xform) < bee.ArrivalThreshold)
         {
             SetState(uid, bee, BeeState.DepositingPollen);
             return;
         }
 
-        _npcSteering.TryRegister(uid, Transform(bee.HiveOwner.Value).Coordinates);
+        var targetCoords = Transform(bee.HiveOwner.Value).Coordinates;
+
+        // Если steering потерял путь (NoPath) или пчела слишком долго висит - принудительно
+        // перерегистрируем через Register (TryRegister не сработает: координаты улья не меняются,
+        // а он выходит раньше, если Coordinates те же). Это перезапускает поиск пути.
+        if (bee.StateTimer > bee.MaxMovingTime || SteeringLostPath(uid))
+        {
+            bee.StateTimer = 0f;
+            _npcSteering.Unregister(uid);
+            _npcSteering.Register(uid, targetCoords);
+            return;
+        }
+
+        _npcSteering.TryRegister(uid, targetCoords);
+    }
+
+    /// <summary>
+    /// Проверяет, потерял ли steering путь к цели (нужна перерегистрация).
+    /// </summary>
+    private bool SteeringLostPath(EntityUid uid)
+    {
+        return TryComp<NPCSteeringComponent>(uid, out var steering) &&
+               steering.Status == SteeringStatus.NoPath;
     }
 
     private void TickDepositing(EntityUid uid, BeeComponent bee, TransformComponent xform)

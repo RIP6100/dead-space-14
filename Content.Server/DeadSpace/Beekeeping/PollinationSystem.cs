@@ -26,11 +26,12 @@ public sealed class PollinationSystem : EntitySystem
         SubscribeLocalEvent<PollinationComponent, PlantPollinatedEvent>(OnPlantPollinated);
         SubscribeLocalEvent<PollinationComponent, CanPollinateEvent>(OnCanPollinate);
         SubscribeLocalEvent<PollinationComponent, ExaminedEvent>(OnExamined);
-        // Широковещательная подписка (не привязанная к компоненту): штатный
-        // PlantHolderSystem уже держит directed-подписку на InteractUsing у лотка,
-        // а движок не допускает двух directed-подписок на одну пару компонент+событие.
-        // Broadcast регистрируется в отдельной таблице и не конфликтует. Ранний return
-        // делает её дешёвой даже при частых взаимодействиях на станции.
+        // Broadcast-подписка (не directed). Причина: посадку семени обрабатывает штатный
+        // PlantHolderSystem через directed InteractUsing на лотке и помечает событие Handled,
+        // из-за чего AfterInteract на семени не поднимается. А вторую directed-подписку на
+        // ту же пару (PlantHolderComponent + InteractUsing) движок не разрешает. Поэтому
+        // ловим InteractUsing широковещательно и отсеиваем чужое ранними проверками -
+        // самый дешёвый отсев (наличие SeedPollinationComponent на Used) стоит первым.
         SubscribeLocalEvent<InteractUsingEvent>(OnInteractUsing);
     }
 
@@ -63,18 +64,29 @@ public sealed class PollinationSystem : EntitySystem
     }
 
     /// <summary>
-    /// При посадке семени с SeedPollinationComponent в лоток — копируем параметры опыления.
-    /// Широковещательный обработчик: сначала отсеиваем всё, что не относится к нашему семени/лотку.
+    /// Когда игрок тыкает семенем (с SeedPollinationComponent) в лоток с растением -
+    /// копируем параметры опыления с семени на лоток как PollinationComponent.
+    /// Broadcast: срабатывает на любое InteractUsing, поэтому сразу отсеиваем чужое.
     /// </summary>
     private void OnInteractUsing(InteractUsingEvent args)
     {
-        if (!HasComp<PlantHolderComponent>(args.Target))
-            return;
-
+        // Самый дешёвый отсев первым: наш ли это предмет-семя.
         if (!TryComp<SeedPollinationComponent>(args.Used, out var seedPoll))
             return;
 
-        var pollination = EnsureComp<PollinationComponent>(args.Target);
+        // Цель должна быть лотком с растением.
+        if (!HasComp<PlantHolderComponent>(args.Target))
+            return;
+
+        ApplySeedToPlant(args.Target, seedPoll);
+    }
+
+    /// <summary>
+    /// Переносит параметры опыления с семени на лоток и сбрасывает служебное состояние.
+    /// </summary>
+    private void ApplySeedToPlant(EntityUid plant, SeedPollinationComponent seedPoll)
+    {
+        var pollination = EnsureComp<PollinationComponent>(plant);
         pollination.IsFlowering = seedPoll.IsFlowering;
         pollination.PollenYield = seedPoll.PollenYield;
         pollination.GrowthSpeedBonus = seedPoll.GrowthSpeedBonus;

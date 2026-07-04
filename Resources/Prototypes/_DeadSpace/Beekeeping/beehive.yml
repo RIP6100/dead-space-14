@@ -3,15 +3,24 @@
   name: пчелиная пасека
   description: Деревянная пасека. Пчёлы живут в ней, делая воск и мёд для ваших странных нужд.
   components:
-  - type: Clickable 
+  - type: Clickable
   - type: Sprite
     sprite: _DeadSpace/Beekeeping/beehive.rsi
     state: idle
   - type: BeeHive
     pollenPerHoney: 10
-    waxPerHoney: 0.5
-    productionInterval: 10
-    maxFrames: 6
+    productionInterval: 15
+    maxBees: 3
+    spawnInterval: 15
+  # Слот для матки. Улей работает только когда матка вставлена.
+  - type: ItemSlots
+    slots:
+      queen_slot:
+        name: Матка
+        whitelist:
+          components:
+          - QueenBee
+        insertSound: /Audio/Effects/Fluids/splat.ogg
   - type: Transform
     anchored: true
   - type: Storage
@@ -58,38 +67,3 @@
   - type: Damageable
     damageModifierSet: Wood
     damageContainer: StructuralInorganic
-
-- type: entity
-  id: BeeHive
-  name: beehive-name
-  description: beehive-desc
-  components:
-  - type: Sprite
-    sprite: _DeadSpace/Beekeeping/beehive.rsi
-    state: idle
-  - type: BeeHive
-    pollenPerHoney: 10
-    waxPerHoney: 0.5
-    productionInterval: 10
-    maxFrames: 6
-  - type: Storage
-    grid:
-    - 0,0,2,1
-    - 0,2,2,3
-    - 0,4,2,5
-    maxItemSize: Normal
-  - type: Clickable
-  - type: InteractionOutline
-  - type: Fixtures
-    fixtures:
-      fix1:
-        shape:
-          !type:PhysShapeAabb
-          bounds: "-0.45,-0.45,0.45,0.45"
-        density: 55
-        mask:
-        - TableMask
-        layer:
-        - TableLayer
-  - type: Physics
-    bodyType: Static

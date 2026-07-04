@@ -45,6 +45,15 @@
       seedId: wheat
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/wheat.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true # True - цветок готов к опылению. False - не опыляется
+      pollenYield: 10 # Количество пыльцы, которое даётся пчеле за опыление
+      growthSpeedBonus: 3 # Бонус к скрости роста. 0.5 = 50%, 3 = 300% 
+      boostDuration: 200 # Длительность бонуса
+      pollinationCooldown: 230 # Кулдаун после опыления
+      instantAgeBonus: 10 # Моментальный прирост к возрасту растения
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -56,6 +65,15 @@
       seedId: meatwheat
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/meatwheat.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1.5
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -66,6 +84,15 @@
       seedId: oat
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/oat.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -76,6 +103,15 @@
       seedId: banana
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/banana.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -86,6 +122,15 @@
       seedId: mimana
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/mimana.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 160
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -96,6 +141,15 @@
       seedId: carrots
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/carrot.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -106,6 +160,15 @@
       seedId: cabbage
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/cabbage.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -116,6 +179,15 @@
       seedId: garlic
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/garlic.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -127,6 +199,15 @@
       seedId: laughinPea
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/laughin_pea.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 160
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -137,6 +218,15 @@
       seedId: lemon
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/lemon.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -147,6 +237,15 @@
       seedId: lemoon
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/lemoon.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -157,6 +256,15 @@
       seedId: lime
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/lime.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -167,6 +275,15 @@
       seedId: orange
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/orange.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -178,6 +295,15 @@
       seedId: extradimensionalOrange
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/extradimensional_orange.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 0.5
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -188,6 +314,15 @@
       seedId: pineapple
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/pineapple.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -198,6 +333,15 @@
       seedId: potato
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/potato.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -208,6 +352,15 @@
       seedId: sugarcane
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/sugarcane.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -218,6 +371,15 @@
       seedId: teaPlant
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/tea_plant.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -228,6 +390,15 @@
       seedId: papercane
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/papercane.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -238,6 +409,15 @@
       seedId: towercap
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/towercap.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1.5
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -248,6 +428,15 @@
       seedId: steelcap
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/steelcap.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1.5
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -258,6 +447,15 @@
       seedId: tomato
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/tomato.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -268,6 +466,15 @@
       seedId: blueTomato
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/blue_tomato.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -278,6 +485,15 @@
       seedId: bloodTomato
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/blood_tomato.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -288,6 +504,15 @@
       seedId: killerTomato
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/tomatokiller.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 0.5
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -298,6 +523,15 @@
       seedId: eggplant
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/eggplant.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -308,6 +542,15 @@
       seedId: apple
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/apple.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -318,6 +561,15 @@
       seedId: goldenApple
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/golden_apple.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -328,6 +580,15 @@
       seedId: corn
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/corn.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -338,6 +599,15 @@
       seedId: chanterelle
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/chanterelle.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -348,6 +618,15 @@
       seedId: eggy
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/eggy.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -359,6 +638,15 @@
       seedId: tobacco
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/tobacco.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -370,6 +658,15 @@
       seedId: cannabis
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/cannabis.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -381,6 +678,15 @@
       seedId: rainbowCannabis
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/rainbow_cannabis.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 130
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -392,6 +698,15 @@
       seedId: nettle
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/nettle.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 120
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -403,6 +718,15 @@
       seedId: deathNettle
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/death_nettle.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 0.5
+      boostDuration: 120
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -414,6 +738,15 @@
       seedId: chili
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/chili.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -425,6 +758,15 @@
       seedId: chilly
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/chilly.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -436,6 +778,15 @@
       seedId: aloe
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/aloe.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -447,6 +798,15 @@
       seedId: poppy
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/poppy.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -458,6 +818,15 @@
       seedId: lily
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/lily.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -469,6 +838,15 @@
       seedId: lingzhi
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/lingzhi.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -480,6 +858,15 @@
       seedId: ambrosiaVulgaris
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/ambrosia_vulgaris.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -491,6 +878,15 @@
       seedId: ambrosiaDeus
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/ambrosia_deus.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1.5
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -502,6 +898,15 @@
       seedId: galaxythistle
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/galaxythistle.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -513,6 +918,15 @@
       seedId: glasstle
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/glasstle.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1.5
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -524,6 +938,15 @@
       seedId: flyAmanita
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/fly_amanita.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1.5
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: [SeedBase, BaseSyndicateContraband]
@@ -535,6 +958,15 @@
       seedId: gatfruit
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/gatfruit.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 120
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -546,6 +978,15 @@
       seedId: onion
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/onion.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -556,6 +997,15 @@
       seedId: rice
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/rice.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -566,6 +1016,15 @@
       seedId: soybeans
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/soybeans.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -576,6 +1035,15 @@
       seedId: spacemansTrumpet
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/spacemans_trumpet.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -586,6 +1054,15 @@
       seedId: koibean
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/koibean.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -597,6 +1074,15 @@
       seedId: onionred
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/onion_red.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -607,6 +1093,15 @@
       seedId: watermelon
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/watermelon.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -617,6 +1112,15 @@
       seedId: holymelon
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/holymelon.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -627,6 +1131,15 @@
       seedId: grape
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/grape.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -637,6 +1150,15 @@
       seedId: cocoa
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/cocoa.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -647,6 +1169,15 @@
       seedId: berries
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/berries.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -658,6 +1189,15 @@
       seedId: bungo
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/bungo.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -669,6 +1209,15 @@
       seedId: pea
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/pea.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -680,6 +1229,15 @@
       seedId: worldPea
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/world_pea.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 120
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -690,6 +1248,15 @@
       seedId: pumpkin
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/pumpkin.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -700,6 +1267,15 @@
       seedId: bluePumpkin
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/blue_pumpkin.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 2
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -710,6 +1286,15 @@
       seedId: cotton
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/cotton.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -720,6 +1305,15 @@
       seedId: pyrotton
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/pyrotton.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -731,6 +1325,15 @@
       seedId: realCapfruit
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/capfruit.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: RealCapfruitSeeds
@@ -739,6 +1342,15 @@
   components:
     - type: Seed
       seedId: fakeCapfruit
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -749,6 +1361,15 @@
       seedId: cherry
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/cherry.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 3
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -759,6 +1380,15 @@
       seedId: anomalyBerry
     - type: Sprite
       sprite: Objects/Specific/Hydroponics/anomaly_berry.rsi
+    # DS14-start
+    - type: SeedPollination
+      isFlowering: true
+      pollenYield: 10
+      growthSpeedBonus: 1.5
+      boostDuration: 200
+      pollinationCooldown: 230
+      instantAgeBonus: 10
+    # DS14-end
 
 - type: entity
   parent: SeedBase
@@ -769,3 +1399,12 @@
     seedId: bloonion
   - type: Sprite
     sprite: Objects/Specific/Hydroponics/bloonion.rsi
+  # DS14-start
+  - type: SeedPollination
+    isFlowering: true
+    pollenYield: 10
+    growthSpeedBonus: 1
+    boostDuration: 200
+    pollinationCooldown: 230
+    instantAgeBonus: 10
+    # DS14-end

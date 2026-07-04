@@ -1,0 +1,11 @@
+- type: entity
+  id: QueenBee
+  name: пчелиная матка
+  description: Сердце пасеки. Пока она внутри улья — рой работает.
+  components:
+  - type: Sprite
+    sprite: Mobs/Animals/bee.rsi   # заменить на свой спрайт матки при наличии
+    state: 0
+  - type: Item
+    size: Small
+  - type: QueenBee

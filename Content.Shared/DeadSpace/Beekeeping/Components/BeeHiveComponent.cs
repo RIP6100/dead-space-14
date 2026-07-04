@@ -20,14 +20,6 @@ public sealed partial class BeeHiveComponent : Component
     [DataField]
     public float PollenPerHoney = 10f;
 
-    // Соотношение воска к мёду
-    [DataField]
-    public float WaxPerHoney = 0.5f;
-
-    // Максимум рамок
-    [DataField]
-    public int MaxFrames = 6;
-
     // Интервал производства мёда
     [DataField]
     public float ProductionInterval = 10f;
@@ -35,13 +27,18 @@ public sealed partial class BeeHiveComponent : Component
     [DataField]
     public float ProductionTimer = 0f;
 
-    // Активен ли улей
+    /// <summary>
+    /// ID слота матки. Сам слот объявлен через компонент ItemSlots в прототипе улья.
+    /// Улей активен (спавнит пчёл и производит мёд) только когда в этом слоте
+    /// находится матка - она работает как "батарейка".
+    /// </summary>
     [DataField]
-    public bool Active = true;
+    public string QueenSlotId = "queen_slot";
 
     // === ПЧЁЛЫ ===
-    [DataField]
-    public int BeeCount = 0;
+    // Текущее число живых пчёл НЕ хранится здесь - оно вычисляется в BeeHiveSystem
+    // подсчётом сущностей с BeeComponent, у которых HiveOwner == этот улей.
+    // Так счётчик не может разойтись с реальностью (гибель, удаление и т.п.).
 
     [DataField]
     public int MaxBees = 5;
