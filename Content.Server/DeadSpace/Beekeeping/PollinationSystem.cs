@@ -1,3 +1,4 @@
+// Мёртвый Космос, Licensed under custom terms with restrictions on public hosting and commercial use, full text: https://raw.githubusercontent.com/dead-space-server/space-station-14-fobos/master/LICENSE.TXT
 
 using Content.Server.Botany.Components;
 using Content.Server.Botany.Systems;
@@ -5,8 +6,8 @@ using Content.Server.Popups;
 using Content.Shared.DeadSpace.Beekeeping;
 using Content.Shared.Examine;
 using Content.Shared.Interaction;
-using Robust.Server.GameObjects;
 using Robust.Shared.Audio.Systems;
+using Robust.Shared.Player;
 using Robust.Shared.Timing;
 
 namespace Content.Server.DeadSpace.Beekeeping;
@@ -25,52 +26,53 @@ public sealed class PollinationSystem : EntitySystem
         SubscribeLocalEvent<PollinationComponent, PlantPollinatedEvent>(OnPlantPollinated);
         SubscribeLocalEvent<PollinationComponent, CanPollinateEvent>(OnCanPollinate);
         SubscribeLocalEvent<PollinationComponent, ExaminedEvent>(OnExamined);
-        SubscribeLocalEvent<InteractUsingEvent>(OnInteractUsing); // ← глобальная подписка
+        // Широковещательная подписка (не привязанная к компоненту): штатный
+        // PlantHolderSystem уже держит directed-подписку на InteractUsing у лотка,
+        // а движок не допускает двух directed-подписок на одну пару компонент+событие.
+        // Broadcast регистрируется в отдельной таблице и не конфликтует. Ранний return
+        // делает её дешёвой даже при частых взаимодействиях на станции.
+        SubscribeLocalEvent<InteractUsingEvent>(OnInteractUsing);
     }
 
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
 
-        var plantQuery = EntityQueryEnumerator<PlantHolderComponent>();
-        while (plantQuery.MoveNext(out var uid, out var plantHolder))
-        {
-            if (plantHolder.Seed == null || plantHolder.Dead)
-            {
-                if (HasComp<PollinationComponent>(uid))
-                    RemComp<PollinationComponent>(uid);
-                continue;
-            }
-        }
-
+        var curTime = _gameTiming.CurTime;
         var query = EntityQueryEnumerator<PollinationComponent>();
         while (query.MoveNext(out var uid, out var pollination))
         {
+            // Если растение погибло/выкопано — снимаем компонент.
+            if (!TryComp<PlantHolderComponent>(uid, out var plantHolder) ||
+                plantHolder.Seed == null ||
+                plantHolder.Dead)
+            {
+                RemCompDeferred<PollinationComponent>(uid);
+                continue;
+            }
+
             if (!pollination.IsFlowering)
                 continue;
 
-            if (pollination.CurrentGrowthMultiplier > 1f &&
-                _gameTiming.CurTime >= pollination.BoostEndTime)
-            {
-                ResetGrowthBoost(uid, pollination);
-            }
+            if (pollination.CurrentGrowthMultiplier > 1f && curTime >= pollination.BoostEndTime)
+                ResetGrowthBoost(pollination);
 
-            if (pollination.WasPollinated &&
-                _gameTiming.CurTime >= pollination.NextPollinationAvailable)
-            {
+            if (pollination.WasPollinated && curTime >= pollination.NextPollinationAvailable)
                 pollination.WasPollinated = false;
-            }
         }
     }
 
     /// <summary>
-    /// Глобальный обработчик: когда игрок использует предмет на сущности.
-    /// Если это семя с SeedPollinationComponent на лоток — копируем параметры.
+    /// При посадке семени с SeedPollinationComponent в лоток — копируем параметры опыления.
+    /// Широковещательный обработчик: сначала отсеиваем всё, что не относится к нашему семени/лотку.
     /// </summary>
     private void OnInteractUsing(InteractUsingEvent args)
     {
-        if (!TryComp<PlantHolderComponent>(args.Target, out var plantHolder)) return;
-        if (!TryComp<SeedPollinationComponent>(args.Used, out var seedPoll)) return;
+        if (!HasComp<PlantHolderComponent>(args.Target))
+            return;
+
+        if (!TryComp<SeedPollinationComponent>(args.Used, out var seedPoll))
+            return;
 
         var pollination = EnsureComp<PollinationComponent>(args.Target);
         pollination.IsFlowering = seedPoll.IsFlowering;
@@ -110,7 +112,7 @@ public sealed class PollinationSystem : EntitySystem
         _popup.PopupEntity(
             Loc.GetString("pollination-success-popup"),
             uid,
-            Robust.Shared.Player.Filter.Pvs(uid),
+            Filter.Pvs(uid),
             true);
     }
 
@@ -120,25 +122,19 @@ public sealed class PollinationSystem : EntitySystem
         pollination.BoostEndTime = _gameTiming.CurTime + TimeSpan.FromSeconds(pollination.BoostDuration);
 
         if (pollination.InstantAgeBonus > 0)
-        {
             _plantHolder.AffectGrowth(uid, pollination.InstantAgeBonus, plantHolder);
-        }
 
         var newCycleDelay = TimeSpan.FromSeconds(
             plantHolder.CycleDelay.TotalSeconds / pollination.CurrentGrowthMultiplier);
 
         var timeReduction = plantHolder.CycleDelay - newCycleDelay;
         if (plantHolder.LastCycle + timeReduction < _gameTiming.CurTime)
-        {
             plantHolder.LastCycle = _gameTiming.CurTime - newCycleDelay;
-        }
         else
-        {
             plantHolder.LastCycle += timeReduction;
-        }
     }
 
-    private void ResetGrowthBoost(EntityUid uid, PollinationComponent pollination)
+    private static void ResetGrowthBoost(PollinationComponent pollination)
     {
         pollination.CurrentGrowthMultiplier = 1f;
         pollination.BoostEndTime = TimeSpan.Zero;
@@ -157,7 +153,6 @@ public sealed class PollinationSystem : EntitySystem
         {
             args.CanPollinate = false;
             args.Reason = "pollination-cooldown";
-            return;
         }
     }
 
@@ -178,32 +173,38 @@ public sealed class PollinationSystem : EntitySystem
             if (remaining > 0)
             {
                 args.PushMarkup(Loc.GetString("pollination-examine-boosted",
-                    ("multiplier", (int)(pollination.GrowthSpeedBonus * 100)),
-                    ("time", (int)remaining)));
+                    ("multiplier", (int) (pollination.GrowthSpeedBonus * 100)),
+                    ("time", (int) remaining)));
             }
             else
             {
                 args.PushMarkup(Loc.GetString("pollination-examine-pollinated"));
             }
         }
-        else if (pollination.IsFlowering)
+        else
         {
             args.PushMarkup(Loc.GetString("pollination-examine-flowering"));
         }
     }
 
+    /// <summary>
+    /// Публичный API: опылить растение от имени пчелы.
+    /// </summary>
     public void PollinatePlant(EntityUid uid, EntityUid beeUid, float pollenAmount)
     {
-        if (!TryComp<PollinationComponent>(uid, out var pollination))
+        if (!HasComp<PollinationComponent>(uid))
             return;
 
         var ev = new PlantPollinatedEvent(beeUid, pollenAmount);
         RaiseLocalEvent(uid, ref ev);
     }
 
+    /// <summary>
+    /// Публичный API: можно ли опылить данное растение.
+    /// </summary>
     public bool CanPollinate(EntityUid uid)
     {
-        if (!TryComp<PollinationComponent>(uid, out var pollination))
+        if (!HasComp<PollinationComponent>(uid))
             return false;
 
         var ev = new CanPollinateEvent();

@@ -3,9 +3,9 @@
 using Robust.Shared.GameObjects;
 using Robust.Shared.Serialization.Manager.Attributes;
 using Robust.Shared.ViewVariables;
- 
+
 namespace Content.Shared.DeadSpace.Beekeeping;
- 
+
 public enum BeeState
 {
     Idle,
@@ -15,60 +15,70 @@ public enum BeeState
     ReturningToHive,
     DepositingPollen
 }
- 
+
 [RegisterComponent]
 public sealed partial class BeeComponent : Component
 {
+    /// <summary>
+    /// Улей, которому принадлежит пчела. Задаётся при спавне из BeeHiveSystem.
+    /// </summary>
     [DataField, ViewVariables(VVAccess.ReadWrite)]
     public EntityUid? HiveOwner;
- 
+
     [DataField, ViewVariables(VVAccess.ReadWrite)]
     public BeeState State = BeeState.Idle;
- 
+
     [DataField, ViewVariables(VVAccess.ReadWrite)]
     public EntityUid? TargetFlower;
- 
+
     [DataField, ViewVariables(VVAccess.ReadWrite)]
     public float PollenCarried = 0f;
- 
+
     [DataField, ViewVariables(VVAccess.ReadWrite)]
     public float MaxPollenCarry = 20f;
- 
+
+    /// <summary>
+    /// Сколько секунд пчела ждёт в Idle перед новым вылетом.
+    /// </summary>
     [DataField, ViewVariables(VVAccess.ReadWrite)]
     public float IdleCooldown = 5f;
- 
+
+    /// <summary>
+    /// Радиус поиска цветков вокруг пчелы.
+    /// </summary>
     [DataField, ViewVariables(VVAccess.ReadWrite)]
     public float SearchRadius = 15f;
- 
+
     /// <summary>
     /// Расстояние, на котором пчела считается "прибывшей" к цели.
-    /// Увеличено с 0.1f до 0.5f для надёжной работы с физическим движком.
     /// </summary>
     [DataField, ViewVariables(VVAccess.ReadWrite)]
     public float ArrivalThreshold = 0.5f;
- 
+
     /// <summary>
-    /// Скорость движения пчелы (единиц в секунду).
-    /// Передаётся в SetLinearVelocity вместо хардкоженного значения.
-    /// </summary>
-    [DataField, ViewVariables(VVAccess.ReadWrite)]
-    public float MoveSpeed = 3f;
- 
-    /// <summary>
-    /// Максимальное время (в секундах) для достижения цели.
-    /// Если пчела не добралась за это время — считаем, что застряла.
-    /// Должно быть > SearchRadius / MoveSpeed с запасом.
-    /// По умолчанию: 15 / 3 * 2 = 10 секунд (2x запас).
+    /// Максимальное время (в секундах) на достижение цели.
+    /// Если пчела не добралась за это время — считаем, что застряла, и ищем другую цель.
+    /// Скорость самого движения задаётся через MovementSpeedModifierComponent
+    /// (baseSprintSpeed) в прототипе, а не здесь — им управляет NPCSteeringSystem.
     /// </summary>
     [DataField, ViewVariables(VVAccess.ReadWrite)]
     public float MaxMovingTime = 10f;
- 
+
+    /// <summary>
+    /// Длительность опыления одного цветка (сек).
+    /// </summary>
     [DataField, ViewVariables(VVAccess.ReadWrite)]
-    public float StateTimer = 0f;
- 
+    public float PollinatingDuration = 2f;
+
+    /// <summary>
+    /// Длительность сдачи пыльцы в улей (сек).
+    /// </summary>
     [DataField, ViewVariables(VVAccess.ReadWrite)]
     public float DepositingDuration = 1.5f;
- 
+
+    [DataField, ViewVariables(VVAccess.ReadWrite)]
+    public float StateTimer = 0f;
+
     /// <summary>
     /// Пчела занята DoAfter процессом (опыление или сдача пыльцы).
     /// Блокирует движение и обновление состояния.
