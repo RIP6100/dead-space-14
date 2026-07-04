@@ -9,6 +9,7 @@
     - id: SalvageShuttleConsoleCircuitboard #DS14
     - id: CigPackGreen
       prob: 0.50
+    - id: ClothingOuterHardsuitQM # DS14
     - id: ClothingHeadsetAltCargo
     - id: DoorRemoteCargo
     - id: AstroNavCartridge
@@ -51,7 +52,7 @@
     - id: WeaponDisabler
 #    - id: ClothingEyesGlassesCommand #DS14
     - id: ADTtelescopicBaton # ADT
-    - id: ClothingEyesHudAdvanced # DS14
+    - id: ClothingEyesHudCaptain # DS14: CaptainResprite
     - id: HeadSkeleton # A skull to accompany your skeleton crew
       conditions:
       - !type:PlayerCountCondition
@@ -178,8 +179,14 @@
 #    - id: MetalFoamGrenade #DS14
     - id: ADTtelescopicBaton # ADT
     - id: TabletPowerMonitoring #DS14
+    - id: EnergySellerMachineCircuitboard #DS14
     - id: PlushieLizardJobChiefengineer
       prob: 0.02
+#DS14-start
+    - id: ObeliskStoper
+    - id: ObeliskStoper
+    - id: SMObeliskFlatpack
+#DS14-end
 
 # Hardsuit table, used for suit storage as well
 - type: entityTable
