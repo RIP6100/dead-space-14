@@ -35,7 +35,6 @@ public sealed partial class BeeHiveComponent : Component
     [DataField]
     public string QueenSlotId = "queen_slot";
 
-    // === ПЧЁЛЫ ===
     // Текущее число живых пчёл НЕ хранится здесь - оно вычисляется в BeeHiveSystem
     // подсчётом сущностей с BeeComponent, у которых HiveOwner == этот улей.
     // Так счётчик не может разойтись с реальностью (гибель, удаление и т.п.).
