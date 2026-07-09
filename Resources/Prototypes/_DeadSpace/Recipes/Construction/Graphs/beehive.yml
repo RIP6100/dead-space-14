@@ -1,0 +1,27 @@
+
+- type: constructionGraph
+  id: BeeHiveGraph
+  start: start
+  graph:
+    - node: start
+      actions:
+        - !type:DestroyEntity {}
+      edges:
+        - to: beehive
+          completed:
+            - !type:SnapToGrid { }
+          steps:
+            - material: WoodPlank
+              amount: 5
+              doAfter: 4
+    - node: beehive
+      entity: BeeHive
+      edges:
+        - to: start
+          completed:
+            - !type:SpawnPrototype
+              prototype: MaterialWoodPlank
+              amount: 5
+          steps:
+            - tool: Prying
+              doAfter: 4

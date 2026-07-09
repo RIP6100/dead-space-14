@@ -56,7 +56,7 @@ public sealed class PollinationSystem : EntitySystem
                 continue;
 
             if (pollination.CurrentGrowthMultiplier > 1f && curTime >= pollination.BoostEndTime)
-                ResetGrowthBoost(pollination);
+                ResetGrowthBoost(uid, pollination, plantHolder);
 
             if (pollination.WasPollinated && curTime >= pollination.NextPollinationAvailable)
                 pollination.WasPollinated = false;
@@ -94,11 +94,13 @@ public sealed class PollinationSystem : EntitySystem
         pollination.PollinationCooldown = seedPoll.PollinationCooldown;
         pollination.InstantAgeBonus = seedPoll.InstantAgeBonus;
         pollination.PollinationSound = seedPoll.PollinationSound;
+        pollination.PotencyBonus = seedPoll.PotencyBonus;
 
         pollination.WasPollinated = false;
         pollination.NextPollinationAvailable = TimeSpan.Zero;
         pollination.CurrentGrowthMultiplier = 1f;
         pollination.BoostEndTime = TimeSpan.Zero;
+        pollination.AppliedPotencyDelta = 0f;
     }
 
     private void OnPlantPollinated(EntityUid uid, PollinationComponent pollination, ref PlantPollinatedEvent args)
@@ -133,6 +135,10 @@ public sealed class PollinationSystem : EntitySystem
         pollination.CurrentGrowthMultiplier = 1f + pollination.GrowthSpeedBonus;
         pollination.BoostEndTime = _gameTiming.CurTime + TimeSpan.FromSeconds(pollination.BoostDuration);
 
+        // Повышаем потенцию плодов. Если буст перезаписывается повторным опылением,
+        // прошлая прибавка сначала снимается внутри ApplyPotencyBonus (чтобы не копилась).
+        ApplyPotencyBonus(uid, pollination, plantHolder);
+
         if (pollination.InstantAgeBonus > 0)
             _plantHolder.AffectGrowth(uid, pollination.InstantAgeBonus, plantHolder);
 
@@ -146,10 +152,61 @@ public sealed class PollinationSystem : EntitySystem
             plantHolder.LastCycle += timeReduction;
     }
 
-    private static void ResetGrowthBoost(PollinationComponent pollination)
+    /// <summary>
+    /// Повышает потенцию текущего растения на PotencyBonus (в долях от текущей).
+    /// Сохраняет применённую дельту в AppliedPotencyDelta, чтобы позже откатить ровно её.
+    /// Перед применением снимает предыдущую прибавку (на случай повторного опыления).
+    /// </summary>
+    private void ApplyPotencyBonus(EntityUid uid, PollinationComponent pollination, PlantHolderComponent plantHolder)
+    {
+        if (plantHolder.Seed == null)
+            return;
+
+        // Снимаем прошлую прибавку, если была (перезапись буста), чтобы не накапливать.
+        RevertPotencyBonus(uid, pollination, plantHolder);
+
+        if (pollination.PotencyBonus <= 0f)
+            return;
+
+        // КРИТИЧЕСКИ ВАЖНО: делаем Seed уникальным перед мутацией. Иначе plantHolder.Seed
+        // может быть ОБЩЕЙ ссылкой на SeedData прототипа, и изменение Potency растеклось бы
+        // на ВСЕ растения этого вида. EnsureUniqueSeed заменяет разделяемый seed на клон.
+        _plantHolder.EnsureUniqueSeed(uid, plantHolder);
+        if (plantHolder.Seed == null)
+            return;
+
+        // Прибавка = процент от текущей потенции, округлённый (потенция отображается целой).
+        // Итог ограничиваем сверху 100 (потолок потенции), в дельту кладём реально
+        // применённое приращение для точного отката.
+        var delta = MathF.Round(plantHolder.Seed.Potency * pollination.PotencyBonus);
+
+        var newPotency = MathF.Min(100f, MathF.Round(plantHolder.Seed.Potency) + delta);
+        pollination.AppliedPotencyDelta = newPotency - plantHolder.Seed.Potency;
+        plantHolder.Seed.Potency = newPotency;
+    }
+
+    /// <summary>
+    /// Снимает ранее применённую прибавку потенции (вычитает сохранённую дельту).
+    /// Вычитаем именно дельту, а не восстанавливаем старое абсолютное значение - так
+    /// естественные изменения потенции за время буста (мутации/удобрения) сохраняются.
+    /// </summary>
+    private void RevertPotencyBonus(EntityUid uid, PollinationComponent pollination, PlantHolderComponent plantHolder)
+    {
+        if (pollination.AppliedPotencyDelta == 0f || plantHolder.Seed == null)
+            return;
+
+        // Seed уже уникален (был уникализирован при применении), просто вычитаем дельту.
+        plantHolder.Seed.Potency = MathF.Max(0f, plantHolder.Seed.Potency - pollination.AppliedPotencyDelta);
+        pollination.AppliedPotencyDelta = 0f;
+    }
+
+    private void ResetGrowthBoost(EntityUid uid, PollinationComponent pollination, PlantHolderComponent plantHolder)
     {
         pollination.CurrentGrowthMultiplier = 1f;
         pollination.BoostEndTime = TimeSpan.Zero;
+
+        // Возвращаем потенцию к прежнему уровню, снимая нашу прибавку.
+        RevertPotencyBonus(uid, pollination, plantHolder);
     }
 
     private void OnCanPollinate(EntityUid uid, PollinationComponent pollination, ref CanPollinateEvent args)

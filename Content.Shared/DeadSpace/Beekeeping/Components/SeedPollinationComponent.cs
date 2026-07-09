@@ -31,4 +31,11 @@ public sealed partial class SeedPollinationComponent : Component
 
     [DataField]
     public string PollinationSound = "/Audio/Effects/Fluids/splat.ogg";
+
+    /// <summary>
+    /// На сколько повышается потенция плодов на время действия опыления (0.2 = +20%).
+    /// 0 = не влиять на потенцию.
+    /// </summary>
+    [DataField]
+    public float PotencyBonus = 0.2f;
 }

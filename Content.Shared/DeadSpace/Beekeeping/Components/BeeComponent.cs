@@ -80,6 +80,34 @@ public sealed partial class BeeComponent : Component
     public float StateTimer = 0f;
 
     /// <summary>
+    /// Расстояние до цели на прошлой проверке прогресса. Служебное — для антизалипания.
+    /// </summary>
+    [DataField, ViewVariables(VVAccess.ReadWrite)]
+    public float LastDistanceToTarget = float.MaxValue;
+
+    /// <summary>
+    /// Сколько секунд пчела не приближается к цели. Если превышает StuckTimeout —
+    /// считаем, что застряла (steering перестал двигать), и принудительно
+    /// перестраиваем путь. Служебное поле, управляется BeeAISystem.
+    /// </summary>
+    [DataField, ViewVariables(VVAccess.ReadWrite)]
+    public float NoProgressTime = 0f;
+
+    /// <summary>
+    /// Через сколько секунд "без приближения к цели" считать пчелу застрявшей
+    /// и принудительно перестроить путь в NPCSteeringSystem.
+    /// </summary>
+    [DataField, ViewVariables(VVAccess.ReadWrite)]
+    public float StuckTimeout = 3.5f;
+
+    /// <summary>
+    /// Минимальное уменьшение расстояния (юниты) за тик, считающееся прогрессом.
+    /// Меньше этого — считаем, что пчела топчется на месте.
+    /// </summary>
+    [DataField, ViewVariables(VVAccess.ReadWrite)]
+    public float ProgressEpsilon = 0.05f;
+
+    /// <summary>
     /// Пчела занята DoAfter процессом (опыление или сдача пыльцы).
     /// Блокирует движение и обновление состояния.
     /// </summary>

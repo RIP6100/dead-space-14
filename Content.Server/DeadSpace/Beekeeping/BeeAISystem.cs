@@ -9,6 +9,7 @@ using Content.Shared.NPC;
 using Content.Shared.NPC.Components;
 using Robust.Server.GameObjects;
 using Robust.Shared.GameObjects;
+using Robust.Shared.Map;
 
 namespace Content.Server.DeadSpace.Beekeeping;
 
@@ -22,29 +23,22 @@ public sealed class BeeAISystem : EntitySystem
     public override void Initialize()
     {
         base.Initialize();
-        SubscribeLocalEvent<BeeComponent, MapInitEvent>(OnBeeMapInit);
+        SubscribeLocalEvent<BeeComponent, ComponentStartup>(OnBeeStartup);
         SubscribeLocalEvent<BeeComponent, ComponentShutdown>(OnBeeShutdown);
         SubscribeLocalEvent<BeeComponent, BeePollinatingDoAfterEvent>(OnPollinatingDoAfter);
         SubscribeLocalEvent<BeeComponent, BeeDepositingDoAfterEvent>(OnDepositingDoAfter);
     }
 
     /// <summary>
-    /// Настройка пчелы при появлении на карте:
+    /// Настройка пчелы при создании:
     ///  1. Вешаем ActiveNPCComponent - без него NPCSteeringSystem не двигает сущность.
-    ///  2. Снимаем унаследованный от SimpleSpaceMobBase компонент HTN.
-    ///
-    /// Почему RemComp, а не чистое yaml-наследование: движок RobustToolbox НЕ умеет
-    /// "вычитать" компонент родителя в дочернем прототипе. MobBee наследует HTN от
-    /// SimpleSpaceMobBase (ради здоровья/крови/атмосферы), и убрать только HTN в yaml,
-    /// сохранив остальное, нельзя. Снятие в рантайме - штатный приём SS14 для таких
-    /// случаев. Без этого встроенный ИИ (HTN) параллельно с нашим BeeAISystem дёргал бы
-    /// NPCSteeringSystem, и две системы конфликтовали бы за управление движением
-    /// (симптом: пчела "залипает" на месте - см. историю багов).
-    ///
-    /// MapInitEvent (а не ComponentStartup) - чтобы удаление гарантированно произошло
-    /// после полной сборки сущности из прототипа, когда HTN уже добавлен.
+    ///  2. Снимаем унаследованный от SimpleSpaceMobBase компонент HTN, иначе встроенный ИИ
+    ///     параллельно с нашим BeeAISystem дёргал бы NPCSteeringSystem и конфликтовал за
+    ///     управление движением (симптом: пчела "залипает" на месте).
+    ///     RemComp в рантайме - штатный приём: движок не умеет "вычитать" компонент родителя
+    ///     в дочернем прототипе, а MobBee наследует HTN от SimpleSpaceMobBase.
     /// </summary>
-    private void OnBeeMapInit(EntityUid uid, BeeComponent bee, MapInitEvent args)
+    private void OnBeeStartup(EntityUid uid, BeeComponent bee, ComponentStartup args)
     {
         EnsureComp<ActiveNPCComponent>(uid);
         RemComp<HTNComponent>(uid);
@@ -77,9 +71,9 @@ public sealed class BeeAISystem : EntitySystem
             {
                 case BeeState.Idle: TickIdle(uid, bee); break;
                 case BeeState.SearchingFlower: TickSearching(uid, bee, xform); break;
-                case BeeState.MovingToFlower: TickMoving(uid, bee, xform); break;
+                case BeeState.MovingToFlower: TickMoving(uid, bee, xform, frameTime); break;
                 case BeeState.Pollinating: TickPollinating(uid, bee, xform); break;
-                case BeeState.ReturningToHive: TickReturning(uid, bee, xform); break;
+                case BeeState.ReturningToHive: TickReturning(uid, bee, xform, frameTime); break;
                 case BeeState.DepositingPollen: TickDepositing(uid, bee, xform); break;
             }
         }
@@ -101,6 +95,13 @@ public sealed class BeeAISystem : EntitySystem
 
         bee.State = newState;
         bee.StateTimer = 0f;
+
+        // Входим в состояние движения — сбрасываем трекинг прогресса антизалипания.
+        if (newState is BeeState.MovingToFlower or BeeState.ReturningToHive)
+        {
+            bee.LastDistanceToTarget = float.MaxValue;
+            bee.NoProgressTime = 0f;
+        }
     }
 
     /// <summary>
@@ -216,12 +217,38 @@ public sealed class BeeAISystem : EntitySystem
         SetState(uid, bee, BeeState.MovingToFlower);
     }
 
-    private void TickMoving(EntityUid uid, BeeComponent bee, TransformComponent xform)
+    private void TickMoving(EntityUid uid, BeeComponent bee, TransformComponent xform, float frameTime)
     {
         if (!HasValidFlower(uid, bee))
             return;
 
-        // Пчела слишком долго не может добраться (например, цветок недостижим) - ищем другую цель.
+        var dist = DistanceTo(bee.TargetFlower!.Value, xform);
+
+        if (dist < bee.ArrivalThreshold)
+        {
+            SetState(uid, bee, BeeState.Pollinating);
+            return;
+        }
+
+        var targetCoords = Transform(bee.TargetFlower.Value).Coordinates;
+
+        // Пчела слишком долго не может добраться ИЛИ steering потерял путь (NoPath).
+        // Сначала пробуем принудительно перестроить путь (Register вместо TryRegister,
+        // т.к. координаты цветка не менялись и TryRegister вышел бы вхолостую). Только
+        // если и после сброса таймера пчела всё ещё висит слишком долго - бросаем цветок.
+        if (SteeringLostPath(uid))
+        {
+            bee.StateTimer = 0f;
+            _npcSteering.Unregister(uid);
+            _npcSteering.Register(uid, targetCoords);
+            return;
+        }
+
+        // Антизалипание: steering может числиться Moving, но пчела реально стоит.
+        // Если нет приближения к цели дольше StuckTimeout - пересоздаём путь.
+        if (ReRouteIfStuck(uid, bee, dist, targetCoords, frameTime))
+            return;
+
         if (bee.StateTimer > bee.MaxMovingTime)
         {
             bee.TargetFlower = null;
@@ -229,15 +256,9 @@ public sealed class BeeAISystem : EntitySystem
             return;
         }
 
-        if (DistanceTo(bee.TargetFlower!.Value, xform) < bee.ArrivalThreshold)
-        {
-            SetState(uid, bee, BeeState.Pollinating);
-            return;
-        }
-
         // Регистрируем/обновляем цель в NPCSteeringSystem - дальше он сам физически
         // двигает пчелу к цветку, огибая стены и другие препятствия.
-        _npcSteering.TryRegister(uid, Transform(bee.TargetFlower.Value).Coordinates);
+        _npcSteering.TryRegister(uid, targetCoords);
     }
 
     private void TickPollinating(EntityUid uid, BeeComponent bee, TransformComponent xform)
@@ -321,12 +342,14 @@ public sealed class BeeAISystem : EntitySystem
         }
     }
 
-    private void TickReturning(EntityUid uid, BeeComponent bee, TransformComponent xform)
+    private void TickReturning(EntityUid uid, BeeComponent bee, TransformComponent xform, float frameTime)
     {
         if (!HasValidHive(uid, bee))
             return;
 
-        if (DistanceTo(bee.HiveOwner!.Value, xform) < bee.ArrivalThreshold)
+        var dist = DistanceTo(bee.HiveOwner!.Value, xform);
+
+        if (dist < bee.ArrivalThreshold)
         {
             SetState(uid, bee, BeeState.DepositingPollen);
             return;
@@ -345,6 +368,10 @@ public sealed class BeeAISystem : EntitySystem
             return;
         }
 
+        // Антизалипание по прогрессу (как в TickMoving).
+        if (ReRouteIfStuck(uid, bee, dist, targetCoords, frameTime))
+            return;
+
         _npcSteering.TryRegister(uid, targetCoords);
     }
 
@@ -355,6 +382,37 @@ public sealed class BeeAISystem : EntitySystem
     {
         return TryComp<NPCSteeringComponent>(uid, out var steering) &&
                steering.Status == SteeringStatus.NoPath;
+    }
+
+    /// <summary>
+    /// Антизалипание по фактическому прогрессу. Если расстояние до цели не уменьшается
+    /// дольше StuckTimeout секунд (steering числится Moving, но пчела реально стоит) -
+    /// принудительно пересоздаёт регистрацию в NPCSteeringSystem. Это автоматическая
+    /// версия того, что раньше приходилось делать вручную вытаскиванием/вставкой матки.
+    /// Возвращает true, если путь был перестроен (вызывающему стоит выйти из тика).
+    /// </summary>
+    private bool ReRouteIfStuck(EntityUid uid, BeeComponent bee, float currentDistance, EntityCoordinates targetCoords, float frameTime)
+    {
+        // Есть заметное приближение к цели - прогресс есть, сбрасываем счётчик застоя.
+        if (currentDistance < bee.LastDistanceToTarget - bee.ProgressEpsilon)
+        {
+            bee.LastDistanceToTarget = currentDistance;
+            bee.NoProgressTime = 0f;
+            return false;
+        }
+
+        // Приближения нет - копим время застоя.
+        bee.NoProgressTime += frameTime;
+
+        if (bee.NoProgressTime < bee.StuckTimeout)
+            return false;
+
+        // Застряли: пересоздаём путь (Register, а не TryRegister - координаты не менялись).
+        bee.NoProgressTime = 0f;
+        bee.LastDistanceToTarget = float.MaxValue;
+        _npcSteering.Unregister(uid);
+        _npcSteering.Register(uid, targetCoords);
+        return true;
     }
 
     private void TickDepositing(EntityUid uid, BeeComponent bee, TransformComponent xform)

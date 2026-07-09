@@ -82,4 +82,23 @@ public sealed partial class PollinationComponent : Component
     /// </summary>
     [DataField, ViewVariables(VVAccess.ReadWrite)]
     public string PollinationSound = "/Audio/Effects/Fluids/splat.ogg";
+
+    /// <summary>
+    /// На сколько повышается потенция растения (Potency) на время действия опыления.
+    /// 0.2 = +20% к текущей потенции в момент опыления. Плоды, снятые с опылённого
+    /// растения, получают увеличенную потенцию. По окончании буста прибавка снимается.
+    /// 0 = не влиять на потенцию.
+    /// </summary>
+    [DataField, ViewVariables(VVAccess.ReadWrite)]
+    public float PotencyBonus = 0.2f;
+
+    /// <summary>
+    /// Служебное: величина потенции, реально добавленная текущим бустом.
+    /// Храним именно ДЕЛЬТУ (а не старое абсолютное значение), чтобы при откате
+    /// вычесть ровно свою прибавку и не затереть естественные изменения потенции
+    /// за время буста (мутации, удобрения и т.п.).
+    /// 0 = прибавка сейчас не применена. Управляется PollinationSystem, вручную не трогать.
+    /// </summary>
+    [DataField, ViewVariables(VVAccess.ReadWrite)]
+    public float AppliedPotencyDelta = 0f;
 }

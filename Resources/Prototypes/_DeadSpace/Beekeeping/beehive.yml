@@ -67,3 +67,6 @@
   - type: Damageable
     damageModifierSet: Wood
     damageContainer: StructuralInorganic
+  - type: Construction
+    graph: DoubleRockGraph
+    node: doublerockguitar
