@@ -1,0 +1,55 @@
+- type: entity
+  id: ActionTimeStop
+  name: Остановка времени
+  description: Остановить время в радиусе 10 тайлов. Живые застывают и немеют, снаряды замирают в воздухе.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Action
+    useDelay: 30
+    icon:
+      sprite: Objects/Magic/magicactions.rsi
+      state: blink
+    itemIconStyle: BigAction
+  - type: InstantAction
+    event: !type:TimeStopActionEvent
+
+- type: entity
+  id: TimeStopField
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: Objects/Magic/magicactions.rsi # Норм эффект над будет
+    drawdepth: Effects
+    layers:
+    - state: shield
+      shader: unshaded
+  - type: Physics
+    canCollide: false
+  - type: Tag
+    tags:
+      - HideContextMenu
+ 
+- type: entity
+  parent: BaseItem
+  id: TimeStopScroll # Может заменить на часы
+  name: свиток остановки времени
+  description: Древний свиток. При активации замораживает всё живое, снаряды и броски вокруг.
+  components:
+  - type: Item
+    size: Normal
+  - type: Sprite
+    sprite: Objects/Magic/magicactions.rsi
+    layers:
+    - state: spell_default
+  - type: TimeStopOnUse
+    range: 10
+    duration: 8
+    muteFrozen: true
+    effectPrototype: TimeStopField
+    useDelay: 30
+    timeStopSound:
+      path: /Audio/Magic/staff_change.ogg
+  - type: UseDelay
+    delay: 30
+ 
+ 
