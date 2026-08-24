@@ -521,10 +521,13 @@
     channels:
     - Science
   - type: TechnologyDatabase
+  - type: ResearchPrinter # DS14
   - type: ActivatableUI
-    key: enum.ResearchConsoleUiKey.Key
+    key: enum.ResearchPrinterUiKey.Key # DS14
   - type: UserInterface
     interfaces:
+      enum.ResearchPrinterUiKey.Key: # DS14
+        type: ResearchPrinterBoundUserInterface
       enum.ResearchConsoleUiKey.Key:
         type: ResearchConsoleBoundUserInterface
       enum.ResearchClientUiKey.Key:

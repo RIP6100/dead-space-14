@@ -12,6 +12,13 @@
   recipeUnlocks:
   - ProximitySensor
   - Nanopaste # DS14
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldTech
+    - pos: 1,0
+      field: FieldCausality
 
 - type: technology
   id: BasicAnomalousResearch
@@ -29,6 +36,13 @@
   - APECircuitboard
   - AnomalyVesselCircuitboard
   - HoloprojectorRND # DS14
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldCosmology
+    - pos: 1,0
+      field: FieldInformation
 
 - type: technology
   id: BasicXenoArcheology
@@ -43,9 +57,19 @@
   - NodeScanner
   - AnalysisComputerCircuitboard
   - ArtifactAnalyzerMachineCircuitboard
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldCosmology
+    - pos: 1,0
+      field: FieldInformation
 
 - type: technology
   id: AlternativeResearch
+  technologyPrerequisites:
+  - BasicAnomalousResearch
+  - BasicXenoArcheology
   name: research-technology-alternative-research
   icon:
     sprite: Structures/Machines/tech_disk_printer.rsi
@@ -55,9 +79,19 @@
   cost: 5000
   recipeUnlocks:
   - TechDiskComputerCircuitboard
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldInformation
+    - pos: 1,0
+      field: FieldTime
 
 - type: technology
   id: MagnetsTech
+  technologyPrerequisites:
+  - BasicAnomalousResearch
+  - BasicXenoArcheology
   name: research-technology-magnets-tech
   icon:
     sprite: Clothing/Shoes/Boots/magboots-science.rsi
@@ -68,9 +102,18 @@
   recipeUnlocks:
   - ClothingShoesBootsMagSci
   - ClothingShoesBootsMoon
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldGravity
+    - pos: 1,0
+      field: FieldBluespace
 
 - type: technology
   id: AnomalyCoreHarnessing
+  technologyPrerequisites:
+  - BasicAnomalousResearch
   name: research-technology-anomaly-harnessing
   icon:
     sprite: Objects/Weapons/Melee/gorilla.rsi
@@ -80,11 +123,20 @@
   cost: 10000
   recipeUnlocks:
   - WeaponGauntletGorilla
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldCosmology
+    - pos: 1,0
+      field: FieldInformation
 
 # Tier 2
 
 - type: technology
   id: AbnormalArtifactManipulation
+  technologyPrerequisites:
+  - BasicXenoArcheology
   name: research-technology-abnormal-artifact-manipulation
   icon:
     sprite: Structures/Machines/artifact_crusher.rsi
@@ -95,9 +147,18 @@
   recipeUnlocks:
   - ArtifactCrusherMachineCircuitboard
   - ObeliskStoper
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldCosmology
+    - pos: 2,0
+      field: FieldCybernetics
 
 - type: technology
   id: AdvancedAnomalyResearch
+  technologyPrerequisites:
+  - AnomalyCoreHarnessing
   name: research-technology-advanced-anomaly-research
   icon:
     sprite: Structures/Machines/anomaly_sync.rsi
@@ -110,11 +171,18 @@
   - AnomalySynchronizerCircuitboard
   - AnomalyVesselExperimentalCircuitboard
   - ObeliskStoper
-  technologyPrerequisites:
-  - BasicAnomalousResearch
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldCosmology
+    - pos: 2,0
+      field: FieldNuclearPhysics
 
 - type: technology
   id: DeterrenceTechnologies
+  technologyPrerequisites:
+  - BasicRobotics
   name: research-technology-deterrence
   icon:
     sprite: Objects/Weapons/Guns/Battery/particle_decelerator.rsi
@@ -125,9 +193,18 @@
   recipeUnlocks:
   - WeaponParticleDecelerator
   - HoloprojectorField
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldEnergy
+    - pos: 2,0
+      field: FieldRelativity
 
 - type: technology
   id: GravityManipulation
+  technologyPrerequisites:
+  - MagnetsTech
   name: research-technology-gravity-manipulation
   icon:
     sprite: Objects/Weapons/Guns/Launchers/tether_gun.rsi
@@ -138,11 +215,20 @@
   recipeUnlocks:
     - WeaponForceGun
     - WeaponTetherGun
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldGravity
+    - pos: 2,0
+      field: FieldTech
 
 # Tier 3
 
 - type: technology
   id: QuantumLeaping
+  technologyPrerequisites:
+  - GravityManipulation
   name: research-technology-quantum-leaping
   icon:
     sprite: Objects/Devices/swapper.rsi
@@ -152,9 +238,22 @@
   cost: 10000
   recipeUnlocks:
   - DeviceQuantumSpinInverter
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldQuantumMechanics
+    - pos: 2,0
+      field: FieldRelativity
+    holes:
+    - -1,-1
+    - -2,2
+    - 1,-2
 
 - type: technology
   id: BluespaceTimeManipulation
+  technologyPrerequisites:
+  - QuantumLeaping
   name: research-technology-bluespace-time-manipulation
   icon:
     sprite: Objects/Devices/desynchronizer.rsi
@@ -164,3 +263,12 @@
   cost: 10000
   recipeUnlocks:
   - DeviceDesynchronizer
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldBluespace
+    - pos: 1,0
+      field: FieldBiology
+    holes:
+    - 1,-1

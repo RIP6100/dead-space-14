@@ -1,9 +1,12 @@
+using System.Collections.Generic; // DS14
 using System.Text;
 using Content.Client.Message;
 using Content.Client.Resources;
 using Content.Client.UserInterface.Controls;
 using Content.Client.Xenoarchaeology.Artifact;
 using Content.Client.Xenoarchaeology.Equipment;
+using Content.Shared.DeadSpace.Research.Components; // DS14
+using Content.Shared.DeadSpace.Research.Prototypes; // DS14
 using Content.Shared.Xenoarchaeology.Artifact.Components;
 using Content.Shared.Xenoarchaeology.Equipment.Components;
 using Robust.Client.Audio;
@@ -13,6 +16,8 @@ using Robust.Client.ResourceManagement;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.XAML;
 using Robust.Shared.Audio;
+using Robust.Shared.Maths; // DS14
+using Robust.Shared.Prototypes; // DS14
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
 
@@ -26,6 +31,7 @@ public sealed partial class AnalysisConsoleMenu : FancyWindow
     [Dependency] private readonly IEntityManager _ent = default!;
     [Dependency] private readonly IResourceCache _resCache = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
+    [Dependency] private readonly IPrototypeManager _proto = default!; // DS14
 
     private readonly ArtifactAnalyzerSystem _artifactAnalyzer;
     private readonly XenoArtifactSystem _xenoArtifact;
@@ -91,7 +97,7 @@ public sealed partial class AnalysisConsoleMenu : FancyWindow
 
         ExtractContainer.Visible = true;
         NodeViewContainer.Visible = false;
-
+    // DS14-start
         _extractionSum = 0;
         var extractionMessage = new FormattedMessage();
 
@@ -100,28 +106,46 @@ public sealed partial class AnalysisConsoleMenu : FancyWindow
         var count = 0;
         foreach (var node in nodes)
         {
-            var pointValue = _xenoArtifact.GetResearchValue(node);
-            if (pointValue <= 0)
+            var research = _xenoArtifact.GetResearchValue(node);
+            if (research <= 0)
+                continue;
+
+            if (!_ent.TryGetComponent<ResearchFieldYieldComponent>(node, out var yield) || yield.Fields.Count == 0)
+                continue;
+
+            var ratio = research / node.Comp.BasePointValue;
+
+            var parts = new List<string>();
+            foreach (var (field, baseAmount) in yield.Fields)
+            {
+                var amount = (int) MathF.Round(baseAmount * ratio);
+                if (amount <= 0)
+                    continue;
+
+                _extractionSum += amount;
+                if (_proto.TryIndex(field, out var proto))
+                    parts.Add($"[color={proto.Color.ToHex()}]{Loc.GetString(proto.Name)}[/color] +{amount}");
+            }
+
+            if (parts.Count == 0)
                 continue;
 
             count++;
-
             var nodeId = _xenoArtifact.GetNodeId(node);
-
-            var text = Loc.GetString("analysis-console-extract-value", ("id", nodeId), ("value", pointValue));
-            extractionMessage.AddMarkupOrThrow(text);
+            extractionMessage.AddMarkupOrThrow(Loc.GetString("research-artifact-extract-value",
+                ("id", nodeId), ("data", string.Join(", ", parts))));
             extractionMessage.PushNewline();
         }
 
         if (count == 0)
-            extractionMessage.AddMarkupOrThrow(Loc.GetString("analysis-console-extract-none"));
+            extractionMessage.AddMarkupOrThrow(Loc.GetString("research-artifact-extract-none"));
 
         _hideExtractInfoIn = _timing.CurTime + ExtractInfoDisplayForDuration;
 
         ExtractionResearchLabel.SetMessage(extractionMessage);
 
-        ExtractionSumLabel.SetMarkup(Loc.GetString("analysis-console-extract-sum", ("value", _extractionSum)));
-
+        ExtractionSumLabel.SetMarkup(Loc.GetString("research-artifact-extract-sum", ("value", _extractionSum)));
+    // DS14-end
         _audio.PlayGlobal(_owner.Comp.ScanFinishedSound, _owner, AudioParams.Default.WithVolume(1f));
         OnExtractButtonPressed?.Invoke();
     }

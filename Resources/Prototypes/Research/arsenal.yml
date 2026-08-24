@@ -15,13 +15,20 @@
   - WeaponProtoKineticAcceleratorShotgun # DS14
   - ShuttleGunKineticCircuitboard
   - BorgModuleMiningWeapon # DS14
-  - PKAUpgradeDamage # DS14
-  - PKAUpgradeRange # DS14
-  - PKAUpgradeFireRate # DS14
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldMatter
+    - pos: 1,0
+      field: FieldEnergy
   # These are roundstart but not replenishable for salvage
 
 - type: technology
   id: DraconicMunitions
+  technologyPrerequisites:
+  - SalvageWeapons
+  - PistolsMKWeapons
   name: research-technology-draconic-munitions
   icon:
     sprite: _DeadSpace/Objects/Weapons/Guns/Ammunition/Boxes/pistol.rsi # DS14-texture-localization
@@ -43,19 +50,34 @@
   - MagazineBoxLightRifleIncendiary
   - MagazineBoxRifleIncendiary
   - MagazineBox357Incendiary # ADT
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldThermodynamics
+    - pos: 1,0
+      field: FieldTech
 
-# DS14: WeaponLaserCarbine is a round-start Security TechFab recipe.
-#- type: technology
-#  id: WeaponizedLaserManipulation
-#  name: research-technology-weaponized-laser-manipulation
-#  icon:
-#    sprite: Objects/Weapons/Guns/Battery/laser_gun.rsi
-#    state: icon
-#  discipline: Arsenal
-#  tier: 1
-#  cost: 7500
-#  recipeUnlocks:
-#  - WeaponLaserCarbine
+- type: technology
+  id: WeaponizedLaserManipulation
+  technologyPrerequisites:
+  - PowerGeneration
+  name: research-technology-weaponized-laser-manipulation
+  icon:
+    sprite: Objects/Weapons/Guns/Battery/laser_gun.rsi
+    state: icon
+  discipline: Arsenal
+  tier: 1
+  cost: 7500
+  recipeUnlocks:
+  - WeaponLaserCarbine
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldElectromagnetism
+    - pos: 1,0
+      field: FieldTech
 
 - type: technology
   id: NonlethalAmmunition
@@ -71,11 +93,19 @@
   - BoxShellTranquilizer
   - BoxBeanbag
   - WeaponDisabler
-  - Bola # DS14
-  - EnergyBola # DS14
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldMatter
+    - pos: 1,0
+      field: FieldEnergy
 
 - type: technology
   id: UraniumMunitions
+  technologyPrerequisites:
+  - SalvageWeapons
+  - DraconicMunitions
   name: research-technology-uranium-munitions
   icon:
     sprite: Objects/Materials/Sheets/other.rsi
@@ -95,9 +125,18 @@
   - MagazineBoxLightRifleUranium
   - MagazineBoxRifleUranium
   - BoxShotgunUranium
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldNuclearPhysics
+    - pos: 1,0
+      field: FieldMatter
 
 - type: technology
   id: AdvancedRiotControl
+  technologyPrerequisites:
+  - NonlethalAmmunition
   name: research-technology-advanced-riot-control
   icon:
     sprite: Objects/Weapons/Melee/truncheon.rsi
@@ -111,9 +150,19 @@
   - HoloprojectorSecurity
   - WeaponDisablerSMG
   - Truncheonsec # DS-14
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldMatter
+    - pos: 1,0
+      field: FieldEnergy
 
 - type: technology
   id: ExplosiveTechnology
+  technologyPrerequisites:
+  - SalvageWeapons
+  - DraconicMunitions
   name: research-technology-explosive-technology
   icon:
     sprite: Objects/Devices/payload.rsi
@@ -131,11 +180,20 @@
   - ChemicalPayload
   - CableDetStack1
   - EmptyDetonator
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldNuclearPhysics
+    - pos: 1,0
+      field: FieldMatter
 
 # Tier 2
 
 - type: technology
   id: ConcentratedLaserWeaponry
+  technologyPrerequisites:
+  - WeaponizedLaserManipulation
   name: research-technology-concentrated-laser-weaponry
   icon:
     sprite: Objects/Weapons/Guns/Battery/laser_cannon.rsi
@@ -146,12 +204,65 @@
   recipeUnlocks:
   - WeaponLaserCannon
   - WeaponLaserRifle # DS14
-  - WeaponXrayCannon # DS14
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldElectromagnetism
+    - pos: 2,0
+      field: FieldTime
+
+- type: technology
+  id: WaveParticleHarnessing
+  technologyPrerequisites:
+  - WeaponizedLaserManipulation
+  name: research-technology-wave-particle-harnessing
+  icon:
+    sprite: Objects/Weapons/Guns/Battery/xray.rsi
+    state: icon
+  discipline: Arsenal
+  tier: 2
+  cost: 10000
+  recipeUnlocks:
+  - WeaponXrayCannon
   - WeaponIonRifle # DS14
-  - WeaponTemperatureGun # DS14
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldElectromagnetism
+    - pos: 2,0
+      field: FieldTime
+
+- type: technology
+  id: KineticModifications
+  technologyPrerequisites:
+  - SalvageWeapons
+  name: research-technology-kinetic-modifications
+  icon:
+    sprite: Objects/Tools/upgrade.rsi
+    state: display
+  discipline: Arsenal
+  tier: 2
+  cost: 7500
+  recipeUnlocks:
+  - PKAUpgradeDamage
+  - PKAUpgradeRange
+  - PKAUpgradeFireRate
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldMatter
+    - pos: 1,0
+      field: FieldCrystallography
 
 - type: technology
   id: BasicShuttleArmament
+  technologyPrerequisites:
+  - Shuttlecraft
+  - ConcentratedLaserWeaponry
+  - SalvageWeapons
   name: research-technology-basic-shuttle-armament
   icon:
     sprite: Structures/Power/cage_recharger.rsi
@@ -169,12 +280,21 @@
   - ShuttleGunSvalinnMachineGunCircuitboard
   - ShuttleGunPerforatorCircuitboard
   - ShuttleGunFriendshipCircuitboard
-  technologyPrerequisites:
-  - SalvageWeapons
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldEnergy
+    - pos: 2,0
+      field: FieldTime
 
 # DS14-start
 - type: technology
   id: SpecialMeans
+  technologyPrerequisites:
+  - AdvancedRiotControl
+  - ConcentratedLaserWeaponry
+  - WaveParticleHarnessing
   name: research-technology-special-means
   icon:
     sprite: Objects/Power/portable_recharger.rsi
@@ -185,9 +305,41 @@
   recipeUnlocks:
   - PortableRecharger
   - ClothingBackpackElectropack
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldEnergy
+    - pos: 2,0
+      field: FieldTime
+
+- type: technology
+  id: NightVisionTechnology
+  technologyPrerequisites:
+  - BasicRobotics
+  - WaveParticleHarnessing
+  name: research-technology-night-vision-technology
+  icon:
+    sprite: _DeadSpace/Clothing/Eyes/Hud/pnv.rsi
+    state: icon
+  discipline: Arsenal
+  tier: 2
+  cost: 7500
+  recipeUnlocks:
+  - ClothingEyesPNV
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldElectromagnetism
+    - pos: 2,0
+      field: FieldTime
 
 - type: technology
   id: SecurityTurretsTechnology
+  technologyPrerequisites:
+  - BasicRobotics
+  - SpecialMeans
   name: research-technology-security-turrets-technology
   icon:
     sprite: Objects/Weapons/Guns/Turrets/sentry_turret.rsi
@@ -198,9 +350,19 @@
   recipeUnlocks:
   - WeaponEnergyTurretCommandMachineCircuitboard
   - WeaponEnergyTurretCommandControlPanelElectronics
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldTech
+    - pos: 2,0
+      field: FieldGravity
 
 - type: technology
   id: SecurityBorgModulesTierTwo
+  technologyPrerequisites:
+  - BasicRobotics
+  - SpecialMeans
   name: research-technology-security-borg-modules-two
   icon:
     sprite: _DeadSpace/SecurityBorg/borg_module_sec.rsi
@@ -210,7 +372,36 @@
   cost: 7500
   recipeUnlocks:
   - BorgModuleSecurityJump
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldTech
+    - pos: 2,0
+      field: FieldGravity
 # DS14-end
+
+- type: technology
+  id: DualWieldingTechnology
+  technologyPrerequisites:
+  - RiflesWeapons
+  - SpecialMeans
+  name: research-technology-dual-wielding-technology
+  icon:
+    sprite: Clothing/Back/Specific/harmpack.rsi
+    state: icon
+  discipline: Arsenal
+  tier: 2
+  cost: 10000
+  recipeUnlocks:
+  - ClothingBackpackHarmpack
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldMatter
+    - pos: 1,0
+      field: FieldNuclearPhysics
 
 # Tier 3
 
@@ -281,6 +472,10 @@
 
 - type: technology
   id: PortableMicrofusionWeaponry
+  technologyPrerequisites:
+  - ConcentratedLaserWeaponry
+  - WaveParticleHarnessing
+  - SpecialMeans
   name: research-technology-portable-microfusion-weaponry
   icon:
     sprite: Objects/Weapons/Guns/Battery/advancedlasergun.rsi
@@ -290,10 +485,52 @@
   cost: 15000
   recipeUnlocks:
   - WeaponAdvancedLaser
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldPlasma
+    - pos: 2,0
+      field: FieldCausality
+    holes:
+    - 1,-1
+    - 0,2
+    - -1,2
 #  - PortableRecharger DS14: Move to SpecialMeans
 
 - type: technology
+  id: ThermalWeaponry
+  technologyPrerequisites:
+  - ExplosiveTechnology
+  - SpecialMeans
+  - ConcentratedLaserWeaponry
+  name: research-technology-thermal-weaponry
+  icon:
+    sprite: Objects/Weapons/Guns/Battery/temp_gun.rsi
+    state: icon
+  discipline: Arsenal
+  tier: 3
+  cost: 15000
+  recipeUnlocks:
+  - WeaponTemperatureGun
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldThermodynamics
+    - pos: 2,0
+      field: FieldCausality
+    holes:
+    - -1,2
+    - 2,-2
+    - 1,-2
+
+- type: technology
   id: AdvancedShuttleWeapon
+  technologyPrerequisites:
+  - BasicShuttleArmament
+  - SpecialMeans
+  - ExplosiveTechnology
   name: research-technology-advanced-shuttle-weapon
   icon:
     sprite: Objects/Weapons/Guns/Ammunition/Magazine/Grenade/grenade_cartridge.rsi
@@ -305,12 +542,25 @@
   - GrenadeEMP
   - PowerCageHigh
   - ShuttleGunDusterCircuitboard
-  technologyPrerequisites:
-  - BasicShuttleArmament
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldEnergy
+    - pos: 2,0
+      field: FieldCosmology
+    holes:
+    - 0,2
+    - 0,-2
+    - 0,1
 
 # DS14-start
 - type: technology
   id: SecurityBorgModulesTierThree
+  technologyPrerequisites:
+  - SecurityBorgModulesTierTwo
+  - ConcentratedLaserWeaponry
+  - RiflesWeapons
   name: research-technology-security-borg-modules-three
   icon:
     sprite: _DeadSpace/SecurityBorg/borg_module_sec.rsi
@@ -321,4 +571,15 @@
   recipeUnlocks:
   - BorgModuleSecurityFirearms
   - BorgModuleSecurityEmergency
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldTech
+    - pos: 2,0
+      field: FieldGravity
+    holes:
+    - 0,-1
+    - 1,-2
+    - -2,2
 # DS14-end

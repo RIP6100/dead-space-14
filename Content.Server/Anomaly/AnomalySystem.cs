@@ -1,4 +1,6 @@
 using Content.Server.Anomaly.Components;
+using Content.Server.DeadSpace.Research.Components; // DS14
+using Content.Shared.DeadSpace.Research.Prototypes; // DS14
 using Content.Server.Atmos.EntitySystems;
 using Content.Server.Audio;
 using Content.Server.Explosion.EntitySystems;
@@ -131,20 +133,14 @@ public sealed partial class AnomalySystem : SharedAnomalySystem
         RaiseLocalEvent(anomaly, ref ev);
     }
 
-    /// <summary>
-    /// Gets the amount of research points generated per second for an anomaly.
-    /// </summary>
-    /// <param name="anomaly"></param>
-    /// <param name="component"></param>
-    /// <returns>The amount of points</returns>
-    public int GetAnomalyPointValue(EntityUid anomaly, AnomalyComponent? component = null)
+    public float GetAnomalyStrength(EntityUid anomaly, AnomalyComponent? component = null) // DS14
     {
         if (!Resolve(anomaly, ref component, false))
-            return 0;
+            return 0f; // DS14
 
         var multiplier = 1f;
         if (component.Stability > component.GrowthThreshold)
-            multiplier = component.GrowingPointMultiplier; //more points for unstable
+            multiplier = component.GrowingPointMultiplier; // DS14
 
         //penalty of up to 50% based on health
         multiplier *= MathF.Pow(1.5f, component.Health) - 0.5f;
@@ -158,7 +154,7 @@ public sealed partial class AnomalySystem : SharedAnomalySystem
 
         var severityValue = 1 / (1 + MathF.Pow(MathF.E, -7 * (component.Severity - 0.5f)));
 
-        return (int) ((component.MaxPointsPerSecond - component.MinPointsPerSecond) * severityValue * multiplier) + component.MinPointsPerSecond;
+        return severityValue * multiplier; // DS14
     }
 
     /// <summary>
@@ -266,17 +262,39 @@ public sealed partial class AnomalySystem : SharedAnomalySystem
             msg.AddMarkupOrThrow(stateLoc);
         }
         msg.PushNewline();
-
-        //Point output
+    
+        // DS14-start
         if (secret != null && secret.Secret.Contains(AnomalySecretData.OutputPoint) && !component.IgnoreSecret)
-            msg.AddMarkupOrThrow(Loc.GetString("anomaly-scanner-point-output-unknown"));
+            msg.AddMarkupOrThrow(Loc.GetString("anomaly-scanner-data-output-unknown"));
         else
         {
-            var text = Loc.GetString("anomaly-scanner-point-output", ("point", GetAnomalyPointValue(anomaly, anomalyComp)));
+            var header = Loc.GetString("anomaly-scanner-data-output-header");
             if (secret != null && secret.Secret.Contains(AnomalySecretData.OutputPoint))
-                text += " " + Loc.GetString("anomaly-secret-admin");
-            msg.AddMarkupOrThrow(text);
+                header += " " + Loc.GetString("anomaly-secret-admin");
+            msg.AddMarkupOrThrow(header);
+
+            var strength = GetAnomalyStrength(anomaly, anomalyComp);
+            if (TryComp<AnomalyResearchFieldComponent>(anomaly, out var researchFields) && researchFields.Fields.Count > 0)
+            {
+                foreach (var (field, baseRate) in researchFields.Fields)
+                {
+                    if (!_prototype.TryIndex(field, out var fieldProto))
+                        continue;
+
+                    msg.PushNewline();
+                    msg.AddMarkupOrThrow(Loc.GetString("anomaly-scanner-data-output-field",
+                        ("color", fieldProto.Color.ToHex()),
+                        ("name", Loc.GetString(fieldProto.Name)),
+                        ("rate", (baseRate * strength).ToString("0.00"))));
+                }
+            }
+            else
+            {
+                msg.PushNewline();
+                msg.AddMarkupOrThrow(Loc.GetString("anomaly-scanner-data-output-none"));
+            }
         }
+        // DS14-end
         msg.PushNewline();
         msg.PushNewline();
 

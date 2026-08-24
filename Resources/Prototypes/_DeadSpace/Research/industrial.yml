@@ -1,6 +1,8 @@
 # Tier 1
 - type: technology
   id: HolopadHandheldTech
+  technologyPrerequisites:
+  - AudioVisualCommunication
   name: research-technology-holopadhandheld
   icon:
     sprite: _DeadSpace/Structures/Machines/holopad_h.rsi
@@ -13,6 +15,9 @@
 
 - type: technology
   id: RIGEngineer
+  technologyPrerequisites:
+  - MediumCore
+  - IndustrialEngineering
   name: research-technology-rig-eng
   icon:
     sprite: _DeadSpace/RIGs/Engineer/backpack.rsi
@@ -33,6 +38,8 @@
 
 - type: technology
   id: QuadBikeTech
+  technologyPrerequisites:
+  - PowerGeneration
   name: research-technology-quadbike
   icon:
     sprite: Objects/Vehicles/atv.rsi
@@ -46,6 +53,8 @@
 
 - type: technology
   id: HoldingBags
+  technologyPrerequisites:
+  - IndustrialEngineering
   name: research-technology-holding-bags
   icon:
     sprite: _DeadSpace/Objects/Specific/Hydroponics/plant_bag.rsi
@@ -62,6 +71,9 @@
 
 - type: technology
   id: RIGSalvage
+  technologyPrerequisites:
+  - MediumCore
+  - SalvageEquipment
   name: research-technology-rig-salvage
   icon:
     sprite: _DeadSpace/RIGs/Salvage/Standart/backpack.rsi
@@ -79,6 +91,9 @@
 
 - type: technology
   id: HoverbikeTech
+  technologyPrerequisites:
+  - QuadBikeTech
+  - IndustrialEngineering
   name: research-technology-hoverbike
   icon:
     sprite: _DeadSpace/Objects/Vehicles/hoverbike.rsi

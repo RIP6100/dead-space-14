@@ -1,5 +1,7 @@
 ﻿using Robust.Shared.Prototypes;
 using Robust.Shared.Utility;
+using Content.Shared.DeadSpace.Research.Prototypes; // DS14
+using Content.Shared.DeadSpace.Research; // DS14
 
 namespace Content.Shared.Research.Prototypes;
 
@@ -51,6 +53,16 @@ public sealed partial class TechnologyPrototype : IPrototype
     /// </summary>
     [DataField]
     public int Cost = 10000;
+    // DS14-start
+    [DataField]
+    public MosaicBoard? MosaicBoard;
+
+    [DataField]
+    public bool GrantsMosaicRefund;
+
+    [DataField]
+    public LocId? Description;
+    // DS14-end
 
     /// <summary>
     /// A list of <see cref="TechnologyPrototype"/>s that need to be unlocked in order to unlock this technology.

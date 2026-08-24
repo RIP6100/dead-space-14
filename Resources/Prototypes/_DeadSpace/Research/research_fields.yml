@@ -1,0 +1,170 @@
+# ---------- Фундаментальные ----------
+
+- type: researchField
+  id: FieldEnergy
+  name: research-field-energy
+  description: research-field-energy-desc
+  color: "#e8643c"
+
+- type: researchField
+  id: FieldMatter
+  name: research-field-matter
+  description: research-field-matter-desc
+  color: "#a9743c"
+
+- type: researchField
+  id: FieldSpace
+  name: research-field-space
+  description: research-field-space-desc
+  color: "#5b6ee1"
+
+- type: researchField
+  id: FieldInformation
+  name: research-field-information
+  description: research-field-information-desc
+  color: "#3cc7c7"
+
+- type: researchField
+  id: FieldTime
+  name: research-field-time
+  description: research-field-time-desc
+  color: "#00ff2a"
+
+# ---------- Составные ----------
+
+- type: researchField
+  id: FieldThermodynamics
+  name: research-field-thermodynamics
+  description: research-field-thermodynamics-desc
+  color: "#d98a2b"
+  components:
+  - FieldEnergy
+  - FieldMatter
+
+- type: researchField
+  id: FieldElectromagnetism
+  name: research-field-electromagnetism
+  description: research-field-electromagnetism-desc
+  color: "#9a5bd1"
+  components:
+  - FieldEnergy
+  - FieldSpace
+
+- type: researchField
+  id: FieldGravity
+  name: research-field-gravity
+  description: research-field-gravity-desc
+  color: "#4a5bb0"
+  components:
+  - FieldMatter
+  - FieldSpace
+
+- type: researchField
+  id: FieldBiology
+  name: research-field-biology
+  description: research-field-biology-desc
+  color: "#5cbf5c"
+  components:
+  - FieldMatter
+  - FieldInformation
+
+- type: researchField
+  id: FieldBluespace
+  name: research-field-bluespace
+  description: research-field-bluespace-desc
+  color: "#3c9fd1"
+  components:
+  - FieldSpace
+  - FieldInformation
+
+- type: researchField
+  id: FieldTech
+  name: research-field-tech
+  description: research-field-tech-desc
+  color: "#c7a83c"
+  components:
+  - FieldEnergy
+  - FieldInformation
+
+- type: researchField
+  id: FieldCausality
+  name: research-field-causality
+  description: research-field-causality-desc
+  color: "#2ee0a8"
+  components:
+  - FieldTime
+  - FieldInformation
+
+# ---------- Комплексные ----------
+
+- type: researchField
+  id: FieldNuclear
+  name: research-field-nuclear
+  description: research-field-nuclear-desc
+  color: "#e04040"
+  components:
+  - FieldThermodynamics
+  - FieldElectromagnetism
+
+- type: researchField
+  id: FieldRelativity
+  name: research-field-relativity
+  description: research-field-relativity-desc
+  color: "#7b68ee"
+  components:
+  - FieldGravity
+  - FieldTime
+
+- type: researchField
+  id: FieldQuantumMechanics
+  name: research-field-quantum
+  description: research-field-quantum-desc
+  color: "#b04fd1"
+  components:
+  - FieldElectromagnetism
+  - FieldInformation
+
+- type: researchField
+  id: FieldPlasma
+  name: research-field-plasma
+  description: research-field-plasma-desc
+  color: "#ff5e93"
+  components:
+  - FieldThermodynamics
+  - FieldSpace
+
+- type: researchField
+  id: FieldCosmology
+  name: research-field-cosmology
+  description: research-field-cosmology-desc
+  color: "#2c3e80"
+  components:
+  - FieldGravity
+  - FieldBluespace
+
+- type: researchField
+  id: FieldChemistry
+  name: research-field-chemistry
+  description: research-field-chemistry-desc
+  color: "#c0ca33"
+  components:
+  - FieldBiology
+  - FieldEnergy
+
+- type: researchField
+  id: FieldCybernetics
+  name: research-field-cybernetics
+  description: research-field-cybernetics-desc
+  color: "#16a085"
+  components:
+  - FieldTech
+  - FieldBiology
+
+- type: researchField
+  id: FieldCrystallography
+  name: research-field-crystallography
+  description: research-field-crystallography-desc
+  color: "#78909c"
+  components:
+  - FieldGravity
+  - FieldThermodynamics

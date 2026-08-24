@@ -10,6 +10,10 @@
       collection: RadiationPulse
       params:
         volume: 5
+  # DS14
+  - type: AnomalyResearchField
+    fields:
+      FieldEnergy: 1.0
   - type: AmbientSound
     range: 5
     volume: -5
@@ -64,6 +68,10 @@
   parent: BaseAnomaly
   suffix: Pyroclastic
   components:
+  - type: AnomalyResearchField # DS14
+    fields:
+      FieldEnergy: 1.0
+      FieldThermodynamics: 0.3
   - type: AmbientSound
     volume: 5
     range: 5
@@ -123,6 +131,10 @@
   parent: BaseAnomaly
   suffix: Gravity
   components:
+  - type: AnomalyResearchField # DS14
+    fields:
+      FieldSpace: 1.0
+      FieldGravity: 0.3
   - type: Anomaly
     corePrototype: AnomalyCoreGravity
     coreInertPrototype: AnomalyCoreGravityInert
@@ -183,6 +195,10 @@
   parent: BaseAnomaly
   suffix: Flesh
   components:
+  - type: AnomalyResearchField # DS14
+    fields:
+      FieldInformation: 1.0
+      FieldBiology: 0.3
   - type: Anomaly
     corePrototype: AnomalyCoreFlesh
     coreInertPrototype: AnomalyCoreFleshInert
@@ -278,6 +294,10 @@
   parent: BaseAnomaly
   suffix: Bluespace
   components:
+  - type: AnomalyResearchField # DS14
+    fields:
+      FieldSpace: 1.0
+      FieldBluespace: 0.3
   - type: Sprite
     layers:
     - state: anom4
@@ -384,6 +404,9 @@
   abstract: true
   suffix: Rock
   components:
+  - type: AnomalyResearchField # DS14
+    fields:
+      FieldMatter: 1.0
   - type: Anomaly
     corePrototype: AnomalyCoreRock
     coreInertPrototype: AnomalyCoreRockInert
@@ -773,6 +796,10 @@
   parent: BaseAnomaly
   suffix: Flora
   components:
+  - type: AnomalyResearchField # DS14
+    fields:
+      FieldInformation: 1.0
+      FieldBiology: 0.3
   - type: Sprite
     drawdepth: Mobs
     sprite: Structures/Specific/Anomalies/flora_anom.rsi
@@ -878,6 +905,9 @@
   parent: BaseAnomaly
   suffix: Liquid
   components:
+  - type: AnomalyResearchField # DS14
+    fields:
+      FieldMatter: 1.0
   - type: Sprite
     sprite: Structures/Specific/Anomalies/liquid_anom.rsi
     layers:
@@ -998,6 +1028,9 @@
   parent: BaseAnomaly
   suffix: Shadow
   components:
+  - type: AnomalyResearchField # DS14
+    fields:
+      FieldInformation: 1.0
   - type: Sprite
     sprite: Structures/Specific/Anomalies/shadow_anom.rsi
     layers:
@@ -1062,6 +1095,10 @@
   parent: BaseAnomaly
   suffix: Tech
   components:
+  - type: AnomalyResearchField # DS14
+    fields:
+      FieldInformation: 1.0
+      FieldCybernetics: 0.3
   - type: Sprite
     sprite: Structures/Specific/Anomalies/tech_anom.rsi
     layers:

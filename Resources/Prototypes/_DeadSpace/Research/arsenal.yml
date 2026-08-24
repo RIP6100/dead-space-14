@@ -26,6 +26,8 @@
 
 - type: technology
   id: ShotgunsWeapons
+  technologyPrerequisites:
+  - PistolsMKWeapons
   name: research-technology-nt-shotguns
   icon:
     sprite: Objects/Weapons/Guns/Shotguns/enforcer.rsi
@@ -59,6 +61,8 @@
 
 - type: technology
   id: RiflesWeapons
+  technologyPrerequisites:
+  - PistolsMKWeapons
   name: research-technology-rifles
   icon:
     sprite: Objects/Weapons/Guns/Rifles/lecter.rsi
@@ -72,6 +76,22 @@
   - ThirdPartLecter
   - BlueprintLecterThreeUse
   - BlueprintLecterInfinite
+  - BlueprintDrozdInfinite
+
+- type: technology
+  id: GunsDetails
+  technologyPrerequisites:
+  - RiflesWeapons
+  - PistolsMKWeapons
+  - ShotgunsWeapons
+  name: research-technology-guns-details
+  icon:
+    sprite: Objects/Misc/stock_parts.rsi
+    state: micro_laser
+  discipline: Arsenal
+  tier: 2
+  cost: 10000
+  recipeUnlocks:
   - RateOfFireLecterModuleItemStandart
   - RateOfFireLecterModuleItemAdv
   - LecterExtendedAmmoMagModuleItem
@@ -85,8 +105,11 @@
   - DrumRifleUranium
 
 - type: technology
-  id: DrozdWeapons
-  name: research-technology-smgs
+  id: ExtraMagazine
+  technologyPrerequisites:
+  - RiflesWeapons
+  - PistolsMKWeapons
+  name: research-technology-ext-ammo
   icon:
     sprite: Objects/Weapons/Guns/SMGs/drozd.rsi
     state: icon
@@ -116,6 +139,9 @@
 
 - type: technology
   id: ConcentratedPhotonWeaponry
+  technologyPrerequisites:
+  - ConcentratedLaserWeaponry
+  - WaveParticleHarnessing
   name: research-technology-photon-laser-weaponry
   icon:
     sprite: _DeadSpace/Objects/Weapons/Guns/Battery/multishot.rsi
@@ -129,7 +155,26 @@
   - EnergyCartridge
 
 - type: technology
+  id: StunBola
+  technologyPrerequisites:
+  - AdvancedRiotControl
+  name: research-technology-bola
+  icon:
+    sprite: Objects/Weapons/Throwable/bola.rsi
+    state: icon
+  discipline: Arsenal
+  tier: 2
+  cost: 15000
+  recipeUnlocks:
+  - Bola
+  - EnergyBola
+
+- type: technology
   id: RIGSecurity
+  technologyPrerequisites:
+  - MediumCore
+  - PistolsMKWeapons
+  - DualWieldingTechnology
   name: research-technology-rig-sec
   icon:
     sprite: _DeadSpace/RIGs/Security/Standart/backpack.rsi
@@ -224,6 +269,9 @@
 
 - type: technology
   id: RIGSecurityAdvanced
+  technologyPrerequisites:
+  - RIGSecurity
+  - SpecialMeans
   name: research-technology-rig-sec-adv
   icon:
     sprite: _DeadSpace/RIGs/Security/Advanced/backpack.rsi
@@ -242,6 +290,10 @@
 
 - type: technology
   id: MagmiteArsenalTech
+  technologyPrerequisites:
+  - SpecialMeans
+  - KineticModifications
+  - ExplosiveTechnology
   name: research-technology-magmite-weapon
   icon:
     sprite: _DeadSpace/Objects/Weapons/Melee/magmite/magmite-crusher.rsi
@@ -256,6 +308,9 @@
 
 - type: technology
   id: ClothingHandsGlovesArkalyseTech
+  technologyPrerequisites:
+  - RIGSecurity
+  - SpecialMeans
   name: research-technology-arkalyse
   icon:
     sprite: _DeadSpace/Clothing/Hands/gloves_arkalis.rsi
@@ -268,6 +323,10 @@
 
 - type: technology
   id: ShotgunMagnum
+  technologyPrerequisites:
+  - RiflesWeapons
+  - SpecialMeans
+  - UraniumMunitions
   name: research-technology-shotgun-magnum
   icon:
     sprite: Objects/Weapons/Guns/Ammunition/Casings/shotgun_shell.rsi
@@ -280,6 +339,8 @@
 
 - type: technology
   id: ClothingEyesGlassesThermalVisorExperimentalTech
+  technologyPrerequisites:
+  - RIGSecurityAdvanced
   name: research-technology-thermal-visor-experimental
   icon:
     sprite: _DeadSpace/Clothing/Eyes/Hud/thermal_experimental.rsi

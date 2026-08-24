@@ -24,6 +24,32 @@
     color: "#b211b2"
   - type: LitOnPowered
   - type: ResearchServer
+  # DS14-start
+  - type: ResearchDataStorage
+  - type: ItemSlots
+    slots:
+      data_disk_1:
+        name: research-server-disk-slot
+        startingItem: ResearchDataDiskEmpty
+        whitelist:
+          components:
+          - ResearchDataDisk
+      data_disk_2:
+        name: research-server-disk-slot
+        whitelist:
+          components:
+          - ResearchDataDisk
+      data_disk_3:
+        name: research-server-disk-slot
+        whitelist:
+          components:
+          - ResearchDataDisk
+      data_disk_4:
+        name: research-server-disk-slot
+        whitelist:
+          components:
+          - ResearchDataDisk
+  # DS14-end
   - type: TechnologyDatabase
     supportedDisciplines:
     - Industrial
@@ -91,9 +117,6 @@
       shader: unshaded
       map: ["enum.PowerDeviceVisualLayers.Powered"]
   - type: ResearchClient
-  - type: ResearchPointSource
-    pointspersecond: 25
-    active: true
   - type: PointLight
     radius: 1.5
     energy: 3.0

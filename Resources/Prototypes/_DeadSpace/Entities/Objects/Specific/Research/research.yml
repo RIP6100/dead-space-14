@@ -1,0 +1,95 @@
+- type: entity
+  parent: BaseItem
+  id: ResearchDataDiskBase
+  abstract: true
+  name: диск данных
+  description: Жёсткий диск с измерительными и теоретическими данными. Учёные явно не будут в восторге, если вы его украдёте.
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: harddisk
+  - type: ResearchDataDisk
+  - type: EmitSoundOnPickup
+    sound:
+      path: /Audio/_DeadSpace/Items/Handing/disk_pickup.ogg
+  - type: EmitSoundOnDrop
+    sound:
+      path: /Audio/_DeadSpace/Items/Handing/disk_drop.ogg
+  - type: EmitSoundOnLand
+    sound:
+      path: /Audio/_DeadSpace/Items/Handing/disk_drop.ogg
+
+- type: entity
+  parent: PaperArtifactAnalyzer
+  id: ResearchPrintoutBase
+  abstract: true
+  name: исследовательский отчёт
+  description: Матричная распечатка с теоретической выкладкой одного исследования. Вставляется в консоль теоретической разработки.
+  components:
+  - type: ResearchPrintout
+  - type: UserInterface
+    interfaces:
+      enum.PaperUiKey.Key:
+        type: ResearchPrintoutBoundUserInterface
+      enum.PaperUiKey.Write:
+        type: ResearchPrintoutBoundUserInterface
+  - type: PaperVisuals
+    maxWritableArea: 520.0, 0.0
+
+- type: entity
+  parent: ResearchDataDiskBase
+  id: ResearchDataDiskEmpty
+  suffix: пустой
+
+- type: entity
+  parent: ResearchPrintoutBase
+  id: ResearchPrintout
+  suffix: пустая
+
+- type: entity
+  parent: ResearchDataDiskBase
+  id: ResearchDataDiskDebug
+  suffix: ДЕБАГ
+  categories: [ DoNotMap ]
+  components:
+  - type: ResearchDataDisk
+    maxFields: 100
+    data:
+      FieldEnergy: 100
+      FieldMatter: 100
+      FieldSpace: 100
+      FieldInformation: 100
+      FieldTime: 100
+      FieldThermodynamics: 100
+      FieldElectromagnetism: 100
+      FieldGravity: 100
+      FieldBiology: 100
+      FieldBluespace: 100
+      FieldTech: 100
+      FieldCausality: 100
+      FieldNuclearPhysics: 100
+      FieldRelativity: 100
+      FieldQuantumMechanics: 100
+      FieldPlasma: 100
+      FieldCosmology: 100
+      FieldChemistry: 100
+      FieldCybernetics: 100
+      FieldCrystallography: 100
+
+- type: entity
+  parent: ResearchPrintoutBase
+  id: ResearchPrintoutDebug
+  suffix: Дебаг, Утилизаторская экипировка
+  categories: [ DoNotMap ]
+  components:
+  - type: ResearchPrintout
+    tech: SalvageEquipment
+
+- type: entity
+  parent: ResearchPrintoutBase
+  id: ResearchPrintoutDebugTierThree
+  suffix: Дебаг, микрореакторныеt
+  categories: [ DoNotMap ]
+  components:
+  - type: ResearchPrintout
+    tech: OptimizedMicrogalvanism

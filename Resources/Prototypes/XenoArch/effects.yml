@@ -149,6 +149,10 @@
   abstract: true
   components:
   - type: XenoArtifactNode
+  # DS14
+  - type: ResearchFieldYield
+    fields:
+      FieldInformation: 1.0
   - type: NameIdentifier
     group: XenoArtifactNode
 
@@ -594,6 +598,10 @@
   parent: BaseXenoArtifactEffect
   description: Cools down surrounding gas
   components:
+  - type: ResearchFieldYield # DS14
+    fields:
+      FieldEnergy: 1.0
+      FieldThermodynamics: 0.5
   - type: XAETemperature
     targetTemp: 50
 
@@ -602,6 +610,10 @@
   parent: BaseXenoArtifactEffect
   description: Heats up surrounding gas greatly
   components:
+  - type: ResearchFieldYield # DS14
+    fields:
+      FieldEnergy: 1.0
+      FieldThermodynamics: 0.5
   - type: XAETemperature
     targetTemp: 500
 
@@ -673,6 +685,9 @@
   parent: BaseOneTimeXenoArtifactEffect
   description: Becomes mildly radioactive
   components:
+  - type: ResearchFieldYield # DS14
+    fields:
+      FieldEnergy: 1.0
   - type: XAEApplyComponents
     applyIfAlreadyHave: true
     refreshOnReactivate: true
@@ -1111,6 +1126,10 @@
   parent: BaseXenoArtifactEffect
   description: Teleportation
   components:
+  - type: ResearchFieldYield # DS14
+    fields:
+      FieldSpace: 1.0
+      FieldBluespace: 0.5
   - type: XAERandomTeleportInvoker
 
 - type: entity

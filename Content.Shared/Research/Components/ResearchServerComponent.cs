@@ -57,11 +57,3 @@ public sealed partial class ResearchServerComponent : Component
 /// <param name="Delta"></param>
 [ByRefEvent]
 public readonly record struct ResearchServerPointsChangedEvent(EntityUid Server, int Total, int Delta);
-
-/// <summary>
-/// Event raised every second to calculate the amount of points added to the server.
-/// </summary>
-/// <param name="Server"></param>
-/// <param name="Points"></param>
-[ByRefEvent]
-public record struct ResearchServerGetPointsPerSecondEvent(EntityUid Server, int Points);

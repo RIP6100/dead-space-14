@@ -30,7 +30,6 @@ namespace Content.Server.Research.Systems
             base.Initialize();
             InitializeClient();
             InitializeConsole();
-            InitializeSource();
             InitializeServer();
 
             SubscribeLocalEvent<TechnologyDatabaseComponent, ResearchRegistrationChangedEvent>(OnDatabaseRegistrationChanged);
@@ -123,19 +122,6 @@ namespace Content.Server.Research.Systems
 
             return false;
         // DS14-end
-        }
-
-        public override void Update(float frameTime)
-        {
-            var query = EntityQueryEnumerator<ResearchServerComponent>();
-            while (query.MoveNext(out var uid, out var server))
-            {
-                if (server.NextUpdateTime > _timing.CurTime)
-                    continue;
-                server.NextUpdateTime = _timing.CurTime + server.ResearchConsoleUpdateTime;
-
-                UpdateServer(uid, (int) server.ResearchConsoleUpdateTime.TotalSeconds, server);
-            }
         }
     }
 }

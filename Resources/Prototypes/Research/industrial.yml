@@ -2,6 +2,8 @@
 
 - type: technology
   id: SalvageEquipment
+  technologyPrerequisites:
+  - SpaceScanning
   name: research-technology-salvage-equipment
   icon:
     sprite: Objects/Tools/handdrill.rsi
@@ -17,6 +19,14 @@
   - ClothingShoesBootsJump
   - OreBag # DS14
   - WeaponPlasmaCutter #DS14
+  mosaicBoard:
+    ascii: |
+      . .
+      M . S
+      . .
+    legend:
+      M: FieldMatter
+      S: FieldSpace
 
 - type: technology
   id: SpaceScanning
@@ -31,9 +41,18 @@
   - RadarConsoleCircuitboard
   - HandHeldMassScanner
   - JetBoots # DS14
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldSpace
+    - pos: 1,0
+      field: FieldEnergy
 
 - type: technology
   id: AdvancedPowercells
+  technologyPrerequisites:
+  - MechanicalCompression
   name: research-technology-advanced-powercells
   icon:
     sprite: Structures/Power/turbo_recharger.rsi
@@ -45,9 +64,18 @@
   - PowerCellHigh
   - TurboItemRechargerCircuitboard
   - SMESAdvancedMachineCircuitboard
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldEnergy
+    - pos: 1,0
+      field: FieldSpace
 
 - type: technology
   id: MechanicalCompression
+  technologyPrerequisites:
+  - SpaceScanning
   name: research-technology-mechanical-compression
   icon:
     sprite: Structures/Machines/flatpacker.rsi
@@ -57,9 +85,18 @@
   cost: 10000
   recipeUnlocks:
   - FlatpackerMachineCircuitboard
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldMatter
+    - pos: 1,0
+      field: FieldSpace
 
 - type: technology
   id: IndustrialEngineering
+  technologyPrerequisites:
+  - MechanicalCompression
   name: research-technology-industrial-engineering
   icon:
     sprite: Structures/Machines/protolathe_hypercon.rsi
@@ -73,9 +110,18 @@
   - CircuitImprinterHyperConvectionMachineCircuitboard
   - SheetifierMachineCircuitboard
   - HandCuttingMachineRecipe # DS14
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldTech
+    - pos: 1,0
+      field: FieldElectromagnetism
 
 - type: technology
   id: PowerGeneration
+  technologyPrerequisites:
+  - AdvancedPowercells
   name: research-technology-power-generation
   icon:
     sprite: Structures/Power/Generation/portable_generator.rsi
@@ -91,9 +137,18 @@
   - SolarTrackerElectronics
   - EmitterCircuitboard
   - GeneratorRTGMachineCircuitboard # DS14-uranium-rework
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldEnergy
+    - pos: 1,0
+      field: FieldSpace
 
 - type: technology
   id: AtmosphericTech
+  technologyPrerequisites:
+  - AdvancedPowercells
   name: research-technology-atmospheric-tech
   icon:
     sprite: Structures/Piping/Atmospherics/thermomachine.rsi
@@ -104,9 +159,18 @@
   recipeUnlocks:
   - ThermomachineFreezerMachineCircuitBoard
   - GasRecyclerMachineCircuitboard
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldThermodynamics
+    - pos: 1,0
+      field: FieldGravity
 
 - type: technology
   id: RipleyAPLU
+  technologyPrerequisites:
+  - IndustrialEngineering
   name: research-technology-ripley-aplu
   icon:
     sprite: Objects/Specific/Mech/mecha.rsi
@@ -123,11 +187,20 @@
   - RipleyCentralElectronics
   - RipleyPeripheralsElectronics
   - MechEquipmentGrabber
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldTech
+    - pos: 1,0
+      field: FieldThermodynamics
 
 # DS14-start
 
 - type: technology
   id: HUD
+  technologyPrerequisites:
+  - IndustrialEngineering
   name: research-technology-hud
   icon:
     sprite: Clothing/Eyes/Hud/diag.rsi
@@ -140,6 +213,13 @@
   - ClothingEyesHudMedical
   - ClothingEyesHudSecurity
   - ClothingEyesHudAdvanced
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldTech
+    - pos: 2,0
+      field: FieldGravity
 
 # DS14-end
 
@@ -147,6 +227,8 @@
 
 - type: technology
   id: Shuttlecraft
+  technologyPrerequisites:
+  - PowerGeneration
   name: research-technology-shuttlecraft
   icon:
     sprite: Structures/Shuttles/gyroscope.rsi
@@ -159,9 +241,18 @@
   - ThrusterMachineCircuitboard
   - GyroscopeMachineCircuitboard
   - MiniGravityGeneratorCircuitboard
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldGravity
+    - pos: 2,0
+      field: FieldTech
 
 - type: technology
   id: AdvancedAtmospherics
+  technologyPrerequisites:
+  - AtmosphericTech
   name: research-technology-advanced-atmospherics
   icon:
     sprite: Objects/Devices/Holoprojectors/atmos.rsi
@@ -173,11 +264,18 @@
   - HellfireFreezerMachineCircuitBoard
   - PortableScrubberMachineCircuitBoard
   - HolofanProjector
-  technologyPrerequisites:
-  - AtmosphericTech
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldThermodynamics
+    - pos: 2,0
+      field: FieldTime
 
 - type: technology
   id: AdvancedToolsTechnology
+  technologyPrerequisites:
+  - IndustrialEngineering
   name: research-technology-advanced-tools
   icon:
     sprite: Objects/Tools/welder_experimental.rsi
@@ -193,9 +291,19 @@
     - Fulton
     - FultonBeacon
     - InsulatedGloves #DS14
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldTech
+    - pos: 2,0
+      field: FieldRelativity
 
 - type: technology
   id: MassExcavation
+  technologyPrerequisites:
+  - IndustrialEngineering
+  - SalvageEquipment
   name: research-technology-excavation
   icon:
     sprite: Objects/Tools/handdrilldiamond.rsi
@@ -211,11 +319,21 @@
     - SalvageExpeditionsComputerCircuitboard # Corvax-Cringe
     - BorgModuleAdvancedMining # DS14
     - BluespaceHandHeldMassScannerEmpty # DS14
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldMatter
+    - pos: 1,0
+      field: FieldPlasma
 
 # Tier 3
 
 - type: technology
   id: BluespaceStorage
+  technologyPrerequisites:
+  - AdvancedToolsTechnology
+  - BluespaceTimeManipulation
   name: research-technology-bluespace-storage
   icon:
     sprite: Clothing/Back/Backpacks/holding.rsi
@@ -228,9 +346,21 @@
   - ClothingBackpackSatchelHolding
   - ClothingBackpackDuffelHolding
   - StorageModuleItem #DS14
+  mosaicBoard:
+    radius: 1
+    endpoints:
+    - pos: -1,0
+      field: FieldBluespace
+    - pos: 1,0
+      field: FieldTech
+    holes:
+    - 0,1
 
 - type: technology
   id: OptimizedMicrogalvanism
+  technologyPrerequisites:
+  - AdvancedPowercells
+  - AdvancedToolsTechnology
   name: research-technology-optimized-microgalvanism
   icon:
     sprite: Objects/Power/power_cells.rsi
@@ -241,5 +371,18 @@
   recipeUnlocks:
   - PowerCellMicroreactor
   - PowerCellHyper
-  technologyPrerequisites:
-  - AdvancedPowercells
+  mosaicBoard:
+    ascii: |
+      N # # # #
+      # . # # # #
+      # . . . # # #
+      . . . . # # # #
+      M . . . . # # . E
+      . . . . . . . .
+      . . . . . . .
+      # # . . . #
+      # # # # #
+    legend:
+      N: FieldNuclear
+      E: FieldEnergy
+      M: FieldElectromagnetism

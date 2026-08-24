@@ -1,0 +1,22 @@
+- type: entity
+  parent: ComputerResearchAndDevelopment
+  id: ComputerResearchMosaic
+  name: Консоль теоретических расчётов
+  description: Превращает распечатку исследования в открытую технологию
+  components:
+  - type: ResearchMosaicConsole
+  - type: ItemSlots
+    slots:
+      printout_slot:
+        name: research-printout-slot
+        whitelist:
+          components:
+          - ResearchPrintout
+  - type: ActivatableUI
+    key: enum.ResearchMosaicUiKey.Key
+  - type: UserInterface
+    interfaces:
+      enum.ResearchMosaicUiKey.Key:
+        type: ResearchMosaicBoundUserInterface
+      enum.ResearchClientUiKey.Key:
+        type: ResearchClientBoundUserInterface

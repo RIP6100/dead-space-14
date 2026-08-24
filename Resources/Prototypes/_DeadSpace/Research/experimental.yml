@@ -2,6 +2,8 @@
 
 - type: technology
   id: MediumCore
+  technologyPrerequisites:
+  - BasicRobotics
   name: research-technology-rig-mid-core
   icon:
     sprite: _DeadSpace/RIGs/Parts/core.rsi
@@ -14,6 +16,8 @@
 
 - type: technology
   id: LawBoardConfiguratorTech
+  technologyPrerequisites:
+  - BasicRobotics
   name: research-technology-law-board-configuration
   icon:
     sprite: _DeadSpace/Structures/Machines/Computers.rsi
@@ -29,6 +33,8 @@
 
 - type: technology
   id: RIGResearch
+  technologyPrerequisites:
+  - MediumCore
   name: research-technology-rig-research
   icon:
     sprite: _DeadSpace/RIGs/Research/backpack.rsi
@@ -47,7 +53,30 @@
     - ExplosionResistanceModuleResearch
 
 - type: technology
+  id: MosaicDataRecovery
+  technologyPrerequisites:
+  - AlternativeResearch
+  name: research-technology-mosaic-data-recovery
+  icon:
+    sprite: Objects/Specific/Research/researchdisk.rsi
+    state: icon
+  discipline: Experimental
+  tier: 1
+  cost: 5000
+  grantsMosaicRefund: true
+  description: research-technology-mosaic-data-recovery-desc
+  mosaicBoard:
+    radius: 2
+    endpoints:
+    - pos: -2,0
+      field: FieldNuclearPhysics
+    - pos: 2,0
+      field: FieldCybernetics
+
+- type: technology
   id: AdvancedCore
+  technologyPrerequisites:
+  - MediumCore
   name: research-technology-rig-adv-core
   icon:
     sprite: _DeadSpace/RIGs/Parts/core.rsi
@@ -60,6 +89,9 @@
 
 - type: technology
   id: ClothingShoesBootsMagSuperTech
+  technologyPrerequisites:
+  - AdvancedCore
+  - MagnetsTech
   name: research-technology-supermagboots
   icon:
     sprite: _DeadSpace/Clothing/Shoes/Boots/super_mag_boots.rsi
@@ -87,6 +119,9 @@
 
 - type: technology
   id: ClothingHandsGlovesPowergloveActiveTech
+  technologyPrerequisites:
+  - DeterrenceTechnologies
+  - AnomalyCoreHarnessing
   name: research-technology-glovespowergloveactive
   icon:
     sprite: Clothing/Hands/Gloves/powerglove.rsi
@@ -99,6 +134,8 @@
 
 - type: technology
   id: HandTeleporterResearchTech
+  technologyPrerequisites:
+  - BluespaceTimeManipulation
   name: research-technology-handteleporter
   icon:
     sprite: _DeadSpace/Objects/Fun/hand_teleporter.rsi
