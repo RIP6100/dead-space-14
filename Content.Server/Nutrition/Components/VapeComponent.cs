@@ -1,6 +1,8 @@
 using Content.Server.Nutrition.EntitySystems;
 using Content.Shared.Damage;
 using Content.Shared.Atmos;
+using Content.Shared.Atmos.Prototypes;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server.Nutrition.Components // Vapes are very nutritious.
 {
@@ -28,9 +30,10 @@ namespace Content.Server.Nutrition.Components // Vapes are very nutritious.
         [ViewVariables(VVAccess.ReadWrite)]
         public DamageSpecifier Damage = default!;
 
+        // DS14: gas prototype ID (name) so YAML-only gases work.
         [DataField("gasType")]
         [ViewVariables(VVAccess.ReadWrite)]
-        public Gas GasType { get; set; } = Gas.WaterVapor;
+        public ProtoId<GasPrototype> GasType { get; set; } = "WaterVapor";
 
         /// <summary>
         /// Solution volume will be divided by this number and converted to the gas

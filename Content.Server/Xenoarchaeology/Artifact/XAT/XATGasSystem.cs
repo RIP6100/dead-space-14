@@ -20,7 +20,11 @@ public sealed class XATGasSystem : BaseQueryUpdateXATSystem<XATGasComponent>
             return;
 
         var gasTrigger = node.Comp1;
-        var moles = mixture.GetMoles(gasTrigger.TargetGas);
+        // DS14: resolve the target gas prototype ID to its index against the live registry.
+        if (!_atmosphere.TryGetGasId(gasTrigger.TargetGas, out var targetGasId))
+            return;
+
+        var moles = mixture.GetMoles(targetGasId);
 
         if (gasTrigger.ShouldBePresent)
         {

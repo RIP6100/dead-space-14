@@ -10,6 +10,7 @@ using Robust.Shared;
 using Robust.Shared.Analyzers;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Maths;
+using Robust.Shared.Prototypes;
 
 namespace Content.Benchmarks;
 
@@ -29,13 +30,13 @@ public class GasReactionBenchmark
     // Grid and tile for reactions that need a holder
     private EntityUid _testGrid = default!;
     private TileAtmosphere _testTile = default!;
-    // Reaction instances
-    private PlasmaFireReaction _plasmaFireReaction = default!;
-    private TritiumFireReaction _tritiumFireReaction = default!;
-    private FrezonProductionReaction _frezonProductionReaction = default!;
-    private FrezonCoolantReaction _frezonCoolantReaction = default!;
-    private AmmoniaOxygenReaction _ammoniaOxygenReaction = default!;
-    private N2ODecompositionReaction _n2oDecompositionReaction = default!;
+    // Reaction instances. DS14: all reactions are now GasRecipeReaction, pulled from their prototypes.
+    private IGasReactionEffect _plasmaFireReaction = default!;
+    private IGasReactionEffect _tritiumFireReaction = default!;
+    private IGasReactionEffect _frezonProductionReaction = default!;
+    private IGasReactionEffect _frezonCoolantReaction = default!;
+    private IGasReactionEffect _ammoniaOxygenReaction = default!;
+    private IGasReactionEffect _n2oDecompositionReaction = default!;
     private WaterVaporReaction _waterVaporReaction = default!;
     // Gas mixtures for each reaction type
     private GasMixture _plasmaFireMixture = default!;
@@ -61,14 +62,16 @@ public class GasReactionBenchmark
         await server.WaitPost(() =>
         {
             var entMan = server.ResolveDependency<IEntityManager>();
+            var protoMan = server.ResolveDependency<IPrototypeManager>();
             _atmosphereSystem = entMan.System<AtmosphereSystem>();
 
-            _plasmaFireReaction = new PlasmaFireReaction();
-            _tritiumFireReaction = new TritiumFireReaction();
-            _frezonProductionReaction = new FrezonProductionReaction();
-            _frezonCoolantReaction = new FrezonCoolantReaction();
-            _ammoniaOxygenReaction = new AmmoniaOxygenReaction();
-            _n2oDecompositionReaction = new N2ODecompositionReaction();
+            // DS14: data-driven reactions are configured in YAML, so use the real prototype-loaded effect.
+            _plasmaFireReaction = protoMan.Index<GasReactionPrototype>("PlasmaFire").Effects[0];
+            _tritiumFireReaction = protoMan.Index<GasReactionPrototype>("TritiumFire").Effects[0];
+            _frezonProductionReaction = protoMan.Index<GasReactionPrototype>("FrezonProduction").Effects[0];
+            _frezonCoolantReaction = protoMan.Index<GasReactionPrototype>("FrezonCoolant").Effects[0];
+            _ammoniaOxygenReaction = protoMan.Index<GasReactionPrototype>("AmmoniaOxygenReaction").Effects[0];
+            _n2oDecompositionReaction = protoMan.Index<GasReactionPrototype>("N2ODecomposition").Effects[0];
             _waterVaporReaction = new WaterVaporReaction();
 
             SetupGasMixtures();

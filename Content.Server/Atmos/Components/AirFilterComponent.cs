@@ -9,18 +9,19 @@ namespace Content.Server.Atmos.Components;
 [RegisterComponent, Access(typeof(AirFilterSystem))]
 public sealed partial class AirFilterComponent : Component
 {
+    // DS14: gas indices (see GasSetSerializer) so gases added purely in YAML can be filtered. YAML still lists gas names.
     /// <summary>
     /// Gases that will be filtered out of internal air
     /// </summary>
-    [DataField(required: true)]
-    public HashSet<Gas> Gases = new();
+    [DataField(required: true, customTypeSerializer: typeof(GasSetSerializer))]
+    public HashSet<int> Gases = new();
 
     /// <summary>
     /// Gases that will be filtered out of internal air to maintain oxygen ratio.
     /// When oxygen is below <see cref="TargetOxygen"/>, these gases will be filtered instead of <see cref="Gases"/>.
     /// </summary>
-    [DataField(required: true)]
-    public HashSet<Gas> OverflowGases = new();
+    [DataField(required: true, customTypeSerializer: typeof(GasSetSerializer))]
+    public HashSet<int> OverflowGases = new();
 
     /// <summary>
     /// Minimum oxygen fraction before it will start removing <see cref="OverflowGases"/>.

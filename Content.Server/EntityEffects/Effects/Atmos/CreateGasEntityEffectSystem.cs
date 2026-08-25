@@ -17,6 +17,8 @@ public sealed partial class CreateGasEntityEffectSystem : EntityEffectSystem<Tra
     {
         var tileMix = _atmosphere.GetContainingMixture(entity.AsNullable(), false, true);
 
-        tileMix?.AdjustMoles(args.Effect.Gas, args.Scale * args.Effect.Moles);
+        // DS14: resolve the gas prototype ID to its index against the live registry.
+        if (tileMix != null && _atmosphere.TryGetGasId(args.Effect.Gas, out var gasId))
+            tileMix.AdjustMoles(gasId, args.Scale * args.Effect.Moles);
     }
 }

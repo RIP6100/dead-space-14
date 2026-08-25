@@ -1,4 +1,6 @@
 using Content.Shared.Atmos;
+using Content.Shared.Atmos.Prototypes;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server.Anomaly.Components;
 
@@ -23,8 +25,9 @@ public sealed partial class GasProducerAnomalyComponent : Component
     /// <summary>
     /// The gas to release
     /// </summary>
+    // DS14: gas prototype ID (name) so YAML-only gases can be released.
     [DataField("releasedGas", required: true)]
-    public Gas ReleasedGas = Gas.WaterVapor; // There is no entry for none, and Gas cannot be null
+    public ProtoId<GasPrototype> ReleasedGas = "WaterVapor";
 
     /// <summary>
     /// The amount of gas released when the anomaly reaches max severity

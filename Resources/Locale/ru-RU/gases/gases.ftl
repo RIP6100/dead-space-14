@@ -7,3 +7,6 @@ gases-water-vapor = Водяной пар
 gases-ammonia = Аммиак
 gases-n2o = Оксид азота
 gases-frezon = Фрезон
+gases-fusium = Фузий
+gases-nitryl = Нитрил
+gases-voidgas = Пустотный газ

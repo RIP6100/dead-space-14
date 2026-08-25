@@ -72,18 +72,19 @@ namespace Content.Server.Atmos.Piping.Trinary.EntitySystems
 
             var removed = inletNode.Air.RemoveVolume(transferVol);
 
-            if (filter.FilteredGas.HasValue)
+            // DS14: resolve the filtered gas prototype ID to its index against the live registry.
+            if (filter.FilteredGas is { } filteredGasId && _atmosphereSystem.TryGetGasId(filteredGasId, out var gasIndex))
             {
                 // Make sure we don't pump over the pressure limit.
                 var limitMolesFilter =
                     AtmosphereSystem.MolesToMaxPressure(removed, filterNode.Air, Atmospherics.MaxOutputPressure);
 
-                var availableMoles = removed.GetMoles(filter.FilteredGas.Value);
+                var availableMoles = removed.GetMoles(gasIndex);
                 var filteredMoles = Math.Max(Math.Min(limitMolesFilter, availableMoles), 0);
                 var filteredGasMixture = new GasMixture { Temperature = removed.Temperature };
 
-                filteredGasMixture.SetMoles(filter.FilteredGas.Value, filteredMoles);
-                removed.AdjustMoles(filter.FilteredGas.Value, -filteredMoles);
+                filteredGasMixture.SetMoles(gasIndex, filteredMoles);
+                removed.AdjustMoles(gasIndex, -filteredMoles);
 
                 _atmosphereSystem.Merge(filterNode.Air, filteredGasMixture);
 
@@ -138,8 +139,13 @@ namespace Content.Server.Atmos.Piping.Trinary.EntitySystems
             if (!Resolve(uid, ref filter))
                 return;
 
+            // DS14: send the filtered gas to the UI as an index (resolved from the prototype ID).
+            int? filteredIndex = filter.FilteredGas is { } gasId && _atmosphereSystem.TryGetGasId(gasId, out var idx)
+                ? idx
+                : null;
+
             _userInterfaceSystem.SetUiState(uid, GasFilterUiKey.Key,
-                new GasFilterBoundUserInterfaceState(MetaData(uid).EntityName, filter.TransferRate, filter.Enabled, filter.FilteredGas));
+                new GasFilterBoundUserInterfaceState(MetaData(uid).EntityName, filter.TransferRate, filter.Enabled, filteredIndex));
         }
 
         private void UpdateAppearance(EntityUid uid, GasFilterComponent? filter = null)
@@ -172,11 +178,13 @@ namespace Content.Server.Atmos.Piping.Trinary.EntitySystems
         {
             if (args.Gas.HasValue)
             {
-                if (Enum.IsDefined(typeof(Gas), args.Gas))
+                // DS14: validate against the runtime gas registry (by index), not the Gas enum, so YAML-only gases work.
+                if (args.Gas.Value >= 0 && args.Gas.Value < Atmospherics.TotalNumberOfGases)
                 {
-                    filter.FilteredGas = args.Gas;
+                    var gasProto = _atmosphereSystem.GetGas(args.Gas.Value);
+                    filter.FilteredGas = gasProto.ID;
                     _adminLogger.Add(LogType.AtmosFilterChanged, LogImpact.Medium,
-                        $"{ToPrettyString(args.Actor):player} set the filter on {ToPrettyString(uid):device} to {args.Gas.ToString()}");
+                        $"{ToPrettyString(args.Actor):player} set the filter on {ToPrettyString(uid):device} to {gasProto.ID}");
                     DirtyUI(uid, filter);
                 }
                 else

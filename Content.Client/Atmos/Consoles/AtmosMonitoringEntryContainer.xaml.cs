@@ -132,7 +132,7 @@ public sealed partial class AtmosMonitoringEntryContainer : BoxContainer
                 var gasPercent = (FixedPoint2)0f;
                 gasPercent = percent * 100f;
 
-                var gasAbbreviation = Atmospherics.GasAbbreviations.GetValueOrDefault(gas, Loc.GetString("gas-unknown-abbreviation"));
+                var gasAbbreviation = Atmospherics.GasAbbreviations.GetValueOrDefault((Gas) gas, Loc.GetString("gas-unknown-abbreviation"));
 
                 var gasLabel = new Label()
                 {

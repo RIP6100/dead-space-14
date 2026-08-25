@@ -29,7 +29,11 @@ public sealed class GasProducerAnomalySystem : EntitySystem
         if (!component.ReleaseOnMaxSeverity)
             return;
 
-        ReleaseGas(uid, component.ReleasedGas, component.SuperCriticalMoleAmount, component.spawnRadius, component.tileCount, component.tempChange);
+        // DS14: resolve the released gas prototype ID to its index against the live registry.
+        if (!_atmosphere.TryGetGasId(component.ReleasedGas, out var gasId))
+            return;
+
+        ReleaseGas(uid, gasId, component.SuperCriticalMoleAmount, component.spawnRadius, component.tileCount, component.tempChange);
     }
 
     public override void Update(float frameTime)
@@ -42,14 +46,18 @@ public sealed class GasProducerAnomalySystem : EntitySystem
             if (!comp.ReleasePassively)
                 continue;
 
+            // DS14: resolve the released gas prototype ID to its index against the live registry.
+            if (!_atmosphere.TryGetGasId(comp.ReleasedGas, out var gasId))
+                continue;
+
             // Yes this is unused code since there are no anomalies that
             // release gas passively *yet*, but since I'm here I figured
             // I'd save someone some time and just add it for the future
-            ReleaseGas(ent, comp.ReleasedGas, comp.PassiveMoleAmount * frameTime, comp.spawnRadius, comp.tileCount, comp.tempChange);
+            ReleaseGas(ent, gasId, comp.PassiveMoleAmount * frameTime, comp.spawnRadius, comp.tileCount, comp.tempChange);
         }
     }
 
-    private void ReleaseGas(EntityUid uid, Gas gas, float mols, float radius, int count, float temp)
+    private void ReleaseGas(EntityUid uid, int gas, float mols, float radius, int count, float temp)
     {
         var xform = Transform(uid);
 

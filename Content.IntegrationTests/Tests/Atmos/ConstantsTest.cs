@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Content.Server.Atmos.EntitySystems;
 using Content.Shared.Atmos;
 using Content.Shared.Atmos.Prototypes;
@@ -22,26 +23,42 @@ public sealed class ConstantsTest
 
             Assert.Multiple(() =>
             {
-                // adding new gases needs a few changes in the code, so make sure this is done everywhere
+                // DS14: gases are data-driven. The gas prototypes (not the Gas enum) are the source of truth for
+                // the gas count and indices, so a new gas can be added purely in YAML. These invariants check the
+                // runtime registry is consistent; the Gas enum is now only an optional convenience for C# code.
                 var gasProtos = protoManager.EnumeratePrototypes<GasPrototype>().ToList();
 
-                // number of gas prototypes
-                Assert.That(gasProtos, Has.Count.EqualTo(Atmospherics.TotalNumberOfGases),
-                     $"Number of GasPrototypes is not equal to TotalNumberOfGases.");
-                // number of gas prototypes used in the atmos system
-                Assert.That(atmosSystem.Gases.Count(), Is.EqualTo(Atmospherics.TotalNumberOfGases),
-                     $"AtmosSystem.Gases is not equal to TotalNumberOfGases.");
-                // enum mapping gases to their Id
-                Assert.That(Enum.GetValues<Gas>(), Has.Length.EqualTo(Atmospherics.TotalNumberOfGases),
-                     $"Gas enum size is not equal to TotalNumberOfGases.");
-                // localized abbreviations for UI purposes
-                Assert.That(Atmospherics.GasAbbreviations, Has.Count.EqualTo(Atmospherics.TotalNumberOfGases),
-                     $"GasAbbreviations size is not equal to TotalNumberOfGases.");
+                // The runtime gas count matches the number of gas prototypes.
+                Assert.That(atmosSystem.GasCount, Is.EqualTo(gasProtos.Count),
+                    "AtmosphereSystem.GasCount does not match the number of GasPrototypes.");
+                Assert.That(Atmospherics.TotalNumberOfGases, Is.EqualTo(gasProtos.Count),
+                    "TotalNumberOfGases does not match the number of GasPrototypes.");
+                // Number of gas prototypes registered in the atmos system.
+                Assert.That(atmosSystem.Gases.Count(), Is.EqualTo(gasProtos.Count),
+                    "AtmosSystem.Gases is not equal to the number of GasPrototypes.");
+                // The mole-array length must stay a multiple of 4 (SIMD) and be able to hold every gas.
+                Assert.That(Atmospherics.AdjustedNumberOfGases % 4, Is.EqualTo(0),
+                    "AdjustedNumberOfGases must be a multiple of 4.");
+                Assert.That(Atmospherics.AdjustedNumberOfGases, Is.GreaterThanOrEqualTo(Atmospherics.TotalNumberOfGases),
+                    "AdjustedNumberOfGases must be able to hold every gas.");
 
-                // the ID for each gas has to correspond to a value in the Gas enum (converted to a string)
+                // Every gas prototype must resolve to a unique index within range.
+                var seenIndices = new HashSet<int>();
                 foreach (var gas in gasProtos)
                 {
-                    Assert.That(Enum.TryParse<Gas>(gas.ID, out _), $"GasPrototype {gas.ID} has an invalid ID. It must correspond to a value in the {nameof(Gas)} enum.");
+                    Assert.That(atmosSystem.TryGetGasId(gas.ID, out var id), Is.True,
+                        $"GasPrototype {gas.ID} did not register an index.");
+                    Assert.That(id, Is.InRange(0, Atmospherics.TotalNumberOfGases - 1),
+                        $"GasPrototype {gas.ID} has an out-of-range index {id}.");
+                    Assert.That(seenIndices.Add(id), Is.True,
+                        $"GasPrototype {gas.ID} reuses index {id}.");
+                }
+
+                // Every legacy Gas enum value must still have a matching prototype (enum is a subset of prototypes).
+                foreach (var gas in Enum.GetValues<Gas>())
+                {
+                    Assert.That(protoManager.HasIndex<GasPrototype>(gas.ToString()), Is.True,
+                        $"Gas enum value {gas} has no matching GasPrototype.");
                 }
             });
         });

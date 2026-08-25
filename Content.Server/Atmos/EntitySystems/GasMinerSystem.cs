@@ -41,9 +41,12 @@ public sealed class GasMinerSystem : SharedGasMinerSystem
         {
             miner.MinerState = GasMinerState.Working;
 
-            // Time to mine some gas.
+            // Time to mine some gas. DS14: resolve the spawn gas prototype ID to its index at runtime.
+            if (!_atmosphereSystem.TryGetGasId(miner.SpawnGas, out var spawnGasId))
+                return;
+
             var merger = new GasMixture(1) { Temperature = miner.SpawnTemperature };
-            merger.SetMoles(miner.SpawnGas, toSpawn);
+            merger.SetMoles(spawnGasId, toSpawn);
             _atmosphereSystem.Merge(environment, merger);
         }
 

@@ -17,6 +17,26 @@ namespace Content.Shared.Atmos.Prototypes
         public string ID { get; private set; } = default!;
 
         /// <summary>
+        ///     Stable integer index of this gas inside gas mole arrays (<see cref="GasMixture.Moles"/>).
+        ///     Must be unique and stable across server/client and saved maps.
+        ///     If left at -1 the registry falls back to the legacy <see cref="Gas"/> enum value that matches <see cref="ID"/>.
+        /// </summary>
+        /// <remarks>
+        ///     DS14: part of the data-driven gas rework. New gases only need a free index here plus this prototype,
+        ///     no C# enum entry is required.
+        /// </remarks>
+        [DataField("index")]
+        public int Index { get; private set; } = -1;
+
+        /// <summary>
+        ///     Whether this gas is part of the ubiquitous roundstart atmosphere (e.g. oxygen, nitrogen).
+        ///     Used by the reaction fast-path to decide which gases to ignore when checking whether any
+        ///     reaction-relevant gas is present in a mixture.
+        /// </summary>
+        [DataField("common")]
+        public bool Common { get; private set; }
+
+        /// <summary>
         ///     Specific heat for gas.
         /// </summary>
         [DataField("specificHeat")]

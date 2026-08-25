@@ -34,12 +34,21 @@ namespace Content.Server.Atmos.Portable
         public override void Initialize()
         {
             base.Initialize();
+            SubscribeLocalEvent<PortableScrubberComponent, MapInitEvent>(OnMapInit);
             SubscribeLocalEvent<PortableScrubberComponent, AtmosDeviceUpdateEvent>(OnDeviceUpdated);
             SubscribeLocalEvent<PortableScrubberComponent, AnchorStateChangedEvent>(OnAnchorChanged);
             SubscribeLocalEvent<PortableScrubberComponent, PowerChangedEvent>(OnPowerChanged);
             SubscribeLocalEvent<PortableScrubberComponent, ExaminedEvent>(OnExamined);
             SubscribeLocalEvent<PortableScrubberComponent, DestructionEventArgs>(OnDestroyed);
             SubscribeLocalEvent<PortableScrubberComponent, GasAnalyzerScanEvent>(OnScrubberAnalyzed);
+        }
+
+        // DS14: fill the default filter (every non-common gas) at runtime, since the data-driven default set is only
+        // known after gases load. A portable scrubber authored with an explicit filter in YAML keeps it (non-empty).
+        private void OnMapInit(EntityUid uid, PortableScrubberComponent component, MapInitEvent args)
+        {
+            if (component.FilterGases.Count == 0)
+                component.FilterGases = new HashSet<int>(GasVentScrubberData.DefaultFilterGases);
         }
 
         private bool IsFull(PortableScrubberComponent component)

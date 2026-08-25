@@ -533,13 +533,17 @@ public sealed class PlantHolderSystem : EntitySystem
         {
             foreach (var (gas, amount) in component.Seed.ConsumeGasses)
             {
-                if (environment.GetMoles(gas) < amount)
+                // DS14: resolve the gas prototype ID to its index against the live registry.
+                if (!_atmosphere.TryGetGasId(gas, out var gasId))
+                    continue;
+
+                if (environment.GetMoles(gasId) < amount)
                 {
                     component.MissingGas++;
                     continue;
                 }
 
-                environment.AdjustMoles(gas, -amount);
+                environment.AdjustMoles(gasId, -amount);
             }
 
             if (component.MissingGas > 0)
@@ -583,7 +587,11 @@ public sealed class PlantHolderSystem : EntitySystem
         {
             foreach (var (gas, amount) in component.Seed.ExudeGasses)
             {
-                environment.AdjustMoles(gas,
+                // DS14: resolve the gas prototype ID to its index against the live registry.
+                if (!_atmosphere.TryGetGasId(gas, out var gasId))
+                    continue;
+
+                environment.AdjustMoles(gasId,
                     MathF.Max(1f, MathF.Round(amount * MathF.Round(component.Seed.Potency) / exudeCount)));
             }
         }

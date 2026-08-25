@@ -1,4 +1,5 @@
 using Content.Shared.Atmos;
+using Content.Shared.Atmos.Prototypes;
 using Content.Shared.Database;
 using Content.Shared.FixedPoint;
 using Content.Shared.Random;
@@ -137,9 +138,9 @@ public partial class SeedData
 
     [DataField] public Dictionary<string, SeedChemQuantity> Chemicals = new();
 
-    [DataField] public Dictionary<Gas, float> ConsumeGasses = new();
+    [DataField] public Dictionary<ProtoId<GasPrototype>, float> ConsumeGasses = new();
 
-    [DataField] public Dictionary<Gas, float> ExudeGasses = new();
+    [DataField] public Dictionary<ProtoId<GasPrototype>, float> ExudeGasses = new();
 
     #endregion
 
@@ -272,8 +273,8 @@ public partial class SeedData
             ProductPrototypes = new List<EntProtoId>(ProductPrototypes),
             MutationPrototypes = new List<ProtoId<SeedPrototype>>(MutationPrototypes),
             Chemicals = new Dictionary<string, SeedChemQuantity>(Chemicals),
-            ConsumeGasses = new Dictionary<Gas, float>(ConsumeGasses),
-            ExudeGasses = new Dictionary<Gas, float>(ExudeGasses),
+            ConsumeGasses = new Dictionary<ProtoId<GasPrototype>, float>(ConsumeGasses),
+            ExudeGasses = new Dictionary<ProtoId<GasPrototype>, float>(ExudeGasses),
 
             NutrientConsumption = NutrientConsumption,
             WaterConsumption = WaterConsumption,
@@ -333,8 +334,8 @@ public partial class SeedData
             MutationPrototypes = new List<ProtoId<SeedPrototype>>(other.MutationPrototypes),
 
             Chemicals = new Dictionary<string, SeedChemQuantity>(Chemicals),
-            ConsumeGasses = new Dictionary<Gas, float>(ConsumeGasses),
-            ExudeGasses = new Dictionary<Gas, float>(ExudeGasses),
+            ConsumeGasses = new Dictionary<ProtoId<GasPrototype>, float>(ConsumeGasses),
+            ExudeGasses = new Dictionary<ProtoId<GasPrototype>, float>(ExudeGasses),
 
             NutrientConsumption = NutrientConsumption,
             WaterConsumption = WaterConsumption,

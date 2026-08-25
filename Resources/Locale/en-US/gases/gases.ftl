@@ -7,3 +7,6 @@ gases-water-vapor = Water Vapor
 gases-ammonia = Ammonia
 gases-n2o = Nitrous Oxide
 gases-frezon = Frezon
+gases-fusium = Fusium
+gases-nitryl = Nitryl
+gases-voidgas = Void Gas

@@ -6,7 +6,9 @@ namespace Content.Shared.Atmos.Monitor;
 [Serializable, NetSerializable]
 public sealed class AtmosSensorData : IAtmosDeviceData
 {
-    public AtmosSensorData(float pressure, float temperature, float totalMoles, AtmosAlarmType alarmState, Dictionary<Gas, float> gases, AtmosAlarmThreshold pressureThreshold, AtmosAlarmThreshold temperatureThreshold, Dictionary<Gas, AtmosAlarmThreshold> gasThresholds)
+    // DS14: Gases is keyed by gas index (not the Gas enum) so gases added purely in YAML show up in readouts.
+    // GasThresholds stays keyed by the Gas enum, since alarm thresholds are authored/edited per enum gas.
+    public AtmosSensorData(float pressure, float temperature, float totalMoles, AtmosAlarmType alarmState, Dictionary<int, float> gases, AtmosAlarmThreshold pressureThreshold, AtmosAlarmThreshold temperatureThreshold, Dictionary<Gas, AtmosAlarmThreshold> gasThresholds)
     {
         Pressure = pressure;
         Temperature = temperature;
@@ -41,9 +43,9 @@ public sealed class AtmosSensorData : IAtmosDeviceData
     /// </summary>
     public AtmosAlarmType AlarmState { get; }
     /// <summary>
-    ///     Current number of gases on this sensor.
+    ///     Current amount of each gas on this sensor, keyed by gas index.
     /// </summary>
-    public Dictionary<Gas, float> Gases { get; }
+    public Dictionary<int, float> Gases { get; }
 
     public AtmosAlarmThreshold PressureThreshold { get; }
     public AtmosAlarmThreshold TemperatureThreshold { get; }

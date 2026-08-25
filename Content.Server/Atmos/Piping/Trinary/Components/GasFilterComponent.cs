@@ -1,4 +1,6 @@
 using Content.Shared.Atmos;
+using Content.Shared.Atmos.Prototypes;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server.Atmos.Piping.Trinary.Components
 {
@@ -23,7 +25,9 @@ namespace Content.Server.Atmos.Piping.Trinary.Components
         [DataField]
         public float MaxTransferRate = Atmospherics.MaxTransferRate;
 
+        // DS14: gas prototype ID (not the Gas enum) so gases added purely in YAML can be filtered.
+        // Authored/persisted by gas name (e.g. "CarbonDioxide"); resolved to an index at runtime.
         [DataField]
-        public Gas? FilteredGas;
+        public ProtoId<GasPrototype>? FilteredGas;
     }
 }

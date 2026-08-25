@@ -6,7 +6,16 @@
     Oxygen: 0.01
     Plasma: 0.01
   effects:
-    - !type:PlasmaFireReaction {}
+    - !type:GasRecipeReaction
+      specialEffect: PlasmaFire
+      minimumBurnTemperature: 373.15  # 100C: plasma won't burn below this
+      upperTemperature: 1643.15       # 1370C: max burn rate at/above this
+      oxygenBurnRateBase: 1.4         # oxygen consumed per plasma, minus the temperature scale
+      oxygenFullburn: 10              # O2:plasma ratio above which plasma burns fully
+      burnRateDelta: 9                # divisor controlling burn speed
+      superSaturationEnds: 32         # O2:plasma ratio where tritium production starts
+      superSaturationThreshold: 96    # O2:plasma ratio where tritium production maxes
+      energyReleased: 160000          # J per mole of plasma burnt
 
 - type: gasReaction
   id: TritiumFire
@@ -16,7 +25,13 @@
     Oxygen: 0.01
     Tritium: 0.01
   effects:
-    - !type:TritiumFireReaction {}
+    - !type:GasRecipeReaction
+      specialEffect: TritiumFire
+      minimumOxyburnEnergy: 143000  # below this thermal energy, runs in oxygen-limited (inefficient) mode
+      burnOxyFactor: 100            # oxygen divisor in the oxygen-limited mode
+      burnFuelRatio: 2              # tritium burnt per oxygen consumed
+      burnTritFactor: 10            # fuel/bonus-energy multiplier in the efficient mode
+      energyReleased: 2840000       # J per mole of tritium burnt
 
 - type: gasReaction
   id: FrezonCoolant
@@ -25,8 +40,15 @@
   minimumRequirements:
     Nitrogen: 0.01
     Frezon: 0.01
+  # DS14: expressed with generic blocks (temperatureScale + stoichiometry), no bespoke C# class.
   effects:
-  - !type:FrezonCoolantReaction {}
+  - !type:GasRecipeReaction
+    rate: 0.05                                              # 1 / rateModifier(20)
+    limitingReactant: Frezon
+    temperatureScale: { min: 23.15, max: 373.15, energyOvershootCap: 10 }
+    reactants: { Frezon: 1, Nitrogen: 5 }                  # nitrogenCoolRatio 5
+    products: { NitrousOxide: 6 }                          # frezon(1) + nitrogen(5) -> N2O
+    energyPerReaction: -600000                             # negative = cooling
 
 - type: gasReaction
   id: FrezonProduction
@@ -37,8 +59,16 @@
     Nitrogen: 0.01
     Tritium: 0.01
   effects:
-  - !type:FrezonProductionReaction {}
+  - !type:GasRecipeReaction
+    specialEffect: FrezonProduction
+    maxEfficiencyTemperature: 73.15  # reaction reaches 100% efficiency here (hotter is more efficient)
+    nitrogenRatio: 10                # nitrogen catalyst ratio (less needed when more efficient)
+    tritRatio: 50                    # oxygen required per tritium
+    conversionRate: 50               # 1/this of the reacting fuel converts to frezon each tick
 
+# Concentration-dependent: rate scales with (fAmmonia^2 * fOxygen^2).
+# rate 0.2 == 2 / AmmoniaOxygenReactionRate(10) from the old hardcoded reaction.
+# limitingReactant Ammonia reproduces the legacy behaviour of basing the rate on ammonia only.
 - type: gasReaction
   id: AmmoniaOxygenReaction
   priority: 2
@@ -47,8 +77,20 @@
     Oxygen: 0.01
     Ammonia: 0.01
   effects:
-  - !type:AmmoniaOxygenReaction {}
+  - !type:GasRecipeReaction
+    rate: 0.2
+    limitingReactant: Ammonia
+    reactants:
+      Ammonia: 1
+      Oxygen: 1
+    concentration:
+      Ammonia: 2
+      Oxygen: 2
+    products:
+      NitrousOxide: 0.5
+      WaterVapor: 1.5
 
+# Decomposes N2O into N2 + 1/2 O2. rate 0.5 == 1 / N2ODecompositionRate(2).
 - type: gasReaction
   id: N2ODecomposition
   priority: 0
@@ -56,7 +98,13 @@
   minimumRequirements:
     NitrousOxide: 0.01
   effects:
-  - !type:N2ODecompositionReaction {}
+  - !type:GasRecipeReaction
+    rate: 0.5
+    reactants:
+      NitrousOxide: 1
+    products:
+      Nitrogen: 1
+      Oxygen: 0.5
 
 #- type: gasReaction
 #  id: WaterVaporPuddle

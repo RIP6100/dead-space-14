@@ -165,10 +165,18 @@ namespace Content.Shared.Atmos
         /// </summary>
         public const float SpaceHeatCapacity = 7000f;
 
+        private static Dictionary<Gas, string>? _gasAbbreviations;
+
         /// <summary>
         ///     Dictionary of chemical abbreviations for <see cref="Gas"/>
         /// </summary>
-        public static Dictionary<Gas, string> GasAbbreviations = new Dictionary<Gas, string>()
+        /// <remarks>
+        ///     DS14: built lazily on first access. This MUST NOT run inside the static constructor, because
+        ///     <see cref="Loc.GetString(string)"/> requires an IoC context; now that the gas counts are static
+        ///     fields (not consts), merely reading a count triggers the type initializer, sometimes on worker
+        ///     threads with no IoC (e.g. parallel prototype loading).
+        /// </remarks>
+        public static Dictionary<Gas, string> GasAbbreviations => _gasAbbreviations ??= new Dictionary<Gas, string>()
         {
             [Gas.Ammonia] = Loc.GetString("gas-ammonia-abbreviation"),
             [Gas.CarbonDioxide] = Loc.GetString("gas-carbon-dioxide-abbreviation"),
@@ -207,15 +215,40 @@ namespace Content.Shared.Atmos
         public const int MonstermosTileLimit = 200;
 
         /// <summary>
-        ///     Total number of gases. Increase this if you want to add more!
+        ///     Maximum number of gases the mole arrays can hold. This is the fixed array capacity and the hard
+        ///     ceiling on how many gases can exist.
         /// </summary>
-        public const int TotalNumberOfGases = 10;
+        /// <remarks>
+        ///     DS14: gas mole arrays must be a single fixed length, because they are allocated while prototypes load
+        ///     (canisters, tanks, reaction requirements) — before the gas count is known. So capacity is fixed at
+        ///     compile time while the actual number of gases (<see cref="TotalNumberOfGases"/>) is data-driven and can
+        ///     be anything up to this value. To support more gases than this, increase this constant (a multiple of 4
+        ///     is used for the array length) and recompile.
+        /// </remarks>
+        public const int MaxNumberOfGases = 16;
 
         /// <summary>
-        ///     This is the actual length of the gases arrays in mixtures.
-        ///     Set to the closest multiple of 4 relative to <see cref="TotalNumberOfGases"/> for SIMD reasons.
+        ///     Number of registered gases actually in use.
         /// </summary>
-        public const int AdjustedNumberOfGases = ((TotalNumberOfGases + 3) / 4) * 4;
+        /// <remarks>
+        ///     DS14: no longer a compile-time constant. It is computed from the loaded
+        ///     <see cref="Prototypes.GasPrototype"/>s in <see cref="EntitySystems.SharedAtmosphereSystem.InitializeGases"/>,
+        ///     so gases can be added purely through YAML (up to <see cref="MaxNumberOfGases"/>). The default matches the
+        ///     roundstart content and acts as a fallback for any gas mixture used before the atmosphere system has
+        ///     initialized.
+        /// </remarks>
+        public static int TotalNumberOfGases = 10;
+
+        /// <summary>
+        ///     The actual length of the gas arrays in mixtures. Fixed for the whole process (see
+        ///     <see cref="MaxNumberOfGases"/>) and rounded up to a multiple of 4 for SIMD reasons.
+        /// </summary>
+        /// <remarks>
+        ///     DS14: this MUST stay constant at runtime. Every gas mole array (and the specific-heat array it is
+        ///     multiplied against) is this length; changing it after mixtures have been allocated would corrupt the
+        ///     SIMD math between mixtures of different lengths.
+        /// </remarks>
+        public static readonly int AdjustedNumberOfGases = ((MaxNumberOfGases + 3) / 4) * 4;
 
         /// <summary>
         ///     Amount of heat released per mole of burnt hydrogen or tritium (hydrogen isotope)

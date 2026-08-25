@@ -1,4 +1,5 @@
 using Content.Shared.Atmos;
+using Content.Shared.Atmos.Prototypes;
 using Content.Shared.EntityEffects;
 using Content.Shared.Random;
 using Robust.Shared.Prototypes;
@@ -142,7 +143,7 @@ public sealed class MutationSystem : EntitySystem
         }
     }
 
-    private void CrossGasses(ref Dictionary<Gas, float> val, Dictionary<Gas, float> other)
+    private void CrossGasses(ref Dictionary<ProtoId<GasPrototype>, float> val, Dictionary<ProtoId<GasPrototype>, float> other)
     {
         // Go through gasses from the pollen in swab
         foreach (var otherGas in other)

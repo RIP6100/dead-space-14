@@ -1,4 +1,6 @@
 ﻿using Content.Shared.Atmos;
+using Content.Shared.Atmos.Prototypes;
+using Robust.Shared.Prototypes;
 
 namespace Content.Shared.Power.Generator;
 
@@ -16,8 +18,9 @@ public sealed partial class GeneratorExhaustGasComponent : Component
     /// <summary>
     /// The type of gas that will be emitted by the generator.
     /// </summary>
+    // DS14: gas prototype ID (name) so YAML-only gases can be emitted.
     [DataField("gasType"), ViewVariables(VVAccess.ReadWrite)]
-    public Gas GasType = Gas.CarbonDioxide;
+    public ProtoId<GasPrototype> GasType = "CarbonDioxide";
 
     /// <summary>
     /// The amount of moles of gas that should be produced when one unit of fuel is burned.

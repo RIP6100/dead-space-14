@@ -22,8 +22,9 @@ namespace Content.Server.Atmos.Piping.Unary.Components
         [DataField("outlet")]
         public string OutletName { get; set; } = "pipe";
 
-        [DataField]
-        public HashSet<Gas> FilterGases = new(GasVentScrubberData.DefaultFilterGases);
+        // DS14: gas indices (see GasSetSerializer) so gases added purely in YAML can be scrubbed.
+        [DataField(customTypeSerializer: typeof(GasSetSerializer))]
+        public HashSet<int> FilterGases = new(GasVentScrubberData.DefaultFilterGases);
 
         [DataField]
         public ScrubberPumpDirection PumpDirection { get; set; } = ScrubberPumpDirection.Scrubbing;

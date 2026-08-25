@@ -1,3 +1,4 @@
+using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 using Robust.Shared.Serialization.Manager;
 using Robust.Shared.Serialization.Markdown;
@@ -10,6 +11,9 @@ namespace Content.Shared.Atmos;
 
 public sealed class GasArraySerializer : ITypeSerializer<float[], SequenceDataNode>, ITypeSerializer<float[], MappingDataNode>
 {
+    // DS14: gas mole arrays are keyed by gas prototype ID via GasPrototype.Index (see GasSerializationHelper),
+    // so gases added purely in YAML (with no Gas enum entry) work everywhere.
+
     public ValidationNode Validate(ISerializationManager serializationManager,
         SequenceDataNode node,
         IDependencyCollection dependencies,
@@ -51,9 +55,9 @@ public sealed class GasArraySerializer : ITypeSerializer<float[], SequenceDataNo
 
         foreach (var (key, value) in node.Children)
         {
-            ValidationNode keyNode = Enum.TryParse<Gas>(key, out _)
+            ValidationNode keyNode = GasSerializationHelper.TryResolveGasIndex(dependencies, key, out _)
                 ? new ValidatedValueNode(node.GetKeyNode(key))
-                : new ErrorNode(node.GetKeyNode(key), $"Failed to parse Gas: {key}");
+                : new ErrorNode(node.GetKeyNode(key), $"Failed to resolve Gas: {key}");
 
             dict.Add(keyNode, serializationManager.ValidateNode<float>(value, context));
         }
@@ -75,10 +79,10 @@ public sealed class GasArraySerializer : ITypeSerializer<float[], SequenceDataNo
             // In the event that an invalid gas got serialized into something,
             // we simply ignore it and continue reading.
             // Errors should already be caught by Validate().
-            if (!Enum.TryParse<Gas>(gas, out var gasEnum))
+            if (!GasSerializationHelper.TryResolveGasIndex(dependencies, gas, out var index))
                 continue;
 
-            list[(int)gasEnum] = serializationManager.Read<float>(value, hookCtx, context);
+            list[index] = serializationManager.Read<float>(value, hookCtx, context);
         }
 
         return list;
@@ -92,12 +96,20 @@ public sealed class GasArraySerializer : ITypeSerializer<float[], SequenceDataNo
     {
         var mapping = new MappingDataNode();
 
-        for (var i = 0; i < Atmospherics.TotalNumberOfGases; i++)
+        // Build an index -> prototype ID map so we write back the same gas keys we read, including gases
+        // that only exist as prototypes (no Gas enum entry).
+        var idByIndex = GasSerializationHelper.BuildIndexToIdMap(dependencies.Resolve<IPrototypeManager>());
+
+        for (var i = 0; i < value.Length; i++)
         {
             if (value[i] <= 0)
                 continue;
 
-            mapping.Add(((Gas) i).ToString(), serializationManager.WriteValue(value[i], alwaysWrite, context));
+            var key = idByIndex.TryGetValue(i, out var id)
+                ? id
+                : Enum.IsDefined((Gas)i) ? ((Gas)i).ToString() : i.ToString();
+
+            mapping.Add(key, serializationManager.WriteValue(value[i], alwaysWrite, context));
         }
 
         return mapping;

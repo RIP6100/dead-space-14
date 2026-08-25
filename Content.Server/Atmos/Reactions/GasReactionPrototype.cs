@@ -16,7 +16,7 @@ namespace Content.Server.Atmos.Reactions
         ///     Minimum gas amount requirements.
         /// </summary>
         [DataField("minimumRequirements", customTypeSerializer: typeof(GasArraySerializer))]
-        public float[] MinimumRequirements { get; private set; } = new float[Atmospherics.TotalNumberOfGases];
+        public float[] MinimumRequirements { get; private set; } = new float[Atmospherics.AdjustedNumberOfGases]; // DS14: fixed capacity length
 
         /// <summary>
         ///     Maximum temperature requirement.
@@ -47,6 +47,11 @@ namespace Content.Server.Atmos.Reactions
         ///     A list of effects this will produce.
         /// </summary>
         [DataField("effects")] private List<IGasReactionEffect> _effects = new();
+
+        /// <summary>
+        ///     Read-only view of this reaction's effects, for inspection and benchmarking.
+        /// </summary>
+        public IReadOnlyList<IGasReactionEffect> Effects => _effects;
 
         /// <summary>
         /// Process all reaction effects.

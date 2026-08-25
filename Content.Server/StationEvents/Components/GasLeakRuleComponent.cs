@@ -1,6 +1,8 @@
 ﻿using Content.Server.StationEvents.Events;
 using Content.Shared.Atmos;
+using Content.Shared.Atmos.Prototypes;
 using Robust.Shared.Map;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server.StationEvents.Components;
 
@@ -10,14 +12,15 @@ public sealed partial class GasLeakRuleComponent : Component
     /// <summary>
     /// Gas types that can be selected for the leak event.
     /// </summary>
+    // DS14: gas prototype IDs (names) so YAML-only gases can be leaked.
     [DataField]
-    public Gas[] LeakableGases =
+    public ProtoId<GasPrototype>[] LeakableGases =
     {
-        Gas.Ammonia,
-        Gas.Plasma,
-        Gas.Tritium,
-        Gas.Frezon,
-        Gas.WaterVapor,
+        "Ammonia",
+        "Plasma",
+        "Tritium",
+        "Frezon",
+        "WaterVapor",
     };
 
     /// <summary>
@@ -63,10 +66,10 @@ public sealed partial class GasLeakRuleComponent : Component
     public bool FoundTile;
 
     /// <summary>
-    /// The specific gas type currently leaking.
+    /// The specific gas type currently leaking. DS14: by prototype ID (name).
     /// </summary>
     [DataField]
-    public Gas LeakGas;
+    public ProtoId<GasPrototype> LeakGas;
 
     /// <summary>
     /// Current leak rate in moles per second.

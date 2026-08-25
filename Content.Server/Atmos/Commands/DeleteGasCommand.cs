@@ -20,7 +20,7 @@ namespace Content.Server.Atmos.Commands
         {
             var player = shell.Player;
             EntityUid? gridId;
-            Gas? gas = null;
+            int? gas = null; // DS14: gas index, resolved via AtmosCommandUtils so no-enum gases work by name or index
 
             switch (args.Length)
             {
@@ -73,7 +73,7 @@ namespace Content.Server.Atmos.Commands
                             return;
                         }
 
-                        if (!Enum.TryParse<Gas>(args[0], true, out var parsedGas))
+                        if (!AtmosCommandUtils.TryParseGasID(args[0], out var parsedGas))
                         {
                             shell.WriteLine($"{args[0]} is not a valid gas name.");
                             return;
@@ -103,7 +103,7 @@ namespace Content.Server.Atmos.Commands
                         return;
                     }
 
-                    if (!Enum.TryParse<Gas>(args[1], true, out var parsedGas))
+                    if (!AtmosCommandUtils.TryParseGasID(args[1], out var parsedGas))
                     {
                         shell.WriteLine($"{args[1]} is not a valid gas.");
                         return;

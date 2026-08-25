@@ -20,6 +20,7 @@ namespace Content.Server.Singularity.EntitySystems;
 
 public sealed class RadiationCollectorSystem : EntitySystem
 {
+    [Dependency] private readonly AtmosphereSystem _atmosphere = default!; // DS14: resolve gas prototype IDs to indices
     [Dependency] private readonly IGameTiming _gameTiming = default!;
     [Dependency] private readonly PopupSystem _popupSystem = default!;
     [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
@@ -89,7 +90,11 @@ public sealed class RadiationCollectorSystem : EntitySystem
 
         foreach (var gas in component.RadiationReactiveGases)
         {
-            float reactantMol = gasTankComponent.Air.GetMoles(gas.ReactantPrototype);
+            // DS14: resolve the reactant gas prototype ID to its index against the live registry.
+            if (!_atmosphere.TryGetGasId(gas.ReactantPrototype, out var reactantId))
+                continue;
+
+            float reactantMol = gasTankComponent.Air.GetMoles(reactantId);
             float delta = args.TotalRads * reactantMol * gas.ReactantBreakdownRate;
 
             // We need to offset the huge power gains possible when using very cold gases
@@ -102,12 +107,12 @@ public sealed class RadiationCollectorSystem : EntitySystem
 
             if (delta > 0)
             {
-                gasTankComponent.Air.AdjustMoles(gas.ReactantPrototype, -Math.Min(delta, reactantMol));
+                gasTankComponent.Air.AdjustMoles(reactantId, -Math.Min(delta, reactantMol));
             }
 
-            if (gas.Byproduct != null)
+            if (gas.Byproduct is { } byproduct && _atmosphere.TryGetGasId(byproduct, out var byproductId))
             {
-                gasTankComponent.Air.AdjustMoles((int)gas.Byproduct, delta * gas.MolarRatio);
+                gasTankComponent.Air.AdjustMoles(byproductId, delta * gas.MolarRatio);
             }
         }
 

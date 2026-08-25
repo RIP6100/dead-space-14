@@ -16,9 +16,10 @@ namespace Content.Shared.Atmos.Piping.Trinary.Components
         public string FilterLabel { get; }
         public float TransferRate { get; }
         public bool Enabled { get; }
-        public Gas? FilteredGas { get; }
+        // DS14: gas index (not the Gas enum) so gases added purely in YAML can be filtered.
+        public int? FilteredGas { get; }
 
-        public GasFilterBoundUserInterfaceState(string filterLabel, float transferRate, bool enabled, Gas? filteredGas)
+        public GasFilterBoundUserInterfaceState(string filterLabel, float transferRate, bool enabled, int? filteredGas)
         {
             FilterLabel = filterLabel;
             TransferRate = transferRate;
@@ -50,8 +51,9 @@ namespace Content.Shared.Atmos.Piping.Trinary.Components
     }
 
     [Serializable, NetSerializable]
-    public sealed class GasFilterSelectGasMessage(Gas? gas) : BoundUserInterfaceMessage
+    public sealed class GasFilterSelectGasMessage(int? gas) : BoundUserInterfaceMessage
     {
-        public readonly Gas? Gas = gas;
+        // DS14: gas index (not the Gas enum) so gases added purely in YAML can be selected.
+        public readonly int? Gas = gas;
     }
 }

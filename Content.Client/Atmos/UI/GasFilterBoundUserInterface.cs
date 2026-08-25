@@ -60,10 +60,12 @@ namespace Content.Client.Atmos.UI
             }
             else
             {
-                if (!Enum.TryParse<Gas>(_window.SelectedGas, out var gas))
+                // DS14: resolve the selected gas prototype ID to its index via the registry (works for YAML-only gases).
+                var atmos = EntMan.System<AtmosphereSystem>();
+                if (!atmos.TryGetGasId(_window.SelectedGas, out var gasId))
                     return;
 
-                SendMessage(new GasFilterSelectGasMessage(gas));
+                SendMessage(new GasFilterSelectGasMessage(gasId));
             }
         }
 
@@ -83,7 +85,7 @@ namespace Content.Client.Atmos.UI
             if (cast.FilteredGas is not null)
             {
                 var atmos = EntMan.System<AtmosphereSystem>();
-                var gas = atmos.GetGas((Gas) cast.FilteredGas);
+                var gas = atmos.GetGas(cast.FilteredGas.Value);
                 var gasName = Loc.GetString(gas.Name);
                 _window.SetGasFiltered(gas.ID, gasName);
             }

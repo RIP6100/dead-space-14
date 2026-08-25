@@ -162,8 +162,9 @@ public sealed class AtmosMonitorSystem : EntitySystem
                 payload.Add(DeviceNetworkConstants.Command, AtmosDeviceNetworkSystem.SyncData);
                 if (component.TileGas != null)
                 {
-                    var gases = new Dictionary<Gas, float>();
-                    foreach (var gas in Enum.GetValues<Gas>())
+                    // DS14: report every registered gas by index, so gases added purely in YAML appear in readouts.
+                    var gases = new Dictionary<int, float>();
+                    for (var gas = 0; gas < _atmosphereSystem.GasCount; gas++)
                     {
                         gases.Add(gas, component.TileGas.GetMoles(gas));
                     }

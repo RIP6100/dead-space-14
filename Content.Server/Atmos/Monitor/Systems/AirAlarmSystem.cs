@@ -630,7 +630,7 @@ public sealed class AirAlarmSystem : EntitySystem
     {
         percentage = 0f;
 
-        var data = alarm.SensorData.Values.SelectMany(v => v.Gases.Where(g => g.Key == gas));
+        var data = alarm.SensorData.Values.SelectMany(v => v.Gases.Where(g => g.Key == (int) gas)); // DS14: Gases keyed by index
 
         if (data.Count() == 0)
             return 0f;

@@ -59,7 +59,9 @@ namespace Content.Server.StationEvents.Events
 
             var environment = _atmosphere.GetTileMixture(component.TargetGrid, null, component.TargetTile, true);
 
-            environment?.AdjustMoles(component.LeakGas, component.LeakCooldown * component.MolesPerSecond);
+            // DS14: resolve the leaking gas prototype ID to its index against the live registry.
+            if (environment != null && _atmosphere.TryGetGasId(component.LeakGas, out var leakGasId))
+                environment.AdjustMoles(leakGasId, component.LeakCooldown * component.MolesPerSecond);
         }
 
         protected override void Ended(EntityUid uid, GasLeakRuleComponent component, GameRuleComponent gameRule, GameRuleEndedEvent args)

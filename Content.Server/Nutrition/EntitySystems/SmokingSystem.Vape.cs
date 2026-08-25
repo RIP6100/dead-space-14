@@ -133,10 +133,14 @@ namespace Content.Server.Nutrition.EntitySystems
             //Smoking kills(your lungs, but there is no organ damage yet)
             _damageableSystem.TryChangeDamage(args.Args.Target.Value, entity.Comp.Damage, true);
 
-            var merger = new GasMixture(1) { Temperature = args.Solution.Temperature };
-            merger.SetMoles(entity.Comp.GasType, args.Solution.Volume.Value / entity.Comp.ReductionFactor);
+            // DS14: resolve the vape gas prototype ID to its index against the live registry.
+            if (_atmos.TryGetGasId(entity.Comp.GasType, out var gasId))
+            {
+                var merger = new GasMixture(1) { Temperature = args.Solution.Temperature };
+                merger.SetMoles(gasId, args.Solution.Volume.Value / entity.Comp.ReductionFactor);
 
-            _atmos.Merge(environment, merger);
+                _atmos.Merge(environment, merger);
+            }
 
             args.Solution.RemoveAllSolution();
 

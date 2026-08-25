@@ -1,4 +1,5 @@
 using Content.Shared.Atmos;
+using Content.Shared.Atmos.Piping.Unary.Components;
 using Content.Shared.Guidebook;
 
 namespace Content.Server.Atmos.Portable
@@ -20,18 +21,10 @@ namespace Content.Server.Atmos.Portable
         /// Unlike fixed scrubbers controlled by an air alarm,
         /// this can't be changed in game.
         /// </summary>
-        [DataField("filterGases")]
-        public HashSet<Gas> FilterGases = new()
-        {
-            Gas.CarbonDioxide,
-            Gas.Plasma,
-            Gas.Tritium,
-            Gas.WaterVapor,
-            Gas.Ammonia,
-            Gas.NitrousOxide,
-            Gas.Frezon,
-            Gas.InfectionDeadSpace
-        };
+        // DS14: gas indices (see GasSetSerializer). Defaults to every non-common gas, matching the previous
+        // hardcoded list while automatically covering gases added purely through YAML.
+        [DataField("filterGases", customTypeSerializer: typeof(GasSetSerializer))]
+        public HashSet<int> FilterGases = new(GasVentScrubberData.DefaultFilterGases);
 
         [ViewVariables(VVAccess.ReadWrite)]
         public bool Enabled = true;

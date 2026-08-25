@@ -1,0 +1,104 @@
+# DS14: test gases + reactions authored PURELY in YAML to exercise the data-driven gas rework.
+# They have no Gas enum entry and use the next free indices (base gases 0-8, InfectionDeadSpace 9).
+# Exercised features: runtime gas registry, overlay visibility, breathing/reagent skip, GasRecipeReaction
+# generic blocks (temperatureScale + productSplit), no-enum reactants AND products.
+# Reactions intentionally require only NON-common gases so the reaction fast-path stays enabled.
+
+- type: gas
+  id: Fusium
+  index: 10
+  name: gases-fusium
+  specificHeat: 25
+  heatCapacityRatio: 1.4
+  molarMass: 40
+  gasOverlaySprite: /Textures/Effects/atmospherics.rsi
+  gasOverlayState: fusion_gas   # unused "old" sprite
+  color: FF8800
+  pricePerMole: 0
+
+- type: gas
+  id: Nitryl
+  index: 11
+  name: gases-nitryl
+  specificHeat: 30
+  heatCapacityRatio: 1.3
+  molarMass: 46
+  gasOverlaySprite: /Textures/Effects/atmospherics.rsi
+  gasOverlayState: nitryl       # unused sprite
+  color: FADF54
+  pricePerMole: 0
+
+- type: gas
+  id: Voidgas
+  index: 12
+  name: gases-voidgas
+  specificHeat: 20
+  heatCapacityRatio: 1.4
+  molarMass: 60
+  gasOverlaySprite: /Textures/Effects/atmospherics.rsi
+  gasOverlayState: chem_gas_old # unused "old" sprite
+  gasMolesVisible: 1
+  color: 6A0DAD
+  pricePerMole: 0
+
+# Fusium + Oxygen burn (hot). The product splits between Voidgas (oxygen-poor) and CO2 (oxygen-rich)
+# based on the Oxygen:Fusium ratio. Exercises temperatureScale + productSplit + no-enum reactant AND product.
+- type: gasReaction
+  id: FusiumCombustion
+  priority: 3
+  minimumTemperature: 373.15
+  minimumRequirements:
+    Fusium: 0.01
+    Oxygen: 0.01
+  effects:
+  - !type:GasRecipeReaction
+    rate: 0.5
+    limitingReactant: Fusium
+    temperatureScale: { min: 373.15, max: 1000 }
+    reactants: { Fusium: 1, Oxygen: 1 }
+    productSplit:
+      ratioOf: [ Oxygen, Fusium ]
+      from: 1
+      to: 5
+      lowProduct: Voidgas        # oxygen-poor
+      highProduct: CarbonDioxide # oxygen-rich
+    energyPerReaction: 100000
+    hotspot: true
+
+# Hot Nitryl decomposes into nitrogen + oxygen. Exercises a simple no-enum reactant through the generic engine.
+- type: gasReaction
+  id: NitrylDecomposition
+  priority: 0
+  minimumTemperature: 600
+  minimumRequirements:
+    Nitryl: 0.01
+  effects:
+  - !type:GasRecipeReaction
+    rate: 0.4
+    reactants: { Nitryl: 1 }
+    products: { Nitrogen: 0.5, Oxygen: 0.5 }
+
+# Spawnable canisters for manual in-game testing (spawn menu). Gas moles are keyed by name via the data-driven serializer.
+- type: entity
+  parent: GasCanister
+  id: FusiumCanister
+  suffix: TEST Fusium
+  components:
+  - type: GasCanister
+    gasMixture:
+      volume: 1000
+      temperature: 293.15
+      moles:
+        Fusium: 1871.71051
+
+- type: entity
+  parent: GasCanister
+  id: NitrylCanister
+  suffix: TEST Nitryl
+  components:
+  - type: GasCanister
+    gasMixture:
+      volume: 1000
+      temperature: 293.15
+      moles:
+        Nitryl: 1871.71051

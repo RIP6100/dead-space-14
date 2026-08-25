@@ -356,7 +356,7 @@ public sealed class AtmosAlertsComputerSystem : SharedAtmosAlertsComputerSystem
         // Get the sensor data
         var temperatureData = (_airAlarmSystem.CalculateTemperatureAverage(focusDeviceAirAlarm), AtmosAlarmType.Normal);
         var pressureData = (_airAlarmSystem.CalculatePressureAverage(focusDeviceAirAlarm), AtmosAlarmType.Normal);
-        var gasData = new Dictionary<Gas, (float, float, AtmosAlarmType)>();
+        var gasData = new Dictionary<int, (float, float, AtmosAlarmType)>();
 
         foreach ((var address, var sensorData) in focusDeviceAirAlarm.SensorData)
         {
@@ -374,11 +374,13 @@ public sealed class AtmosAlertsComputerSystem : SharedAtmosAlertsComputerSystem
 
             if (focusDeviceAirAlarm.SensorData.Sum(g => g.Value.TotalMoles) > 1e-8)
             {
-                foreach ((var gas, var threshold) in sensorData.GasThresholds)
+                // DS14: iterate every registered gas by index so gases added purely in YAML are shown. An alert
+                // state is only computed for gases that have a configured threshold (enum gases).
+                for (var gas = 0; gas < Atmospherics.TotalNumberOfGases; gas++)
                 {
                     if (!gasData.ContainsKey(gas))
                     {
-                        float mol = _airAlarmSystem.CalculateGasMolarConcentrationAverage(focusDeviceAirAlarm, gas, out var percentage);
+                        float mol = _airAlarmSystem.CalculateGasMolarConcentrationAverage(focusDeviceAirAlarm, (Gas) gas, out var percentage);
 
                         if (mol < 1e-8)
                             continue;
@@ -386,7 +388,8 @@ public sealed class AtmosAlertsComputerSystem : SharedAtmosAlertsComputerSystem
                         gasData[gas] = (mol, percentage, AtmosAlarmType.Normal);
                     }
 
-                    if (threshold.CheckThreshold(gasData[gas].Item2, out var gasState) &&
+                    if (sensorData.GasThresholds.TryGetValue((Gas) gas, out var threshold) &&
+                        threshold.CheckThreshold(gasData[gas].Item2, out var gasState) &&
                         (int) gasState > (int) gasData[gas].Item3)
                     {
                         gasData[gas] = (gasData[gas].Item1, gasData[gas].Item2, gasState);

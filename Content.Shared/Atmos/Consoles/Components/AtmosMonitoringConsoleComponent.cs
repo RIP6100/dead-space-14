@@ -196,9 +196,9 @@ public struct AtmosMonitoringConsoleEntry
     public float TotalMolData;
 
     /// <summary>
-    /// Mol and percentage for all detected gases
+    /// Mol and percentage for all detected gases, keyed by gas index (DS14: index, not the Gas enum, for dynamic gases).
     /// </summary>
-    public Dictionary<Gas, float> GasData = new();
+    public Dictionary<int, float> GasData = new();
 
     /// <summary>
     /// The color to be associated with the pipe network

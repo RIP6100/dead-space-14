@@ -14,9 +14,10 @@ namespace Content.Server.Atmos.EntitySystems
         [Dependency] private readonly IPrototypeManager _protoMan = default!;
 
         private GasReactionPrototype[] _gasReactions = [];
-        // DS14-start: most active tiles are normal O2/N2 air; skip reaction scans when no reaction-only gases exist.
+        // DS14-start: most active tiles are normal air (gases flagged "common"); skip reaction scans when no
+        // reaction-only gas is present. Sized to the runtime gas count in CacheReactionFastPath.
         private int[] _reactionFastPathGasIds = [];
-        private readonly float[] _reactionFastPathMinimumMoles = new float[Atmospherics.TotalNumberOfGases];
+        private float[] _reactionFastPathMinimumMoles = [];
         private bool _useReactionFastPath;
         // DS14-end
 
@@ -24,6 +25,9 @@ namespace Content.Server.Atmos.EntitySystems
         ///     List of gas reactions ordered by priority.
         /// </summary>
         public IEnumerable<GasReactionPrototype> GasReactions => _gasReactions;
+
+        protected override bool WereReactionsModified(PrototypesReloadedEventArgs args)
+            => args.WasModified<GasReactionPrototype>();
 
         public override void InitializeGases()
         {
@@ -37,20 +41,23 @@ namespace Content.Server.Atmos.EntitySystems
         // DS14-start
         private void CacheReactionFastPath()
         {
-            Array.Clear(_reactionFastPathMinimumMoles);
-            var fastPathGasIds = new List<int>(Atmospherics.TotalNumberOfGases);
+            var gasCount = Atmospherics.TotalNumberOfGases;
+            _reactionFastPathMinimumMoles = new float[gasCount];
+            var fastPathGasIds = new List<int>(gasCount);
             var canUseFastPath = true;
 
             foreach (var reaction in _gasReactions)
             {
                 var hasReactionOnlyRequirement = false;
-                for (var i = 0; i < Atmospherics.TotalNumberOfGases; i++)
+                for (var i = 0; i < gasCount; i++)
                 {
                     var minimum = reaction.MinimumRequirements[i];
                     if (minimum <= 0)
                         continue;
 
-                    if (i is (int) Gas.Oxygen or (int) Gas.Nitrogen)
+                    // DS14: "common" gases (roundstart air like O2/N2) don't count as a reaction hint,
+                    // otherwise every breathable tile would fail the fast-path skip.
+                    if (GasPrototypes[i]?.Common == true)
                         continue;
 
                     hasReactionOnlyRequirement = true;
@@ -272,7 +279,7 @@ namespace Content.Server.Atmos.EntitySystems
         /// <summary>
         ///     Scrubs specified gases from a gas mixture into a <see cref="destination"/> gas mixture.
         /// </summary>
-        public void ScrubInto(GasMixture mixture, GasMixture destination, IReadOnlyCollection<Gas> filterGases)
+        public void ScrubInto(GasMixture mixture, GasMixture destination, IReadOnlyCollection<int> filterGases)
         {
             var buffer = new GasMixture(mixture.Volume){Temperature = mixture.Temperature};
 
@@ -537,7 +544,8 @@ namespace Content.Server.Atmos.EntitySystems
         {
             var moles = 0f;
 
-            for(var i = 0; i < Atmospherics.TotalNumberOfGases; i++)
+            var gasCount = Atmospherics.TotalNumberOfGases; // DS14: read the runtime gas count once.
+            for(var i = 0; i < gasCount; i++)
             {
                 var gasMoles = sample.Moles[i];
                 var delta = MathF.Abs(gasMoles - otherSample.Moles[i]);
@@ -568,6 +576,7 @@ namespace Content.Server.Atmos.EntitySystems
 
             var temperature = mixture.Temperature;
             var energy = GetThermalEnergy(mixture);
+            var gasCount = Atmospherics.TotalNumberOfGases; // DS14: read the runtime gas count once.
 
             foreach (var prototype in GasReactions)
             {
@@ -577,7 +586,7 @@ namespace Content.Server.Atmos.EntitySystems
                     continue;
 
                 var doReaction = true;
-                for (var i = 0; i < Atmospherics.TotalNumberOfGases; i++)
+                for (var i = 0; i < gasCount; i++)
                 {
                     var req = prototype.MinimumRequirements[i];
 

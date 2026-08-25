@@ -23,6 +23,7 @@
 
 - type: gas
   id: InfectionDeadSpace
+  index: 9
   name: gases-infectionDeadSpace
   specificHeat: 20
   heatCapacityRatio: 1.4

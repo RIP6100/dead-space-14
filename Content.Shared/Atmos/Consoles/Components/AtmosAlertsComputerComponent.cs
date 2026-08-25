@@ -77,9 +77,10 @@ public struct AtmosAlertsFocusDeviceData
     public (float, AtmosAlarmType) PressureData;
 
     /// <summary>
-    /// Moles, percentage, and related alert state, for all detected gases 
+    /// Moles, percentage, and related alert state, for all detected gases, keyed by gas index
+    /// (DS14: index, not the Gas enum, so gases added purely in YAML are shown).
     /// </summary>
-    public Dictionary<Gas, (float, float, AtmosAlarmType)> GasData;
+    public Dictionary<int, (float, float, AtmosAlarmType)> GasData;
 
     /// <summary>
     /// Populates the atmos monitoring console focus entry with atmospheric data
@@ -88,7 +89,7 @@ public struct AtmosAlertsFocusDeviceData
         (NetEntity netEntity,
         (float, AtmosAlarmType) temperatureData,
         (float, AtmosAlarmType) pressureData,
-        Dictionary<Gas, (float, float, AtmosAlarmType)> gasData)
+        Dictionary<int, (float, float, AtmosAlarmType)> gasData)
     {
         NetEntity = netEntity;
         TemperatureData = temperatureData;

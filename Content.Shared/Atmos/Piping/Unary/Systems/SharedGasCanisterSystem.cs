@@ -108,12 +108,12 @@ public abstract class SharedGasCanisterSystem : EntitySystem
         // filling a jetpack with plasma is less important than filling a room with it
         var impact = canister.GasTankSlot.HasItem ? LogImpact.Medium : LogImpact.High;
 
-        var containedGasDict = new Dictionary<Gas, float>();
-        var containedGasArray = Enum.GetValues(typeof(Gas));
+        // DS14: iterate the runtime gas registry so gases added purely in YAML are included in the log.
+        var containedGasDict = new Dictionary<int, float>();
 
-        for (var i = 0; i < containedGasArray.Length; i++)
+        for (var i = 0; i < Atmospherics.TotalNumberOfGases; i++)
         {
-            containedGasDict.Add((Gas)i, canister.Air[i]);
+            containedGasDict.Add(i, canister.Air[i]);
         }
 
         AdminLogger.Add(LogType.CanisterValve, impact, $"{ToPrettyString(args.Actor):player} set the valve on {ToPrettyString(uid):canister} to {args.Valve:valveState} while it contained [{string.Join(", ", containedGasDict)}]");

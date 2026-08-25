@@ -69,9 +69,9 @@ public sealed class LungSystem : EntitySystem
      */
     private void GasToReagent(GasMixture gas, Solution solution)
     {
-        foreach (var gasId in Enum.GetValues<Gas>())
+        // DS14: iterate the runtime gas registry, not the Gas enum, so gases added purely in YAML are metabolized too.
+        for (var i = 0; i < _atmos.GasCount; i++)
         {
-            var i = (int) gasId;
             var moles = gas[i];
             if (moles <= 0)
                 continue;

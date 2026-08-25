@@ -32,7 +32,8 @@ public sealed partial class ScrubberControl : BoxContainer
     private Button _deselectAll => CDeselectAll;
 
     private GridContainer _gases => CGasContainer;
-    private Dictionary<Gas, Button> _gasControls = new();
+    // DS14: keyed by gas index instead of the Gas enum, so gases added purely in YAML get a toggle too.
+    private Dictionary<int, Button> _gasControls = new();
 
     public ScrubberControl(GasVentScrubberData data, string address)
     {
@@ -90,10 +91,14 @@ public sealed partial class ScrubberControl : BoxContainer
             ScrubberDataCopied?.Invoke(_data);
         };
 
-        var allGases = Enum.GetValues<Gas>();
+        // DS14: build the gas list from the runtime gas registry (by index) rather than the Gas enum.
+        var allGases = new List<int>(atmosphereSystem.GasCount);
+        for (var i = 0; i < atmosphereSystem.GasCount; i++)
+            allGases.Add(i);
+
         _selectAll.OnPressed += _ =>
         {
-            _data.FilterGases = new HashSet<Gas>(allGases);
+            _data.FilterGases = new HashSet<int>(allGases);
             ScrubberDataChanged?.Invoke(_address, _data);
         };
 
@@ -105,8 +110,7 @@ public sealed partial class ScrubberControl : BoxContainer
 
         foreach (var value in allGases)
         {
-            ProtoId<GasPrototype> gasProtoId = atmosphereSystem.GetGas(value);
-            var gasName = _prototypeManager.Index(gasProtoId).Name;
+            var gasName = atmosphereSystem.GetGas(value).Name;
 
             var gasButton = new Button
             {
@@ -147,9 +151,9 @@ public sealed partial class ScrubberControl : BoxContainer
         _wideNet.Pressed = _data.WideNet;
         _data.FilterGases = data.FilterGases;
 
-        foreach (var value in Enum.GetValues<Gas>())
+        foreach (var (gasId, control) in _gasControls)
         {
-            _gasControls[value].Pressed = data.FilterGases.Contains(value);
+            control.Pressed = data.FilterGases.Contains(gasId);
         }
     }
 }

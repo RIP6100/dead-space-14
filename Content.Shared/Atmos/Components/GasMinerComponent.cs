@@ -1,3 +1,5 @@
+using Content.Shared.Atmos.Prototypes;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 using Robust.Shared.GameStates;
 
@@ -30,11 +32,11 @@ public sealed partial class GasMinerComponent : Component
     public float MaxExternalPressure = Atmospherics.GasMinerDefaultMaxExternalPressure;
 
     /// <summary>
-    ///     Gas to spawn.
+    ///     Gas to spawn. DS14: by prototype ID (name) so gases added purely in YAML can be mined.
     /// </summary>
     [ViewVariables(VVAccess.ReadWrite)]
     [DataField(required: true)]
-    public Gas SpawnGas;
+    public ProtoId<GasPrototype> SpawnGas;
 
     /// <summary>
     ///     Temperature in Kelvin.

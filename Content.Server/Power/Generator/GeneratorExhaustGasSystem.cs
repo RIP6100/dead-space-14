@@ -18,8 +18,12 @@ public sealed class GeneratorExhaustGasSystem : EntitySystem
 
     private void FuelUsed(EntityUid uid, GeneratorExhaustGasComponent component, GeneratorUseFuel args)
     {
+        // DS14: resolve the exhaust gas prototype ID to its index against the live registry.
+        if (!_atmosphere.TryGetGasId(component.GasType, out var gasId))
+            return;
+
         var exhaustMixture = new GasMixture();
-        exhaustMixture.SetMoles(component.GasType, args.FuelUsed * component.MoleRatio);
+        exhaustMixture.SetMoles(gasId, args.FuelUsed * component.MoleRatio);
         exhaustMixture.Temperature = component.Temperature;
 
         var environment = _atmosphere.GetContainingMixture(uid, false, true);

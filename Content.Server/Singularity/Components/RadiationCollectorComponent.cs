@@ -1,5 +1,7 @@
 using Content.Server.Singularity.EntitySystems;
 using Content.Shared.Atmos;
+using Content.Shared.Atmos.Prototypes;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server.Singularity.Components;
 
@@ -49,10 +51,10 @@ public sealed partial class RadiationCollectorComponent : Component
 public sealed partial class RadiationReactiveGas
 {
     /// <summary>
-    ///     The reactant gas
+    ///     The reactant gas. DS14: by prototype ID (name) so YAML-only gases work.
     /// </summary>
     [DataField(required: true)]
-    public Gas ReactantPrototype;
+    public ProtoId<GasPrototype> ReactantPrototype;
 
     /// <summary>
     ///     Multipier for the amount of power produced by the radiation collector when using this gas
@@ -76,7 +78,7 @@ public sealed partial class RadiationReactiveGas
     ///     Leave null if the reactant no byproduct gas is to be formed
     /// </remarks>
     [DataField]
-    public Gas? Byproduct;
+    public ProtoId<GasPrototype>? Byproduct;
 
     /// <summary>
     ///     The molar ratio of the byproduct gas generated from the reactant gas

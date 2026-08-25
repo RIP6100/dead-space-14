@@ -1,4 +1,6 @@
 using Content.Shared.Atmos;
+using Content.Shared.Atmos.Prototypes;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server.Xenoarchaeology.Artifact.XAT.Components;
 
@@ -11,8 +13,9 @@ public sealed partial class XATGasComponent : Component
     /// <summary>
     /// The gas that is related to trigger.
     /// </summary>
+    // DS14: gas prototype ID (name) so YAML-only gases work.
     [DataField]
-    public Gas TargetGas;
+    public ProtoId<GasPrototype> TargetGas;
 
     /// <summary>
     /// The amount of gas needed.

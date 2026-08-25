@@ -1,4 +1,6 @@
 ﻿using Content.Shared.Atmos;
+using Content.Shared.Atmos.Prototypes;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 
 namespace Content.Server.Power.Generator;
@@ -18,8 +20,9 @@ public sealed partial class GasPowerReceiverComponent : Component
     /// <summary>
     /// The gas that fuels this generator
     /// </summary>
+    // DS14: gas prototype ID (name) so YAML-only gases can fuel this.
     [DataField("targetGas", required: true), ViewVariables(VVAccess.ReadWrite)]
-    public Gas TargetGas;
+    public ProtoId<GasPrototype> TargetGas;
 
     /// <summary>
     /// The amount of gas consumed for operation in magic mode.

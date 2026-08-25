@@ -14,7 +14,6 @@ namespace Content.Client.Atmos.Monitor.UI.Widgets;
 [GenerateTypedNameReferences]
 public sealed partial class SensorInfo : BoxContainer
 {
-    [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly IEntityManager _entMan = default!;
 
     public Action<string, AtmosMonitorThresholdType, AtmosAlarmThreshold, Gas?>? OnThresholdUpdate;
@@ -23,8 +22,9 @@ public sealed partial class SensorInfo : BoxContainer
 
     private ThresholdControl _pressureThreshold;
     private ThresholdControl _temperatureThreshold;
-    private Dictionary<Gas, ThresholdControl> _gasThresholds = new();
-    private Dictionary<Gas, RichTextLabel> _gasLabels = new();
+    // DS14: keyed by gas index (see AtmosSensorData.Gases) so gases added purely in YAML are shown.
+    private Dictionary<int, ThresholdControl> _gasThresholds = new();
+    private Dictionary<int, RichTextLabel> _gasLabels = new();
     private Button _copySettings => CCopySettings;
 
     public SensorInfo(AtmosSensorData data, string address)
@@ -55,19 +55,24 @@ public sealed partial class SensorInfo : BoxContainer
 
             var fractionGas = amount / data.TotalMoles;
 
-            ProtoId<GasPrototype> gasProtoId = atmosphereSystem.GetGas(gas);
-            var gasName = _prototypeManager.Index(gasProtoId).Name;
+            var gasName = atmosphereSystem.GetGas(gas).Name;
+
+            // Alarm thresholds only exist for gases that have one configured (enum gases). Gases without one
+            // still display their amount, just without an editable threshold.
+            var hasThreshold = data.GasThresholds.TryGetValue((Gas) gas, out var threshold);
 
             label.SetMarkup(Loc.GetString("air-alarm-ui-gases-indicator",
                 ("gas", Loc.GetString(gasName)),
-                ("color", AirAlarmWindow.ColorForThreshold(fractionGas, data.GasThresholds[gas])),
+                ("color", AirAlarmWindow.ColorForThreshold(fractionGas, threshold ?? new AtmosAlarmThreshold())),
                 ("amount", $"{amount:0.####}"),
                 ("percentage", $"{(100 * fractionGas):0.##}")));
             GasContainer.AddChild(label);
             _gasLabels.Add(gas, label);
 
-            var threshold = data.GasThresholds[gas];
-            var gasThresholdControl = new ThresholdControl(Loc.GetString($"air-alarm-ui-thresholds-gas-title"), threshold, AtmosMonitorThresholdType.Gas, gas, 100);
+            if (!hasThreshold)
+                continue;
+
+            var gasThresholdControl = new ThresholdControl(Loc.GetString($"air-alarm-ui-thresholds-gas-title"), threshold!, AtmosMonitorThresholdType.Gas, (Gas) gas, 100);
             gasThresholdControl.Margin = new Thickness(20, 2, 2, 2);
             gasThresholdControl.ThresholdDataChanged += (type, alarmThreshold, arg3) =>
             {
@@ -129,12 +134,13 @@ public sealed partial class SensorInfo : BoxContainer
 
             var fractionGas = amount / data.TotalMoles;
 
-            ProtoId<GasPrototype> gasProtoId = atmosphereSystem.GetGas(gas);
-            var gasName = _prototypeManager.Index(gasProtoId).Name;
+            var gasName = atmosphereSystem.GetGas(gas).Name;
+
+            data.GasThresholds.TryGetValue((Gas) gas, out var threshold);
 
             label.SetMarkup(Loc.GetString("air-alarm-ui-gases-indicator",
                 ("gas", Loc.GetString(gasName)),
-                ("color", AirAlarmWindow.ColorForThreshold(fractionGas, data.GasThresholds[gas])),
+                ("color", AirAlarmWindow.ColorForThreshold(fractionGas, threshold ?? new AtmosAlarmThreshold())),
                 ("amount", $"{amount:0.####}"),
                 ("percentage", $"{(100 * fractionGas):0.##}")));
         }
@@ -143,7 +149,7 @@ public sealed partial class SensorInfo : BoxContainer
         _temperatureThreshold.UpdateThresholdData(data.TemperatureThreshold, data.Temperature);
         foreach (var (gas, control) in _gasThresholds)
         {
-            if (!data.GasThresholds.TryGetValue(gas, out var threshold))
+            if (!data.GasThresholds.TryGetValue((Gas) gas, out var threshold))
             {
                 continue;
             }

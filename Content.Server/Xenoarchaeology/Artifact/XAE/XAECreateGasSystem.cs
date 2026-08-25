@@ -41,11 +41,15 @@ public sealed class XAECreateGasSystem : BaseXAESystem<XAECreateGasComponent>
 
         foreach (var (gas, moles) in ent.Comp.Gases)
         {
+            // DS14: resolve the gas prototype ID to its index against the live registry.
+            if (!_atmosphere.TryGetGasId(gas, out var gasId))
+                continue;
+
             var molesPerMixture = moles / mixtures.Count;
 
             foreach (var mixture in mixtures)
             {
-                mixture.AdjustMoles(gas, molesPerMixture);
+                mixture.AdjustMoles(gasId, molesPerMixture);
             }
         }
     }

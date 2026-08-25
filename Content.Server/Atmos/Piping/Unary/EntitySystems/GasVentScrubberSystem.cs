@@ -41,6 +41,7 @@ namespace Content.Server.Atmos.Piping.Unary.EntitySystems
         {
             base.Initialize();
 
+            SubscribeLocalEvent<GasVentScrubberComponent, MapInitEvent>(OnVentScrubberMapInit);
             SubscribeLocalEvent<GasVentScrubberComponent, AtmosDeviceUpdateEvent>(OnVentScrubberUpdated);
             SubscribeLocalEvent<GasVentScrubberComponent, AtmosDeviceEnabledEvent>(OnVentScrubberEnterAtmosphere);
             SubscribeLocalEvent<GasVentScrubberComponent, AtmosDeviceDisabledEvent>(OnVentScrubberLeaveAtmosphere);
@@ -48,6 +49,14 @@ namespace Content.Server.Atmos.Piping.Unary.EntitySystems
             SubscribeLocalEvent<GasVentScrubberComponent, PowerChangedEvent>(OnPowerChanged);
             SubscribeLocalEvent<GasVentScrubberComponent, DeviceNetworkPacketEvent>(OnPacketRecv);
             SubscribeLocalEvent<GasVentScrubberComponent, WeldableChangedEvent>(OnWeldChanged);
+        }
+
+        // DS14: fill the default filter (every non-common gas) at runtime, since the data-driven default set is only
+        // known after gases load. A scrubber authored with an explicit filter in YAML keeps it (non-empty).
+        private void OnVentScrubberMapInit(EntityUid uid, GasVentScrubberComponent scrubber, MapInitEvent args)
+        {
+            if (scrubber.FilterGases.Count == 0)
+                scrubber.FilterGases = new HashSet<int>(GasVentScrubberData.DefaultFilterGases);
         }
 
         private void OnVentScrubberUpdated(EntityUid uid, GasVentScrubberComponent scrubber, ref AtmosDeviceUpdateEvent args)
@@ -96,7 +105,7 @@ namespace Content.Server.Atmos.Piping.Unary.EntitySystems
         /// <summary>
         /// True if we were able to scrub, false if we were not.
         /// </summary>
-        public bool Scrub(float timeDelta, float transferRate, ScrubberPumpDirection mode, HashSet<Gas> filterGases, GasMixture? tile, GasMixture destination)
+        public bool Scrub(float timeDelta, float transferRate, ScrubberPumpDirection mode, HashSet<int> filterGases, GasMixture? tile, GasMixture destination)
         {
             // Cannot scrub if tile is null or air-blocked.
             if (tile == null
@@ -181,13 +190,13 @@ namespace Content.Server.Atmos.Piping.Unary.EntitySystems
                         _adminLogger.Add(LogType.AtmosDeviceSetting, LogImpact.Medium, $"{ToPrettyString(uid)} direction changed to {setData.PumpDirection}");
 
                     // TODO: This is iterating through both sets, it could probably be faster but they're both really small sets anyways
-                    foreach (Gas gas in previous.FilterGases)
+                    foreach (var gas in previous.FilterGases)
                         if (!setData.FilterGases.Contains(gas))
-                            _adminLogger.Add(LogType.AtmosDeviceSetting, LogImpact.Medium, $"{ToPrettyString(uid)} {gas} filtering disabled");
+                            _adminLogger.Add(LogType.AtmosDeviceSetting, LogImpact.Medium, $"{ToPrettyString(uid)} {_atmosphereSystem.GetGas(gas).ID} filtering disabled");
 
-                    foreach (Gas gas in setData.FilterGases)
+                    foreach (var gas in setData.FilterGases)
                         if (!previous.FilterGases.Contains(gas))
-                            _adminLogger.Add(LogType.AtmosDeviceSetting, LogImpact.Medium, $"{ToPrettyString(uid)} {gas} filtering enabled");
+                            _adminLogger.Add(LogType.AtmosDeviceSetting, LogImpact.Medium, $"{ToPrettyString(uid)} {_atmosphereSystem.GetGas(gas).ID} filtering enabled");
 
                     if (previous.VolumeRate != setData.VolumeRate)
                     {

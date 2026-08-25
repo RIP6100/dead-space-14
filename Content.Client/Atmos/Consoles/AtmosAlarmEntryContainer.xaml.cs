@@ -119,7 +119,7 @@ public sealed partial class AtmosAlarmEntryContainer : BoxContainer
                 var oxygenPercent = (FixedPoint2)0f;
                 var oxygenAlert = AtmosAlarmType.Invalid;
 
-                if (focusData.Value.GasData.TryGetValue(Gas.Oxygen, out var oxygenData))
+                if (focusData.Value.GasData.TryGetValue((int) Gas.Oxygen, out var oxygenData))
                 {
                     oxygenPercent = oxygenData.Item2 * 100f;
                     oxygenAlert = oxygenData.Item3;
@@ -131,7 +131,7 @@ public sealed partial class AtmosAlarmEntryContainer : BoxContainer
                 // Update other present gases
                 GasGridContainer.RemoveAllChildren();
 
-                var gasData = focusData.Value.GasData.Where(g => g.Key != Gas.Oxygen);
+                var gasData = focusData.Value.GasData.Where(g => g.Key != (int) Gas.Oxygen);
                 var keyValuePairs = gasData.ToList();
 
                 if (keyValuePairs.Count == 0)
@@ -158,7 +158,7 @@ public sealed partial class AtmosAlarmEntryContainer : BoxContainer
                     foreach ((var gas, (var mol, var percent, var alert)) in keyValuePairs)
                     {
                         FixedPoint2 gasPercent = percent * 100f;
-                        var gasAbbreviation = Atmospherics.GasAbbreviations.GetValueOrDefault(gas, Loc.GetString("gas-unknown-abbreviation"));
+                        var gasAbbreviation = Atmospherics.GasAbbreviations.GetValueOrDefault((Gas) gas, Loc.GetString("gas-unknown-abbreviation"));
 
                         var gasLabel = new Label()
                         {

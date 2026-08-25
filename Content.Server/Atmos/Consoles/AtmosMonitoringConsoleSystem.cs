@@ -227,15 +227,16 @@ public sealed class AtmosMonitoringConsoleSystem : SharedAtmosMonitoringConsoleS
         }
 
         // Entry for powered devices
-        var gasData = new Dictionary<Gas, float>();
+        var gasData = new Dictionary<int, float>();
         var isAirPresent = pipeNode.Air.TotalMoles > 0;
 
         if (isAirPresent)
         {
-            foreach (var gas in Enum.GetValues<Gas>())
+            // DS14: iterate every registered gas by index so gases added purely in YAML are reported.
+            for (var gas = 0; gas < Atmospherics.TotalNumberOfGases; gas++)
             {
-                if (pipeNode.Air[(int)gas] > 0)
-                    gasData.Add(gas, pipeNode.Air[(int)gas] / pipeNode.Air.TotalMoles);
+                if (pipeNode.Air[gas] > 0)
+                    gasData.Add(gas, pipeNode.Air[gas] / pipeNode.Air.TotalMoles);
             }
         }
 

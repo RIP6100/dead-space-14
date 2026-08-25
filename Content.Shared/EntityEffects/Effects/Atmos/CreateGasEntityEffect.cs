@@ -1,5 +1,6 @@
 ﻿using Content.Shared.Atmos;
 using Content.Shared.Atmos.EntitySystems;
+using Content.Shared.Atmos.Prototypes;
 using Robust.Shared.Prototypes;
 
 namespace Content.Shared.EntityEffects.Effects.Atmos;
@@ -11,10 +12,10 @@ namespace Content.Shared.EntityEffects.Effects.Atmos;
 public sealed partial class CreateGas : EntityEffectBase<CreateGas>
 {
     /// <summary>
-    ///     The gas we're creating
+    ///     The gas we're creating. DS14: by prototype ID (name) so YAML-only gases work.
     /// </summary>
     [DataField]
-    public Gas Gas;
+    public ProtoId<GasPrototype> Gas;
 
     /// <summary>
     ///     Amount of moles we're creating
