@@ -2,10 +2,10 @@
   id: DefaultMapPool
   maps:
   # - DSTaipan # not mappool map
-  - Amber
+  # - Amber # remap in progress
   # - Aspid # remap in progress
   - Bagel
-  - Barratry
+  # - Barratry # remap in progress
   - Box
   - Cluster
   - Cog
@@ -16,11 +16,11 @@
   - CorvaxChloris
   - CorvaxDelta
   - CorvaxGlacier
-  # - CorvaxPaper # Removed by Liv
+  # - CorvaxPaper # remap in progress
   - CorvaxSilly
   - CorvaxSpectrum
   - Elkridge
-  - Fland
+  # - Fland # remap in progress
   - Gate
   - Ishimura
   - Gemini #DS14
@@ -29,7 +29,7 @@
   - Meta
   - Oasis
   - Omega
-  - Origin
+  # - Origin # remap in progress
   - Packed
   - Plasma 
   - Reach
