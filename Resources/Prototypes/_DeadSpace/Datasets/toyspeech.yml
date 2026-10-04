@@ -543,7 +543,7 @@
   id: PlushieBogSpeech
   values:
     prefix: plushies-bog-
-    count: 9
+    count: 8
 
 - type: localizedDataset
   id: PlushieGenesisSpeech
