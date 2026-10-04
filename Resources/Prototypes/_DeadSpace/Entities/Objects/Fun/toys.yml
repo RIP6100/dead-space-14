@@ -542,6 +542,15 @@
   components:
   - type: Sprite
     state: ellis
+  - type: EmitSoundOnPickup
+    sound:
+      path: /Audio/_DeadSpace/Items/Toys/ellis_pickup.ogg
+  - type: EmitSoundOnThrow
+    sound:
+      path: /Audio/_DeadSpace/Items/Toys/ellis_throw.ogg
+  - type: EmitSoundOnCollide
+    sound:
+      path: /Audio/_DeadSpace/Items/Toys/ellis_collide.ogg
   - type: TTS
     voice: Ellis
   - type: SpeakOnTrigger
@@ -1758,3 +1767,54 @@
     pack: PlushieSastrBonSpeech
   - type: UseDelay
     delay: 180
+
+- type: entity
+  parent: BasePlushieDeadSpaceMisc
+  id: PlushieBog
+  name: плюшевый ВОИТЕЛЬ А333
+  description: Плюшевая игрушка настоящего ветерана НТ! Он побывал почти во всех ключевых  сражениях своей эпохи, потерял 40% оригинальных запчастей, но не боевой дух! Возьми его с собой как талисман на удачу!
+  components:
+  - type: Sprite
+    state: plushie_bog
+  - type: TTS
+    voice: Garrosh
+  - type: SpeakOnTrigger
+    pack: PlushieBogSpeech
+
+- type: entity
+  parent: BasePlushieDeadSpaceMisc
+  id: PlushieMargo
+  name: плюшевая Вер'Оника Кани Янг
+  description: Она уродлива, смотря на неё вы чувствуете лишь отвращение и желание сжечь, чтобы никто больше не увидел этот ужас.
+  components:
+  - type: Sprite
+    state: plushie_margo
+  - type: TTS
+    voice: Anivia
+  - type: SpeakOnTrigger
+    pack: PlushieMargoSpeech
+
+- type: entity
+  parent: BasePlushieDeadSpaceMisc
+  id: PlushieGenesis
+  name: плюшевая Анна Резнова
+  description: Плюшевая игрушка девушки с длинными волосами в снаряжении главного врача. От нее исходит запах лекарств, а снизу стоит подпись "Анна Р. В". Почерк не самый лучший, но разобрать можно
+  components:
+  - type: Sprite
+    state: plushie_genesis
+  - type: TTS
+    voice: Qiyana
+  - type: SpeakOnTrigger
+    pack: PlushieGenesisSpeech
+
+- type: entity
+  parent: BasePlushieDeadSpaceMisc
+  id: PlushieGnar
+  name: плюшевый монстр
+  description: Плюшевый зверёк, который, скорее всего, не опасен. Ищет свой костяной бумеранг
+  components:
+  - type: Sprite
+    state: plushie_gnar
+  - type: EmitSoundOnTrigger
+    sound:
+      collection: PlushieGnarSounds

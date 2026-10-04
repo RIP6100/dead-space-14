@@ -99,6 +99,7 @@
   categories: [ HideSpawnMenu ]
   name: шлем "Вихрь туманности"
   description: Шлем от одноименного скафандра, с двумя антеннами и встроенными в них фонариками. Имеет большой обзорный визор. На затылке шлема красуется инициалы мастера, который его создавал.
+  components:
   - type: Sprite
     sprite: _DeadSpace/Sponsor/Amaliz/helmet.rsi
   - type: Clothing
@@ -440,7 +441,7 @@
   parent: Multitoolnon_stop_smetana
   id: MultitoolAmaliz
   name: бирюзовый мультитул
-  description: Похоже, что это обычный бирюзовый мультитул. Хотя, корпус мультитула похож на устрйоство для взлома.
+  description: Похоже, что это обычный бирюзовый мультитул. Хотя, корпус мультитула похож на устройство для взлома.
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
