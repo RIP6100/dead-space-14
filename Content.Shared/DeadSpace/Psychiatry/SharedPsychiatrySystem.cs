@@ -26,7 +26,7 @@ public abstract class SharedPsychiatrySystem : EntitySystem
                && humanoid.Species == PositronicSpecies;
     }
 
-    public bool IsAntagImmune(EntityUid uid, bool pillForced)
+    public bool IsAntagImmune(EntityUid uid, bool pillForced, bool gas = false)
     {
         var mode = (PsychiatryAntagImmunity) _cfg.GetCVar(CVars.PsychiatryAntagImmunityMode);
         if (!Enum.IsDefined(mode))
@@ -40,7 +40,7 @@ public abstract class SharedPsychiatrySystem : EntitySystem
         if (mode == PsychiatryAntagImmunity.Full)
             return true;
 
-        return !pillForced;
+        return !pillForced && !gas;
     }
 
     public static SchizophreniaStage ClampStage(int stage) =>

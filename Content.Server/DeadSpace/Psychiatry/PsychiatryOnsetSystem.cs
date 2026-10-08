@@ -129,7 +129,7 @@ public sealed class PsychiatryOnsetSystem : EntitySystem
             return;
         if (!_random.Prob(_cfg.GetCVar(CCCCVars.PsychiatryAlcoholChance)))
             return;
-        Notify(ent, _psychiatry.TryOnsetOrEscalate(ent, SchizophreniaStage.Latent, "alcohol"));
+        Notify(ent, _psychiatry.TryOnsetOrEscalate(ent, SchizophreniaStage.Latent, "alcohol", harm: true));
     }
 
     private void OnEmp(Entity<MobStateComponent> ent, ref EmpPulseEvent args)
@@ -137,7 +137,7 @@ public sealed class PsychiatryOnsetSystem : EntitySystem
         if (!_psychiatry.IsPositronic(ent) || !_random.Prob(_cfg.GetCVar(CCCCVars.PsychiatryEmpChance)))
             return;
 
-        NotifyCyber(ent, _psychiatry.TryApplyCyber(ent, SchizophreniaStage.Latent, "emp"));
+        NotifyCyber(ent, _psychiatry.TryApplyCyber(ent, SchizophreniaStage.Latent, "emp", harm: true));
     }
 
     private void OnDamageChanged(Entity<HumanoidAppearanceComponent> ent, ref DamageChangedEvent args)
@@ -151,7 +151,7 @@ public sealed class PsychiatryOnsetSystem : EntitySystem
                 && Total(args, "Shock") >= _cfg.GetCVar(CCCCVars.PsychiatryIonShockMin)
                 && DamageRollReady(ent, static roll => roll.NextShockRoll, static (roll, next) => roll.NextShockRoll = next)
                 && _random.Prob(_cfg.GetCVar(CCCCVars.PsychiatryIonChance)))
-                NotifyCyber(ent, _psychiatry.TryApplyCyber(ent, SchizophreniaStage.Latent, "ion"));
+                NotifyCyber(ent, _psychiatry.TryApplyCyber(ent, SchizophreniaStage.Latent, "ion", harm: true));
             return;
         }
 
@@ -168,7 +168,7 @@ public sealed class PsychiatryOnsetSystem : EntitySystem
             var stage = _random.Prob(_cfg.GetCVar(CCCCVars.PsychiatryRadiationStageSplit))
                 ? SchizophreniaStage.Latent
                 : SchizophreniaStage.Simple;
-            Notify(ent, _psychiatry.TryOnsetOrEscalate(ent, stage, "radiation"));
+            Notify(ent, _psychiatry.TryOnsetOrEscalate(ent, stage, "radiation", harm: true));
         }
     }
 
@@ -214,7 +214,7 @@ public sealed class PsychiatryOnsetSystem : EntitySystem
                     continue;
                 if (!_random.Prob(_cfg.GetCVar(CCCCVars.PsychiatryHarmfulReagentChance)))
                     continue;
-                Notify(uid, _psychiatry.TryOnsetOrEscalate(uid, SchizophreniaStage.Latent, $"harmful-reagent:{reagent.Id}"));
+                Notify(uid, _psychiatry.TryOnsetOrEscalate(uid, SchizophreniaStage.Latent, $"harmful-reagent:{reagent.Id}", harm: true));
                 break;
             }
         }
@@ -243,7 +243,7 @@ public sealed class PsychiatryOnsetSystem : EntitySystem
         var stage = asphyx >= _cfg.GetCVar(CCCCVars.PsychiatryAsphyxiationSevere)
             ? SchizophreniaStage.Simple
             : SchizophreniaStage.Latent;
-        return Notify(uid, _psychiatry.TryOnsetOrEscalate(uid, stage, "asphyxiation"));
+        return Notify(uid, _psychiatry.TryOnsetOrEscalate(uid, stage, "asphyxiation", harm: true));
     }
 
     private bool Notify(EntityUid uid, bool applied)
@@ -307,7 +307,7 @@ public sealed class PsychiatryOnsetSystem : EntitySystem
         if (!_random.Prob(chance))
             return;
 
-        Notify(uid, _psychiatry.TryOnsetOrEscalate(uid, SchizophreniaStage.Latent, $"medicine:{reagent.Id}"));
+        Notify(uid, _psychiatry.TryOnsetOrEscalate(uid, SchizophreniaStage.Latent, $"medicine:{reagent.Id}", harm: true));
     }
 
     private IEnumerable<ProtoId<ReagentPrototype>> HarmfulReagents()

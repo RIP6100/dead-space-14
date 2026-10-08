@@ -235,10 +235,10 @@ public sealed class CCCCVars
         CVarDef.Create("deadspace.psychiatry_onset_cooldown_sec", 120f, CVar.SERVER | CVar.REPLICATED);
 
     public static readonly CVarDef<float> PsychiatryAutoEscalateMinSec =
-        CVarDef.Create("deadspace.psychiatry_auto_escalate_min_sec", 900f, CVar.SERVER | CVar.REPLICATED);
+        CVarDef.Create("deadspace.psychiatry_auto_escalate_min_sec", 600f, CVar.SERVER | CVar.REPLICATED);
 
     public static readonly CVarDef<float> PsychiatryAutoEscalateMaxSec =
-        CVarDef.Create("deadspace.psychiatry_auto_escalate_max_sec", 1200f, CVar.SERVER | CVar.REPLICATED);
+        CVarDef.Create("deadspace.psychiatry_auto_escalate_max_sec", 600f, CVar.SERVER | CVar.REPLICATED);
 
     public static readonly CVarDef<float> PsychiatryScareMinSec =
         CVarDef.Create("deadspace.psychiatry_scare_min_sec", 30f, CVar.CLIENTONLY | CVar.ARCHIVE);
@@ -330,6 +330,10 @@ public sealed class CCCCVars
     // Пауза между бросками удушья, радиации, шока и алкоголя. Яды и лекарства проверяются с той же паузой.
     public static readonly CVarDef<float> PsychiatryDamageRollGapSec =
         CVarDef.Create("deadspace.psychiatry_damage_roll_gap_sec", 10f, CVar.SERVER | CVar.REPLICATED);
+
+    // Пауза между сменами стадии от урона и отравления. Обычный кулдаун болезни при этом тоже стоит.
+    public static readonly CVarDef<float> PsychiatryHarmStageCooldownSec =
+        CVarDef.Create("deadspace.psychiatry_harm_stage_cooldown_sec", 300f, CVar.SERVER | CVar.REPLICATED);
 
     // 0 полный иммунитет, 1 только случайные ситуации, 2 иммунитета нет.
     public static readonly CVarDef<int> PsychiatryAntagImmunityMode =

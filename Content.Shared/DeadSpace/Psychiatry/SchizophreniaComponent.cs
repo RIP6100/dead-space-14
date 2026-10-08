@@ -70,5 +70,7 @@ public sealed partial class SchizophreniaOnsetTrackerComponent : Component
 
     public TimeSpan NextAlcoholRoll;
 
+    public TimeSpan NextHarmStage;
+
     public HashSet<string> RolledMedicines = new();
 }

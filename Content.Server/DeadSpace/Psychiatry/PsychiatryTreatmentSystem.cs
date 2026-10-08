@@ -824,7 +824,7 @@ public sealed class PsychiatryTreatmentSystem : EntitySystem
         if (RefuseUnlessPositronic(args.User, target, false, out _))
             return;
 
-        _psychiatry.TryApplyCyber(target, SchizophreniaStage.Latent, "cascade-spike", ignoreCooldown: true);
+        _psychiatry.TryApplyCyber(target, SchizophreniaStage.Latent, "cascade-spike", ignoreCooldown: true, forced: true);
         _popup.PopupEntity(Loc.GetString("psychiatry-cyber-onset"), target, PopupType.MediumCaution);
         QueueDel(ent.Owner);
     }

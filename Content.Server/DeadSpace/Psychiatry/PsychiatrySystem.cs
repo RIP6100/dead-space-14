@@ -21,6 +21,7 @@ using Content.Shared.Humanoid;
 using Content.Shared.IdentityManagement;
 using Content.Shared.Inventory;
 using Content.Shared.Medical;
+using Content.Shared.Mind;
 using Content.Shared.Mobs.Components;
 using Content.Shared.PDA;
 using Content.Shared.Popups;
@@ -67,6 +68,7 @@ public sealed class PsychiatrySystem : SharedPsychiatrySystem
         base.Initialize();
         SubscribeLocalEvent<SchizophreniaComponent, ComponentStartup>(OnIllnessStartup);
         SubscribeLocalEvent<SchizophreniaComponent, ComponentShutdown>(OnIllnessShutdown);
+        SubscribeLocalEvent<RoleAddedEvent>(OnRoleAdded);
     }
 
     public override void Update(float frameTime)
@@ -133,7 +135,7 @@ public sealed class PsychiatrySystem : SharedPsychiatrySystem
 
             if (Timing.CurTime >= schizo.NextAutoEscalate && schizo.Stage < SchizophreniaStage.Acute)
             {
-                if (!IsAntagImmune(uid, schizo.PillForced))
+                if (!IsAntagImmune(uid, pillForced: false))
                     AdjustStage(uid, +1, "auto-escalate");
                 else
                     ScheduleAutoEscalate(schizo, uid);
@@ -170,7 +172,7 @@ public sealed class PsychiatrySystem : SharedPsychiatrySystem
         if (!_cfg.GetCVar(CCCCVars.PsychiatryEnabled))
             return false;
 
-        if (IsPositronic(uid) || IsAntagImmune(uid, pillForced: false))
+        if (IsPositronic(uid) || IsAntagImmune(uid, pillForced: false, gas: true))
             return false;
 
         if (IsPsychogenBlocked(uid))
@@ -201,12 +203,12 @@ public sealed class PsychiatrySystem : SharedPsychiatrySystem
         return true;
     }
 
-    public bool TryOnsetOrEscalate(EntityUid uid, SchizophreniaStage suggested, string reason, bool ignoreCooldown = false)
+    public bool TryOnsetOrEscalate(EntityUid uid, SchizophreniaStage suggested, string reason, bool ignoreCooldown = false, bool harm = false)
     {
-        return TryApplyOrEscalate(uid, suggested, pillForced: false, ignoreCooldown, reason);
+        return TryApplyOrEscalate(uid, suggested, pillForced: false, ignoreCooldown, reason, harm);
     }
 
-    public bool TryApplyOrEscalate(EntityUid uid, SchizophreniaStage suggested, bool pillForced, bool ignoreCooldown, string reason)
+    public bool TryApplyOrEscalate(EntityUid uid, SchizophreniaStage suggested, bool pillForced, bool ignoreCooldown, string reason, bool harm = false)
     {
         if (!_cfg.GetCVar(CCCCVars.PsychiatryEnabled))
             return false;
@@ -224,6 +226,8 @@ public sealed class PsychiatrySystem : SharedPsychiatrySystem
         var cd = TimeSpan.FromSeconds(_cfg.GetCVar(CCCCVars.PsychiatryOnsetCooldownSec));
         if (!ignoreCooldown && Timing.CurTime < tracker.NextAllowedOnset)
             return false;
+        if (harm && Timing.CurTime < tracker.NextHarmStage)
+            return false;
 
         if (TryComp<SchizophreniaComponent>(uid, out var existing))
         {
@@ -240,16 +244,20 @@ public sealed class PsychiatrySystem : SharedPsychiatrySystem
             AdjustStage(uid, +1, reason);
             if (!ignoreCooldown)
                 tracker.NextAllowedOnset = Timing.CurTime + cd;
+            if (harm)
+                StampHarm(tracker);
             return true;
         }
 
         ApplyNew(uid, suggested, pillForced, reason);
         if (!ignoreCooldown)
             tracker.NextAllowedOnset = Timing.CurTime + cd;
+        if (harm)
+            StampHarm(tracker);
         return true;
     }
 
-    public bool TryApplyCyber(EntityUid uid, SchizophreniaStage suggested, string reason, bool ignoreCooldown = false)
+    public bool TryApplyCyber(EntityUid uid, SchizophreniaStage suggested, string reason, bool ignoreCooldown = false, bool harm = false, bool forced = false)
     {
         if (!_cfg.GetCVar(CCCCVars.PsychiatryEnabled) || !IsPositronic(uid))
             return false;
@@ -257,12 +265,14 @@ public sealed class PsychiatrySystem : SharedPsychiatrySystem
         if (OnTreatmentHold(uid))
             return false;
 
-        if (IsAntagImmune(uid, pillForced: false))
+        if (!forced && IsAntagImmune(uid, pillForced: false))
             return false;
 
         var tracker = EnsureComp<SchizophreniaOnsetTrackerComponent>(uid);
         var cd = TimeSpan.FromSeconds(_cfg.GetCVar(CCCCVars.PsychiatryOnsetCooldownSec));
         if (!ignoreCooldown && Timing.CurTime < tracker.NextAllowedOnset)
+            return false;
+        if (harm && Timing.CurTime < tracker.NextHarmStage)
             return false;
 
         if (TryComp<SchizophreniaComponent>(uid, out var existing))
@@ -277,12 +287,16 @@ public sealed class PsychiatrySystem : SharedPsychiatrySystem
             AdjustStage(uid, +1, reason);
             if (!ignoreCooldown)
                 tracker.NextAllowedOnset = Timing.CurTime + cd;
+            if (harm)
+                StampHarm(tracker);
             return true;
         }
 
         ApplyNew(uid, suggested, pillForced: false, reason, PsychiatryIllnessKind.Cyberpsychosis);
         if (!ignoreCooldown)
             tracker.NextAllowedOnset = Timing.CurTime + cd;
+        if (harm)
+            StampHarm(tracker);
         return true;
     }
 
@@ -396,7 +410,23 @@ public sealed class PsychiatrySystem : SharedPsychiatrySystem
         tracker.NextRadiationRoll = until;
         tracker.NextShockRoll = until;
         tracker.NextAlcoholRoll = until;
+        tracker.NextHarmStage = until;
         RemComp<PsychogenDoseComponent>(uid);
+    }
+
+    private void StampHarm(SchizophreniaOnsetTrackerComponent tracker)
+    {
+        tracker.NextHarmStage = Timing.CurTime + TimeSpan.FromSeconds(_cfg.GetCVar(CCCCVars.PsychiatryHarmStageCooldownSec));
+    }
+
+    private void OnRoleAdded(RoleAddedEvent args)
+    {
+        if (args.Mind.OwnedEntity is not { } body)
+            return;
+        if (!IsAntagImmune(body, pillForced: false))
+            return;
+
+        ClearIllness(body, "antag");
     }
 
     private bool OnTreatmentHold(EntityUid uid)
@@ -484,6 +514,8 @@ public sealed class PsychiatrySystem : SharedPsychiatrySystem
         ScheduleWhisper(schizo, uid);
 
         if (!TryComp<ActorComponent>(uid, out var actor))
+            return;
+        if (actor.PlayerSession.AttachedEntity != uid)
             return;
         if (!_proto.TryIndex(DefaultPhrases, out PsychiatryPhrasesPrototype? phrases))
             return;

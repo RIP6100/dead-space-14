@@ -10,7 +10,7 @@ public enum PsychiatryAntagImmunity : byte
     Full = 0,
 
     /// <summary>
-    /// Случайные ситуации не берут. Укол шизотоксина берёт.
+    /// Случайные ситуации не берут. Укол и газ берут.
     /// </summary>
     Partial = 1,
 

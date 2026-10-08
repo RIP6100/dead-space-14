@@ -10,6 +10,7 @@ using Content.Shared.Examine;
 using Content.Shared.Follower.Components;
 using Content.Shared.Ghost;
 using Content.Shared.Humanoid;
+using Content.Shared.Mind.Components;
 using Content.Shared.Item;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
@@ -81,6 +82,7 @@ public sealed class PsychiatryClientSystem : SharedPsychiatrySystem
         SubscribeLocalEvent<PsychiatryRemapComponent, ClientExaminedEvent>(OnClientExamined);
         SubscribeLocalEvent<PsychiatryRemapComponent, GetStatusIconsEvent>(OnGetStatusIcons);
         SubscribeLocalEvent<SchizophreniaComponent, LocalPlayerDetachedEvent>(OnLeftBody);
+        SubscribeLocalEvent<LocalPlayerDetachedEvent>(OnLocalDetached);
         Subs.CVar(_cfg, CCCCVars.PsychiatryClientFx, v =>
         {
             _fxEnabled = v;
@@ -142,7 +144,7 @@ public sealed class PsychiatryClientSystem : SharedPsychiatrySystem
         if (local == null)
             return false;
 
-        if (HasComp<GhostComponent>(local.Value))
+        if (HasComp<GhostComponent>(local.Value) || HasComp<VisitingMindComponent>(local.Value))
             return false;
 
         if (TryComp<MobStateComponent>(local.Value, out var mob) && mob.CurrentState == MobState.Dead)
@@ -165,6 +167,14 @@ public sealed class PsychiatryClientSystem : SharedPsychiatrySystem
         }
 
         return false;
+    }
+
+    private void OnLocalDetached(LocalPlayerDetachedEvent args)
+    {
+        ClearVisuals();
+        RemoveOverlays();
+        _activeSubject = null;
+        _lastParacusia = TimeSpan.Zero;
     }
 
     private void OnLeftBody(EntityUid uid, SchizophreniaComponent comp, LocalPlayerDetachedEvent args)
