@@ -1,3 +1,14 @@
+# steps это кадры. at (сек) обязателен, строго растёт. Остальные не обязательны
+# наследуются от прошлого кадра, можно менять только нужное
+#   at = время кадра в секундах
+#   shift = сдвиг в тайлах (1.0 = 32 px, |x|,|y| <= 2)
+#   tilt = градусы поворота спрайта, |tilt| <= 720
+#   face = градусы поворота тела, кратно 90, в конце кратно 360
+#   size = сжаите и растижение (x, y, каждое от 0.2 до 3)
+#   fade = прозрачность (от 0.15 до 1)
+#   color = цвет (#ff0000 / red)
+#   frame = state из RSI (с layer один раз на анимацию)
+
 # flip animation
 - type: entity
   id: EmoteFlip
@@ -105,7 +116,6 @@
   chatTriggers:
     - кружится
     - оборачивается
-    - танцует
     - покружилась
     - покружился
   steps:
@@ -236,3 +246,209 @@
   chatTriggers:
     - виляет хвостом
     - хвост двигается
+
+- type: emote
+  id: EmoteHeadSpin
+  name: chat-emote-name-head-spin
+  icon: Interface/Emotes/spin.png
+  category: Animations
+  chatMessages: ["chat-emote-msg-head-spin"]
+  chatTriggers:
+    - кружится на голове
+    - покружился на голове
+    - покружилась на голове
+    - встал на голову
+    - встала на голову
+  steps:
+  - at: 0
+    shift: 0, 0
+    tilt: 0
+    face: 0
+  - at: 0.25
+    tilt: 180
+    face: 0
+  - at: 0.45
+    tilt: 180
+    face: 180
+  - at: 0.65
+    tilt: 180
+    face: 360
+  - at: 0.85
+    tilt: 180
+    face: 540
+  - at: 1.05
+    tilt: 180
+    face: 720
+
+- type: emote
+  id: EmoteHeadDance
+  name: chat-emote-name-head-dance
+  icon: Interface/Emotes/spin.png
+  category: Animations
+  chatMessages: ["chat-emote-msg-head-dance"]
+  chatTriggers:
+    - танцует на голове
+    - станцевал на голове
+    - станцевала на голове
+    - пляшет на голове
+    - дико флексит
+    - танцует
+  steps:
+  - at: 0
+    shift: 0, 0
+    tilt: 0
+    face: 0
+  - at: 0.3
+    shift: 0.25, 0
+    tilt: 20
+    face: 0
+  - at: 0.8
+    shift: -0.25, 0
+    tilt: -20
+    face: 0
+  - at: 1.0
+    tilt: 180
+    face: 360
+  - at: 1.2
+    face: 540
+  - at: 1.4
+    shift: 0.25, 0
+  - at: 1.6
+    face: 720
+  - at: 1.8
+    shift: -0.25, 0
+  - at: 2.0
+    face: 900
+  - at: 2.2
+    shift: 0.25, 0
+  - at: 2.4
+    face: 1080
+  - at: 2.5
+    shift: 0, 0
+  - at: 2.6
+    face: 1440
+
+- type: emote
+  id: EmoteShiver
+  name: chat-emote-name-shiver
+  icon: Interface/Emotes/jump.png
+  category: Animations
+  chatMessages: ["chat-emote-msg-shiver"]
+  chatTriggers:
+    - дрожит
+    - трясётся
+    - трясется
+    - задрожал
+    - задрожала
+  steps:
+  - at: 0
+    shift: 0, 0
+    tilt: 0
+    size: 1, 1
+  - at: 0.08
+    shift: -0.05, 0.01
+    tilt: 3
+    size: 1.02, 0.98
+  - at: 0.16
+    shift: 0.02, -0.05
+    tilt: -2
+    size: 0.99, 1.01
+  - at: 0.24
+    shift: 0.05, 0.02
+    tilt: 2
+    size: 1.01, 0.99
+  - at: 0.32
+    shift: -0.01, 0.05
+    tilt: -3
+    size: 1, 1
+  - at: 0.4
+    shift: -0.05, -0.02
+    tilt: 1
+    size: 1.02, 0.98
+  - at: 0.48
+    shift: 0.03, -0.04
+    tilt: -1
+    size: 0.98, 1.02
+  - at: 0.56
+    shift: 0.05, 0.03
+    tilt: 2
+    size: 1.01, 0.99
+  - at: 0.64
+    shift: -0.02, 0.05
+    tilt: -2
+    size: 1, 1
+  - at: 0.72
+    shift: -0.04, -0.03
+    tilt: 1
+    size: 1.01, 0.99
+  - at: 0.8
+    shift: 0.04, 0.01
+    tilt: -1
+    size: 0.99, 1.01
+  - at: 0.88
+    shift: 0.01, -0.05
+    tilt: 0
+    size: 1, 1
+  - at: 0.96
+    shift: 0, 0
+    tilt: 0
+    size: 1, 1
+
+- type: emote
+  id: EmoteTurnRed
+  name: chat-emote-name-turnred
+  icon: Interface/Emotes/jump.png
+  category: Animations
+  chatMessages: ["chat-emote-msg-turnred"]
+  chatTriggers:
+    - краснеет
+    - злится
+    - смущён
+  steps:
+  - at: 0
+  - at: 0.3
+    color: red
+  - at: 0.6
+    color: red
+  - at: 1.2
+
+- type: emote
+  id: EmoteChill
+  name: chat-emote-name-chill
+  icon: Interface/Emotes/spin.png
+  category: Animations
+  chatMessages: ["chat-emote-msg-chill"]
+  chatTriggers:
+    - пританцовывает
+    - медленно танцует
+    - чилит
+    - качается из стороны в сторону
+  steps:
+  - at: 0
+    shift: 0, 0
+    tilt: 0
+    face: 0
+  - at: 0.3
+    shift: 0.25, 0
+    tilt: 20
+    face: 0
+  - at: 0.8
+    shift: -0.25, 0
+    tilt: -20
+    face: 0
+  - at: 1.3
+    shift: 0.25, 0
+    tilt: 20
+    face: 0
+  - at: 1.8
+    shift: -0.25, 0
+    tilt: -20
+    face: 0
+  - at: 2.3
+    shift: 0.25, 0
+    tilt: 20
+    face: 0
+  - at: 2.8
+    shift: -0.25, 0
+    tilt: -20
+    face: 0
