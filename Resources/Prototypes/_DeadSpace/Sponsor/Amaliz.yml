@@ -28,7 +28,6 @@
     contents:
     - id: ClothingHandsGlovesAmaliz
     - id: ClothingOuterHardsuitAmaliz
-    - id: ClothingMaskGasPrometheus3 # Разрешил использовать маску
     - id: ClothingHeadsetAmaliz
     - id: ClothingShoesBootsMagAmaliz
     - id: ClothingEyesHudAmaliz
@@ -37,7 +36,6 @@
     - id: HyposprayAmaliz
     - id: ClothingNeckCloakAmaliz
     - id: MedkitAdvancedFilled
-    - id: DoubleEmergencyOxygenTank
     - id: PaperAmaliz
     - id: ClothingUniformTurtleneckTactic
     - id: PDAAmaliz
@@ -47,12 +45,20 @@
     - id: WelderExperimentalAmaliz
     - id: MultitoolAmaliz
     - id: RCDAmaliz
-    - id: HolofanProjectorTheZuTi # Разрешил использовать голопроектор
-    - id: ADTtelescopicBaton
     - id: JukeboxMK
     - id: TapeRecorderr
     - id: TapeEmpty
     - id: ClothingUnderwearBottomBoxersAmaliz
+    - id: WeaponCrusherAmaliz
+    - id: WeaponProtokineticAmaliz
+    - id: ClothingMaskGasAmaliz
+    - id: DoubleRockGuitarAmaliz
+    - id: DoubleEmergencyOxygenTankAmaliz
+    - id: GasAnalyzerAmaliz
+    - id: HolofanProjectorAmaliz
+    - id: trayScannerAmaliz
+  - type: TypingIndicatorClothing
+    proto: TypingIndicatorAmaliz
   - type: Tag
     tags: [] # ignore "WhitelistChameleon" tag
 
@@ -196,7 +202,7 @@
 
 # Jetpack
 - type: entity
-  parent: JetpackVoidFilledPvrsifvlAlt2
+  parent: JetpackVoid
   id: JetpackVoidFilledAmaliz
   name: джетпак "Вихрь туманности"
   description: Ручной работы джетпак с малиново-красными вставками. Судя по внешнему виду, джетпак был создан индивидуально для владельца и длительных работ в космосе. 
@@ -205,6 +211,8 @@
   - type: Sprite
     sprite: _DeadSpace/Sponsor/Amaliz/jetpack.rsi
   - type: Clothing
+    sprite: _DeadSpace/Sponsor/Amaliz/jetpack.rsi
+  - type: Item
     sprite: _DeadSpace/Sponsor/Amaliz/jetpack.rsi
   - type: GenericVisualizer
     visuals:
@@ -244,7 +252,12 @@
   components:
   - type: Sprite
     sprite: _DeadSpace/Sponsor/Amaliz/hypospray.rsi
-    state: hypo
+    layers:
+    - state: hypo
+      map: ["enum.SolutionContainerLayers.Base"]
+    - state: hypo_fill1
+      map: ["enum.SolutionContainerLayers.Fill"]
+      visible: false
   - type: Item
     sprite: _DeadSpace/Sponsor/Amaliz/hypospray.rsi
   - type: SolutionContainerManager
@@ -253,6 +266,11 @@
         maxVol: 5
   - type: UseDelay
     delay: 0.5
+  - type: Appearance
+  - type: SolutionContainerVisuals
+    maxFillLevels: 4
+    fillBaseName: hypo_fill
+    solutionName: hypospray
 
 # Mantle
 - type: entity
@@ -494,3 +512,174 @@
       right:
       - state: inhand-right
   - type: MultiHandedItem
+
+# Crusher
+- type: entity
+  parent: WeaponCrusher
+  id: WeaponCrusherAmaliz
+  name: металлополимерный молот-разрушитель
+  description: Синий металлополимер способен ускорять небольшие кусочки своей структуры, удар по которым высвобождает огромное количество энергии. Судя по виду, это лишь прототип, который достался владельцу.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeadSpace/Sponsor/Amaliz/crusher.rsi
+    state: icon
+  - type: Item
+    sprite: _DeadSpace/Sponsor/Amaliz/crusher.rsi
+    size: Huge
+  - type: Clothing
+    sprite: _DeadSpace/Sponsor/Amaliz/crusher.rsi
+  - type: PointLight
+    color: "#379CCFFF"
+    enabled: false
+    radius: 4
+  - type: BasicEntityAmmoProvider
+    proto: BulletChargeAmaliz
+    capacity: 1
+    count: 1
+
+# Crusher damage marker
+- type: entity
+  id: BulletChargeAmaliz
+  name: charge bolt
+  parent: BulletCharge
+  categories: [ HideSpawnMenu ]
+  description: Marks a target for additional damage.
+  components:
+  - type: DamageMarkerOnCollide
+    effect:
+      sprite: _DeadSpace/Sponsor/Amaliz/crusher.rsi
+      state: marker
+
+# Protokinetic
+- type: entity
+  parent: WeaponProtoKineticAcceleratorShotgun
+  id: WeaponProtokineticAmaliz
+  name: самодельный протокинетический излучатель
+  description: Протокинетический инструмент, который был сделан из подручных средств и окрашен. В его структуре видно части водяного пистолета, игрушеченного пистолета и огнемёта. Выглядит как оружие пятиклассника или чья-то несмешная шутка.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeadSpace/Sponsor/Amaliz/kinetic_accelerator/kinetic_accelerator1.rsi
+    layers:
+    - state: icon
+  - type: Item
+    sprite: _DeadSpace/Sponsor/Amaliz/kinetic_accelerator/kinetic_accelerator2.rsi
+    size: Normal
+  - type: Clothing
+    sprite: _DeadSpace/Sponsor/Amaliz/kinetic_accelerator/kinetic_accelerator2.rsi
+
+# Mask
+- type: entity
+  parent: ClothingMaskGasSponsor
+  id: ClothingMaskGasAmaliz
+  name: газовая маска техника
+  description: Чья-то газовая маска... Похоже на военную, которую изрядно износили.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeadSpace/Sponsor/Amaliz/mask.rsi
+  - type: Clothing
+    sprite: _DeadSpace/Sponsor/Amaliz/mask.rsi
+  - type: Tag
+    tags: []
+
+# guitar.rsi
+- type: entity
+  parent: DoubleRockGuitarInstrument
+  id: DoubleRockGuitarAmaliz
+  name: двойная рок-гитара
+  description: Шикарная рок-гитара, которой можно сыграть отличное соло или кого-то убить. Похоже, её украли.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeadSpace/Sponsor/Amaliz/guitar.rsi
+  - type: Item
+    sprite: _DeadSpace/Sponsor/Amaliz/guitar.rsi
+  - type: Clothing
+    sprite: _DeadSpace/Sponsor/Amaliz/guitar.rsi
+  - type: StaminaDamageOnHit
+    damage: 30
+  - type: MeleeWeapon
+    wideAnimationRotation: 45
+    damage:
+      types:
+        Blunt: 1
+    soundHit:
+      path: /Audio/Weapons/guitarsmash.ogg
+      params:
+        volume: -7
+        maxDistance: 10
+  - type: IncreaseDamageOnWield 
+    damage:
+      types:
+        Blunt: 1
+        Slash: 1
+
+# tank.rsi
+- type: entity
+  parent: DoubleEmergencyOxygenTank
+  id: DoubleEmergencyOxygenTankAmaliz
+  name: перекрашенный двойной аварийный баллон
+  description: Перекрашенный баллон, украшенный бирюзовыми и малиново-красными вставками.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeadSpace/Sponsor/Amaliz/tank.rsi
+  - type: Item
+    sprite: _DeadSpace/Sponsor/Amaliz/tank.rsi
+    storedSprite:
+      state: storage
+      sprite: _DeadSpace/Sponsor/Amaliz/tank.rsi
+  - type: Clothing
+    sprite: _DeadSpace/Sponsor/Amaliz/tank.rsi
+
+# tools_gasanalyzer.rsi
+- type: entity
+  parent: GasAnalyzer
+  id: GasAnalyzerAmaliz
+  name: самодельный газоанализатор
+  description: Ручной газоанализатор в бирюзовым корпусом. Видимо, раньше это был мультитул.
+  components:
+  - type: Sprite
+    sprite: _DeadSpace/Sponsor/Amaliz/tools_gasanalyzer.rsi
+    layers:
+    - state: icon
+      map: ["analyzer"]
+
+# tools_holofanprojector.rsi
+- type: entity
+  parent: HolofanProjector
+  id: HolofanProjectorAmaliz
+  name: голопроектор "Вихрь туманности"
+  description: Модифицированный голопроектор с красивым дизайном. Кроме дизайна, походу, его никак не модифицировали...
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeadSpace/Sponsor/Amaliz/tools_holofanprojector.rsi
+    state: icon
+  - type: LimitedHolosignProjector
+    signProto: HoloFani750 # Разрешил использовать Holofan. Получено от: i750
+
+# tools_trayscanner.rsi
+- type: entity
+  parent: trayScanner
+  id: trayScannerAmaliz
+  name: сканер подпольных коммуникаций
+  description: Сканер подпольных коммуникаций. Похож на компактный монитор питания, хотя технически это не он.
+  components:
+  - type: Sprite
+    sprite: _DeadSpace/Sponsor/Amaliz/tools_trayscanner.rsi
+    layers:
+    - state: tray-off
+      map: ["base"]
+  - type: Item
+    sprite: _DeadSpace/Sponsor/Amaliz/tools_trayscanner.rsi
+
+# speech.rsi
+- type: typingIndicator
+  id: TypingIndicatorAmaliz
+  spritePath: _DeadSpace/Sponsor/Amaliz/speech.rsi
+  typingState: star
+  idleState: star
+  offset: 0.125, 0.125
