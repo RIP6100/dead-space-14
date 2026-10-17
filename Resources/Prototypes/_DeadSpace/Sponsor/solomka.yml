@@ -33,6 +33,9 @@
     - id: PDASolomka
     - id: PlushieSolomka
     - id: ClothingBeltSolomka
+    - id: PaperSolomka
+    - id: DoubleEmergencyOxygenTankFilled
+    - id: MedkitAdvancedFilled
   - type: Tag
     tags: [] # ignore "WhitelistChameleon" tag
 
@@ -501,7 +504,7 @@
 - type: entity
   parent: BaseItem
   id: TelescopicBatonSolomka
-  name: телескопическая кинжал "Белая Пурга"
+  name: телескопический кинжал "Белая Пурга"
   description: Синий кинжал, который не наносит урона, а лишь сбивает с ног нарушителя личного пространства.
   categories: [ HideSpawnMenu ]
   components:
@@ -526,4 +529,23 @@
   - type: EmitSoundOnLand
     sound:
       path: /Audio/_DeadSpace/Items/Handing/batton/telescopic_baton_drop.ogg
+
+#Документ
+- type: entity
+  parent: PaperPrintedCentcomm
+  id: PaperSolomka
+  name: распечатанный документ
+  description: Лист бумаги с заголовком центкома. Страшно даже смотреть на него.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Paper
+    stampState: paper_stamp-centcom
+    stampedBy:
+    - stampedColor: '#006600FF'
+      stampedName: Центральное Командование
+    - stampedColor: '#00BE00FF'
+      stampedName: Одобрено
+    content: paper-law-solomka
+  - type: Tag
+    tags: [] # ignore "WhitelistChameleon" tag
 
