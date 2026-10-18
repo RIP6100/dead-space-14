@@ -116,7 +116,6 @@
     spriteLayer: light
     clothingVisuals:
       head:
-      - state: on-equipped-HELMET
       - state: on-unshaded
         shader: unshaded
   - type: PressureProtection
