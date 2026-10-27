@@ -580,7 +580,7 @@
     rechargeSound:
       path: /Audio/_DeadSpace/Sponsor/AnarchistVanity/crusher-reload.ogg
   - type: BasicEntityAmmoProvider
-    proto: BulletCharge
+    proto: BulletChargeAmaliz # Разрешено правообладателем
     capacity: 1
     count: 1
 
