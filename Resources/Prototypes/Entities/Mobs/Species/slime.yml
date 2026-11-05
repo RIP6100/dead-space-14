@@ -4,8 +4,6 @@
   id: BaseMobSlimePerson
   abstract: true
   components:
-  - type: Hunger
-  - type: Thirst
   - type: Icon
     sprite: Mobs/Species/Slime/parts.rsi
     state: full
@@ -43,6 +41,10 @@
     delay: 0.5
   - type: HumanoidAppearance
     species: SlimePerson
+  # DS14-start
+  - type: CorpseBurning
+    messageType: slime
+  # DS14-end
   - type: Speech
     speechVerb: Slime
     speechSounds: Slime
@@ -58,6 +60,7 @@
     damageContainer: Biological
     damageModifierSet: Slime
   - type: PassiveDamage # Around 8 damage a minute healed
+    intervalHaltOnDamageTaken: 5s
     allowedStates:
     - Alive
     damageCap: 65
@@ -66,8 +69,8 @@
         Heat: -0.14
       groups:
         Brute: -0.14
-  - type: DamageVisuals
-    damageOverlayGroups:
+  - type: LimbWoundVisuals
+    groups:
       Brute:
         sprite: Mobs/Effects/brute_damage.rsi
         color: "#2cf274"
@@ -157,6 +160,8 @@
     uis:
       enum.MagicMirrorUiKey.Key:
         toggleAction: HairstyleAction
+  - type: SlimeForm
+  - type: SurgerySlimeRegrow # DS14
   # DS14-end
 
 - type: entity

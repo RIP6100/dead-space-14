@@ -95,6 +95,7 @@ public sealed class GasPressureRegulatorSystem : SharedGasPressureRegulatorSyste
 
         Gas is simply transferred from the inlet to the outlet, restricted by flow rate and pressure.
         We want to transfer enough gas to bring the inlet pressure below the threshold,
+        without overpressurizing the outlet past the threshold,
         and only as much as our max flow rate allows.
 
         The equations:
@@ -105,9 +106,9 @@ public sealed class GasPressureRegulatorSystem : SharedGasPressureRegulatorSyste
         */
 
         var p1 = inletPipeNode.Air.Pressure;
-        var p2 = outletPipeNode.Air.Pressure;
+        var p2 = outletPipeNode.Air.Pressure; // DS14
 
-        if (p1 <= ent.Comp.Threshold || p2 >= p1)
+        if (p1 <= ent.Comp.Threshold || p2 >= ent.Comp.Threshold) // DS14
         {
             ChangeStatus(false, ent, inletPipeNode, outletPipeNode, 0);
             return;
@@ -115,25 +116,20 @@ public sealed class GasPressureRegulatorSystem : SharedGasPressureRegulatorSyste
 
         var t1 = inletPipeNode.Air.Temperature;
 
-        // First, calculate the amount of gas we need to transfer to bring us below the threshold.
+        // DS14-start - the setpoint controls inlet pressure; the outlet pressure also throttles the
+        // regulator, as far as the setpoint is concerned.
+        // Calculate the amount of gas we need to transfer to bring the inlet down to the threshold.
         var deltaMolesToPressureThreshold =
             AtmosphereSystem.MolesToPressureThreshold(inletPipeNode.Air, ent.Comp.Threshold);
 
-        // Second, calculate the moles required to equalize the pressure.
-        // We round here to avoid the valve staying enabled for 0.00001 pressure differences.
-        var deltaMolesToEqualizePressure =
-            float.Round(_atmosphere.FractionToEqualizePressure(inletPipeNode.Air, outletPipeNode.Air) *
-                        inletPipeNode.Air.TotalMoles,
-                1,
-                MidpointRounding.ToPositiveInfinity);
+        var deltaMolesToOutletThreshold =
+            -AtmosphereSystem.MolesToPressureThreshold(outletPipeNode.Air, ent.Comp.Threshold);
 
-        // Third, make sure we only transfer the minimum of the two.
-        // We do this so that we don't accidentally transfer so much gas to the point
-        // where the outlet pressure is higher than the inlet.
-        var deltaMolesToTransfer = Math.Min(deltaMolesToPressureThreshold, deltaMolesToEqualizePressure);
+        var deltaMolesToTransfer = MathF.Min(deltaMolesToPressureThreshold, deltaMolesToOutletThreshold);
 
-        // Fourth, convert to the desired volume to transfer.
+        // Convert to the desired inlet volume to transfer.
         var desiredVolumeToTransfer = deltaMolesToTransfer * ((Atmospherics.R * t1) / p1);
+        // DS14-end
 
         // And finally, limit the transfer volume to the max flow rate of the valve.
         var actualVolumeToTransfer = Math.Min(desiredVolumeToTransfer,

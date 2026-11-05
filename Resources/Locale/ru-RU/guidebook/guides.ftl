@@ -68,6 +68,7 @@ guide-entry-bartender = Бармен
 guide-entry-chef = Шеф-повар
 guide-entry-medical = Медицинский отдел
 guide-entry-medicaldoctor = Врач
+guide-entry-psychiatry = Психиатрия
 guide-entry-chemist = Химик
 guide-entry-brute =
     Продвинутое лечение
@@ -142,6 +143,7 @@ guide-entry-space-ninja = Космический ниндзя
 guide-entry-thieves = Воры
 guide-entry-hooligan = Хулиган
 guide-entry-wizard = Волшебник
+guide-entry-changelings = Генокрад
 guide-entry-rules = Правила сервера
 guide-entry-rules-space-law = Космический закон
 guide-entry-rules-sl-crime-list = Список преступлений

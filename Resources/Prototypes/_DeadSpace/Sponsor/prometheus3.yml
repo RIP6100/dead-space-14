@@ -22,9 +22,11 @@
         base:
           True: { state: icon-open }
           False: { state: icon }
+    netsync: false
+  - type: Appearance
+    netsync: false
   - type: ExplosionResistance
     damageCoefficient: 0.1
-  - type: Appearance
   - type: Storage
     maxItemSize: Huge
     grid:
@@ -251,8 +253,6 @@
       - state: inhand-right-blade
         shader: unshaded
   - type: ItemTogglePointLight
-  - type: DisarmMalus
-    malus: 0
   - type: StaminaDamageOnHit
     damage: 0
   - type: SwitchableWeapon
@@ -287,7 +287,7 @@
 
 # MASK
 - type: entity
-  parent: ClothingMaskGasSyndicate
+  parent: ClothingMaskGasSponsor
   id: ClothingMaskGasPrometheus3
   name: тактический противогаз «BlackOps»
   description: Оснащен улучшенным фильтром и дополнительной броней. Фильтрует не только воздух, но и речь.
@@ -306,7 +306,6 @@
     zombificationResistanceCoefficient: 0.9
   - type: VirusResistance
     virusResistanceCoefficient: 0.1
-  - type: EyeProtection
   - type: Tag
     tags: [ ] # ignore "WhitelistChameleon" tag
 
@@ -328,6 +327,11 @@
     sprite: _DeadSpace/Sponsor/Prometheus3/gloves.rsi
   - type: Clothing
     sprite: _DeadSpace/Sponsor/Prometheus3/gloves.rsi
+  - type: DamageOnInteractProtection
+    damageProtection:
+      flatReductions:
+        Heat: 10
+        Caustic: 5
   - type: Tag
     tags: [ ] # ignore "WhitelistChameleon" tag
 
@@ -378,43 +382,21 @@
     - AstroNavCartridge
     - WantedListCartridge
     - BankCartridge
+    - ScannerProgramCartridge
   - type: Tag
     tags: [ ] # ignore "WhitelistChameleon" tag
 
 # JawsOfLife
 - type: entity
-  parent: JawsOfLife
+  parent: SyndicateJawsOfLife
   id: JawsOfLifePrometheus3
   name: кроваво-красные челюсти жизни
   description: Набор челюстей жизни, скомпонованных при помощи магии науки..
   categories: [ HideSpawnMenu ]
   components:
-  - type: Sprite
-    sprite: Objects/Tools/jaws_of_life.rsi
-    state: syn_jaws_pry
-  - type: Item
-    inhandVisuals:
-      left:
-      - state: syn_inhand-left
-      right:
-      - state: syn_inhand-right
-    size: Normal
-  - type: MultipleTool
-    entries:
-      - behavior: Prying
-        sprite:
-          sprite: Objects/Tools/jaws_of_life.rsi
-          state: syn_jaws_pry
-        useSound: /Audio/Items/jaws_pry.ogg
-        changeSound: /Audio/Items/change_jaws.ogg
-      - behavior: Cutting
-        sprite:
-          sprite: Objects/Tools/jaws_of_life.rsi
-          state: syn_jaws_cutter
-        useSound: /Audio/Items/jaws_cut.ogg
-        changeSound: /Audio/Items/change_jaws.ogg
   - type: Prying
     speedModifier: 3.0
+    force: false
 
 # MEDIPEN
 - type: entity
@@ -476,13 +458,45 @@
     sprite: _DeadSpace/Sponsor/Prometheus3/pouch.rsi
     layers:
     - state: icon
-      map: [ base ]
+      map: [ "empty-icon" ]
+    - state: icon-open
+      map: ["openLayer"]
+      visible: false
+    - state: fill-1
+      map: ["fill-1"]
+      visible: false
+    - state: fill-2
+      map: ["fill-2"]
+      visible: false
+    - state: fill-3
+      map: ["fill-3"]
+      visible: false
+    - state: fill-4
+      map: ["fill-4"]
+      visible: false
+  - type: UserInterface
+    interfaces:
+      enum.StorageUiKey.Key:
+        type: StorageBoundUserInterface
   - type: GenericVisualizer
     visuals:
-      enum.StorageVisuals.Open:
-        base:
-          True: { state: icon-open }
-          False: { state: icon }
+      enum.SharedBagOpenVisuals.BagState: # You don't have to use both of these if its not necessary.
+        closeLayer:
+          Open: { visible: false }
+          Closed: { visible: true }
+        openLayer:
+          Open: { visible: true }
+          Closed: { visible: false }
+  - type: ItemCounter
+    count:
+      components: [Item]
+    composite: true
+    layerStates:
+    - fill-1
+    - fill-2
+    - fill-3
+    - fill-4
+  - type: Appearance
   - type: Item
     inhandVisuals:
       left:
@@ -491,11 +505,10 @@
       right:
       - state: inhand-right
         color: "#ca4545"
-  - type: Appearance
   - type: StorageFill
     contents:
     - id: ClothingMaskGasPrometheus3
-    - id: DoubleEmergencyOxygenTankFilled
+    - id: DoubleEmergencyOxygenTankPrometheus3
     - id: EmergencyMedipenPrometheus3
     - id: FoodSnackNutribrick
     - id: DrinkMREFlask
@@ -614,24 +627,24 @@
   parent: [ ClothingEyesGlassesMeson, ClothingEyesPNVAdv ]
   id: ClothingVisorPrometheus3
   name: визор «BlackOps»
-  description: Улучшенный визор с несколькими встроенными сканерами. X-ray отсутствует.
+  description: Пара складных очков с несколькими встроенными сканерами. Вы никогда не просили о них.
   categories: [ HideSpawnMenu ]
   components:
   - type: Sprite
     sprite: _DeadSpace/Sponsor/Prometheus3/glasses.rsi
     layers:
     - state: icon
-      scale: 0.8, 0.8
   - type: Clothing
     sprite: _DeadSpace/Sponsor/Prometheus3/glasses.rsi
   - type: EyeProtection
+  - type: FlashImmunity
   - type: SolutionScanner
   - type: IdentityBlocker
     coverage: EYES
   - type: Tag
     tags: [] # ignore "WhitelistChameleon" tag
 
-# JETPACK
+# JETPACK & GASTANK
 - type: entity
   parent: JetpackVoidFilled
   id: JetpackVoidPrometheus3
@@ -651,7 +664,23 @@
     slots:
     - Back
     - suitStorage
-    - Belt
+
+- type: entity
+  parent: DoubleEmergencyOxygenTankFilled
+  id: DoubleEmergencyOxygenTankPrometheus3
+  name: двойной аварийный кислородный баллон
+  description: Высококлассный двухбаллонный резервуар аварийного жизнеобеспечения. Вмещает приличное для своих небольших размеров количество кислорода. Вмещает 2,5 Л газа.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeadSpace/Sponsor/Prometheus3/emergency_double.rsi
+  - type: Item
+    sprite: _DeadSpace/Sponsor/Prometheus3/emergency_double.rsi
+    storedSprite:
+      state: storage
+      sprite: _DeadSpace/Sponsor/Prometheus3/emergency_double.rsi
+  - type: Clothing
+    sprite: _DeadSpace/Sponsor/Prometheus3/emergency_double.rsi
 
 # JUMPSUIT
 - type: entity

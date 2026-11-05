@@ -3,6 +3,7 @@
   friendly:
   - Necromorfs
   hostile:
+  - AshWalker
   - Revolutionary
   - NanoTrasen
   - SimpleNeutral
@@ -621,19 +622,6 @@
     groupPrototype: CorpseCollectorNecromorfping
 
 - type: randomHumanoidSettings
-  id: BoomerNecromorf
-  parent: Necromorf
-  components:
-  - type: InitialNecrofication
-    necroPrototype: NecroBoomer
-  - type: GhostRole
-    name: Некроморф бумер
-    description: Вы некроморф, убейте всех своих врагов.
-  - type: GhostTakeoverAvailable
-  - type: GhostRoleNotifys 
-    groupPrototype: NecromorfGroup
-
-- type: randomHumanoidSettings
   id: StalkerNecromorf
   parent: Necromorf
   components:
@@ -770,17 +758,6 @@
     settings: StalkerNecromorf
 
 - type: entity
-  id: BoomerNecromorfSpawner
-  name: Некроморф
-  suffix: бумер
-  components:
-  - type: Icon
-    sprite: Mobs/Species/Human/parts.rsi
-    state: full
-  - type: RandomHumanoidSpawner
-    settings: BoomerNecromorf
-
-- type: entity
   id: CorpseCollectorNecromorfSpawner
   name: Некроморф
   suffix: собиратель трупов
@@ -790,3 +767,37 @@
     state: full
   - type: RandomHumanoidSpawner
     settings: CorpseCollectorNecromorf
+
+- type: necromorf
+  id: NecroDragon
+  isAnimal: true
+  slowOnDamage: false
+  movementSpeedMultiply: 1
+  thresholdMultiply: 1.5
+  damage:
+    groups:
+      Brute: 35
+    types:
+      Structural: 50
+  damageModifierSet: Necromorf
+  isCanSpawnInfectionDead: false
+  useInventory: false
+  sprite: _DeadSpace/Necromorfs/dragon.rsi
+  state: alive
+  components:
+  - type: Language
+    selectedLanguage: NecromorfLanguage
+    knownLanguages:
+    - NecromorfLanguage
+  - type: Vocal
+    sounds:
+      Male: NecroOther
+      Female: NecroOther
+      Unsexed: NecroOther
+  - type: IntrinsicRadioTransmitter
+    channels:
+    - Unitolog
+  - type: ActiveRadio
+    channels:
+    - Unitolog
+  - type: IntrinsicRadioReceiver

@@ -11,6 +11,8 @@
     requiredLegs: 2
   - type: HumanoidAppearance
     species: IPC
+  - type: CorpseBurning
+    messageType: synthetic
   - type: Fixtures
     fixtures:
       fix1:
@@ -23,8 +25,8 @@
           - MobMask
         layer:
           - MobLayer
-  - type: DamageVisuals
-    damageOverlayGroups:
+  - type: LimbWoundVisuals
+    groups:
       Brute:
         sprite: Mobs/Effects/brute_damage.rsi
         color: "#525252"

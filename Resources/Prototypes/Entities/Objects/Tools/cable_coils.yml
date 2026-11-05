@@ -9,6 +9,13 @@
   name: cable stack
   suffix: Full
   components:
+  - type: SurgeryTool # DS14
+    passive: true
+    precision: 0.8
+    slip: 0.1
+    wobble: 12
+    machineVerbs:
+    - Stanch
   - type: Tag
     tags:
     - CableCoil
@@ -239,6 +246,16 @@
     count: 1
 
 # DS14-start
+- type: entity
+  parent: CableApcStack
+  id: CableApcStack15
+  suffix: 15
+  components:
+  - type: Sprite
+    state: coillv-20
+  - type: Stack
+    count: 15
+
 - type: entity
   parent: CableApcStack
   id: CableApcStack5

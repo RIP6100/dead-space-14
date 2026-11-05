@@ -1,13 +1,12 @@
 using System.Linq;
 using Content.Client.CharacterInfo;
-using Content.Client.DeadSpace.Skill;
+using Content.Client.DeadSpace.Stylesheets;
 using Content.Client.Gameplay;
 using Content.Client.Stylesheets;
 using Content.Client.UserInterface.Controls;
 using Content.Client.UserInterface.Systems.Character.Controls;
 using Content.Client.UserInterface.Systems.Character.Windows;
 using Content.Client.UserInterface.Systems.Objectives.Controls;
-using Content.Shared.DeadSpace.Skills;
 using Content.Shared.Input;
 using Content.Shared.Mind;
 using Content.Shared.Mind.Components;
@@ -44,8 +43,6 @@ public sealed class CharacterUIController : UIController, IOnStateEntered<Gamepl
     }
 
     private CharacterWindow? _window;
-    private SkillsListWindow? _skillsWindow;
-    private List<SkillInfo> _currentSkills = new();
     private MenuButton? CharacterButton => UIManager.GetActiveUIWidgetOrNull<MenuBar.Widgets.GameTopMenuBar>()?.CharacterButton;
 
     public void OnStateEntered(GameplayState state)
@@ -57,7 +54,6 @@ public sealed class CharacterUIController : UIController, IOnStateEntered<Gamepl
 
         _window.OnClose += DeactivateButton;
         _window.OnOpen += ActivateButton;
-        _window.SkillsButton.OnPressed += OnSkillsButtonPressed; // DS14
 
         CommandBinds.Builder
             .Bind(ContentKeyFunctions.OpenCharacterMenu,
@@ -71,12 +67,6 @@ public sealed class CharacterUIController : UIController, IOnStateEntered<Gamepl
         {
             _window.Close();
             _window = null;
-        }
-
-        if (_skillsWindow != null)
-        {
-            _skillsWindow.Close();
-            _skillsWindow = null;
         }
 
         CommandBinds.Unregister<CharacterUIController>();
@@ -141,20 +131,19 @@ public sealed class CharacterUIController : UIController, IOnStateEntered<Gamepl
             return;
         }
 
-        var (entity, job, objectives, skills, briefing, entityName) = data;
+        var (entity, objectives, briefing, jobId, entityName) = data;
 
         _window.SpriteView.SetEntity(entity);
 
         UpdateRoleType();
 
+        _prototypeManager.Resolve(jobId, out JobPrototype? job);
         _window.NameLabel.Text = entityName;
-        _window.SubText.Text = job;
+        _window.SubText.Text = job != null
+            ? Loc.GetString(job.Name)
+            : Loc.GetString("character-info-no-profession");
         _window.Objectives.RemoveAllChildren();
         _window.ObjectivesLabel.Visible = objectives.Any();
-
-        // DS14-Skills-Start
-        _currentSkills = skills;
-        _window.SkillsButton.Visible = skills.Count > 0;
 
         // start backmen: currency
         {
@@ -168,13 +157,13 @@ public sealed class CharacterUIController : UIController, IOnStateEntered<Gamepl
                 var objectiveControl = new CharacterObjectiveControl
                 {
                     Orientation = BoxContainer.LayoutOrientation.Vertical,
-                    Modulate = Color.Gray
+                    Modulate = DeadSpaceStylePalette.TextPlaceholder // DS14
                 };
 
                 objectiveControl.AddChild(new Label
                 {
                     Text = groupId,
-                    Modulate = Color.LightSkyBlue
+                    StyleClasses = { DeadSpaceStyleClass.SectionTitle } // DS14
                 });
 
                 foreach (var condition in conditions)
@@ -185,7 +174,7 @@ public sealed class CharacterUIController : UIController, IOnStateEntered<Gamepl
 
                     var titleMessage = new FormattedMessage();
                     var descriptionMessage = new FormattedMessage();
-                    
+
                     //DS14-start
                     titleMessage.AddMarkupPermissive(condition.Title);
                     descriptionMessage.AddMarkupPermissive(condition.Description);
@@ -214,7 +203,7 @@ public sealed class CharacterUIController : UIController, IOnStateEntered<Gamepl
             var objectiveControl = new CharacterObjectiveControl
             {
                 Orientation = BoxContainer.LayoutOrientation.Vertical,
-                Modulate = Color.Gray
+                Modulate = DeadSpaceStylePalette.TextPlaceholder // DS14
             };
 
 
@@ -254,7 +243,7 @@ public sealed class CharacterUIController : UIController, IOnStateEntered<Gamepl
         {
             var briefingControl = new ObjectiveBriefingControl();
             var text = new FormattedMessage();
-            text.PushColor(Color.Yellow);
+            text.PushColor(DeadSpaceStylePalette.Amber); // DS14
             text.AddText(briefing);
             briefingControl.Label.SetMessage(text);
             _window.Objectives.AddChild(briefingControl);
@@ -290,7 +279,7 @@ public sealed class CharacterUIController : UIController, IOnStateEntered<Gamepl
             Log.Error($"Player '{_player.LocalSession}' has invalid Role Type '{mind.RoleType}'. Displaying default instead");
 
         _window.RoleType.Text = Loc.GetString(proto?.Name ?? "role-type-crew-aligned-name");
-        _window.RoleType.FontColorOverride = proto?.Color ?? Color.White;
+        _window.RoleType.FontColorOverride = proto?.Color ?? DeadSpaceStylePalette.Text; // DS14
     }
 
     private void CharacterDetached(EntityUid uid)
@@ -327,14 +316,4 @@ public sealed class CharacterUIController : UIController, IOnStateEntered<Gamepl
     }
 
     // DS14
-    private void OnSkillsButtonPressed(ButtonEventArgs args)
-    {
-        if (_currentSkills.Count == 0)
-            return;
-
-        _skillsWindow?.Close();
-        _skillsWindow = new SkillsListWindow();
-        _skillsWindow.SetSkills(_currentSkills);
-        _skillsWindow.OpenCentered();
-    }
 }

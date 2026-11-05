@@ -74,7 +74,7 @@
     tags: [] # ignore "WhitelistChameleon" tag
 
 - type: entity
-  parent: [ ClothingHeadHardsuitBase, ClothingHeadSuitWithLightBase ]
+  parent: [ClothingHeadHardsuitBase, ClothingHeadSuitWithLightBase]
   id: ClothingHeadHelmetHardsuitawksSPEKTER
   categories: [ HideSpawnMenu ]
   name: шлем отступника
@@ -138,7 +138,7 @@
 
 # Mask
 - type: entity
-  parent: ClothingMaskGasSecurity
+  parent: ClothingMaskGasSponsor
   id: ClothingMaskawksSPEKTER
   name: маска отступника
   description: Подозрительная маска, сделанная на особом станке из весьма загадочных материалов.

@@ -15,6 +15,9 @@ namespace Content.Server.Atmos.EntitySystems
     {
         [Dependency] private readonly IGameTiming _gameTiming = default!;
 
+        // Kofeecheks Iprit decay timing: LicenseRef-Kofeecheks
+        public TimeSpan CurrentSimulationTime => _gameTiming.CurTime;
+
         private readonly Stopwatch _simulationStopwatch = new();
 
         /// <summary>
@@ -180,6 +183,25 @@ namespace Content.Server.Atmos.EntitySystems
                 {
                     RemoveActiveTile(atmos, tile);
                     atmos.Tiles.Remove(tile.GridIndices);
+
+                    // DS14-start: unlink it from its neighbours, or they keep a one-way link to a tile that is gone.
+                    for (var i = 0; i < Atmospherics.Directions; i++)
+                    {
+                        if (tile.AdjacentTiles[i] is { } adjacent)
+                        {
+                            var opposite = i.ToOppositeIndex();
+                            adjacent.AdjacentBits &= ~(AtmosDirection) (1 << opposite);
+                            if (adjacent.AdjacentTiles[opposite] == tile)
+                                adjacent.AdjacentTiles[opposite] = null;
+                            if (!adjacent.AdjacentBits.IsFlagSet(adjacent.MonstermosInfo.CurrentTransferDirection))
+                                adjacent.MonstermosInfo.CurrentTransferDirection = AtmosDirection.Invalid;
+                        }
+
+                        tile.AdjacentTiles[i] = null;
+                    }
+
+                    tile.AdjacentBits = AtmosDirection.Invalid;
+                    // DS14-end
                 }
             }
 

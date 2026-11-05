@@ -45,6 +45,7 @@ public sealed partial class ClimbSystem : VirtualController
     private const string ClimbingFixtureName = "climb";
     private const int ClimbingCollisionGroup = (int) (CollisionGroup.TableLayer | CollisionGroup.LowImpassable);
 
+    private EntityQuery<BonkableComponent> _bonkQuery; // DS14: current engine baseline initializes queries manually.
     private EntityQuery<ClimbableComponent> _climbableQuery;
     private EntityQuery<FixturesComponent> _fixturesQuery;
     private EntityQuery<TransformComponent> _xformQuery;
@@ -53,6 +54,7 @@ public sealed partial class ClimbSystem : VirtualController
     {
         base.Initialize();
 
+        _bonkQuery = GetEntityQuery<BonkableComponent>(); // DS14: current engine baseline has no query injection.
         _climbableQuery = GetEntityQuery<ClimbableComponent>();
         _fixturesQuery = GetEntityQuery<FixturesComponent>();
         _xformQuery = GetEntityQuery<TransformComponent>();
@@ -69,6 +71,7 @@ public sealed partial class ClimbSystem : VirtualController
         SubscribeLocalEvent<ClimbableComponent, DragDropTargetEvent>(OnClimbableDragDrop);
 
         SubscribeLocalEvent<GlassTableComponent, ClimbedOnEvent>(OnGlassClimbed);
+        SubscribeLocalEvent<ClimbingComponent, StandUpAttemptEvent>(OnStandUpAttempt); //DS-14
     }
 
     public override void UpdateBeforeSolve(bool prediction, float frameTime)
@@ -131,6 +134,18 @@ public sealed partial class ClimbSystem : VirtualController
 
         return false;
     }
+
+    //DS-14 start
+    private void OnStandUpAttempt(Entity<ClimbingComponent> ent, ref StandUpAttemptEvent args)
+    {
+        if (ent.Comp.DoAfter == null && !ent.Comp.IsClimbing)
+            return;
+
+        args.Cancelled = true;
+        args.Autostand = false;
+        args.Message = (Loc.GetString("comp-climbable-cant-stand"), PopupType.SmallCaution);
+    }
+    //DS-14 end
 
     private void OnMoveAttempt(EntityUid uid, ClimbingComponent component, UpdateCanMoveEvent args)
     {
@@ -238,7 +253,10 @@ public sealed partial class ClimbSystem : VirtualController
         var success = _doAfterSystem.TryStartDoAfter(args, out id);
 
         if (success)
+        {
             climbing.DoAfter = id;
+            _stunSystem.CancelKnockdownDoAfter(entityToMove); //DS-14
+        }
 
         return success;
 
@@ -269,6 +287,8 @@ public sealed partial class ClimbSystem : VirtualController
 
         if (!Resolve(climbable, ref comp, false))
             return;
+
+        _stunSystem.CancelKnockdownDoAfter(uid); //DS-14
 
         var selfEvent = new SelfBeforeClimbEvent(uid, user, (climbable, comp));
         RaiseLocalEvent(uid, selfEvent);

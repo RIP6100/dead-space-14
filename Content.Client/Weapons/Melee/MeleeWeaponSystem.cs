@@ -2,6 +2,7 @@ using System.Linq;
 using Content.Client.Gameplay;
 using Content.Shared.CCVar;
 using Content.Shared.Effects;
+using Content.Shared.IdentityManagement;
 using Content.Shared.Weapons.Melee;
 using Content.Shared.Weapons.Melee.Components;
 using Content.Shared.Weapons.Melee.Events;
@@ -101,10 +102,14 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
             }
         }
 
-        if (weapon.Attacking || weapon.NextAttack > Timing.CurTime)
+        // DS14-start: Legionnaire rage must activate immediately instead of waiting for the melee attack cooldown.
+        var legionRageAttempt = altDown == BoundKeyState.Down &&
+                                HasComp<Content.Shared.DeadSpace.TheCircle.Legion.LegionKnifeComponent>(weaponUid);
+        if (!legionRageAttempt && (weapon.Attacking || weapon.NextAttack > Timing.CurTime))
         {
             return;
         }
+        // DS14-end
 
         // TODO using targeted actions while combat mode is enabled should NOT trigger attacks.
 
@@ -149,6 +154,16 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
 
             return;
         }
+
+        // DS14-start: the right button of the kinetic machete charges its marker shot instead; a crusher (a gun shot
+        // with the right button) only shoots its mark there, it does not swing as well.
+        if (altDown == BoundKeyState.Down &&
+            (HasComp<Content.Shared.DeadSpace.Lavaland.LavalandChargedMarkerComponent>(weaponUid) ||
+             gun is { UseKey: false }))
+        {
+            return;
+        }
+        // DS14-end
 
         // Heavy attack.
         if (altDown == BoundKeyState.Down)
@@ -249,5 +264,37 @@ public sealed partial class MeleeWeaponSystem : SharedMeleeWeaponSystem
         // Entity might not have been sent by PVS.
         if (Exists(ent) && Exists(entWeapon))
             DoLunge(ent, entWeapon, ev.Angle, ev.LocalPos, ev.Animation);
+    }
+
+    protected override void UndamagedAttack(Entity<MeleeWeaponComponent> ent, EntityUid target, EntityUid user)
+    {
+        if (ent.Comp.UndamagedAlertThreshold == 0)
+            return;
+
+        if (ent.Comp.LastUndamagedHitEntity != target)
+        {
+            ent.Comp.UndamagedSwings = 0;
+            ent.Comp.LastUndamagedHitEntity = target;
+        }
+
+        ent.Comp.UndamagedSwings++;
+        if (ent.Comp.UndamagedSwings >= ent.Comp.UndamagedAlertThreshold)
+        {
+            if (ent.Owner == user)
+            {
+                PopupSystem.PopupEntity(Loc.GetString("melee-self-weapon-dealt-no-damage", ("target", Identity.Entity(target, EntityManager, user))), target, user);
+            }
+            else
+            {
+                PopupSystem.PopupEntity(Loc.GetString("melee-weapon-dealt-no-damage", ("weapon", ent), ("target", Identity.Entity(target, EntityManager, user))), target, user);
+            }
+
+            ent.Comp.UndamagedSwings = 0;
+        }
+    }
+
+    protected override void ResetUndamagedSwingsCount(Entity<MeleeWeaponComponent> ent)
+    {
+        ent.Comp.UndamagedSwings = 0;
     }
 }

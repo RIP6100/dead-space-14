@@ -1,3 +1,4 @@
+using Content.Shared.DeadSpace.TTS;
 using System.Linq;
 using Content.Server.Administration.Logs;
 using Content.Server.AlertLevel;
@@ -163,7 +164,8 @@ namespace Content.Server.Communications
         {
             var stationUid = _stationSystem.GetOwningStation(uid);
             List<string>? levels = null;
-            string currentLevel = default!;
+            var currentLevel = string.Empty;
+            var currentLevelColor = Color.White; // DS14 - send server-only alert prototype color to the client UI.
             float currentDelay = 0;
 
             if (stationUid != null)
@@ -184,6 +186,8 @@ namespace Content.Server.Communications
                     }
 
                     currentLevel = alertComp.CurrentLevel;
+                    if (alertComp.AlertLevels.Levels.TryGetValue(currentLevel, out var currentLevelDetails))
+                        currentLevelColor = currentLevelDetails.Color; // DS14
                     currentDelay = _alertLevelSystem.GetAlertLevelDelay(stationUid.Value, alertComp);
                 }
             }
@@ -192,6 +196,7 @@ namespace Content.Server.Communications
                 CanCallOrRecall(comp),
                 levels,
                 currentLevel,
+                currentLevelColor, // DS14
                 currentDelay,
                 _roundEndSystem.ExpectedCountdownEnd
             ));
@@ -304,7 +309,7 @@ namespace Content.Server.Communications
                 languageId = languageComponent.SelectedLanguage;
 
             if (TryComp<TTSComponent>(message.Actor, out var tts))
-                voice = tts.VoicePrototypeId;
+                voice = TTSVoices.GetVoice(tts, _cfg.GetCVar(TTSProviderCVars.Provider)); // DS14
             // DS14-Languages-end
 
             if (comp.AnnounceSentBy)
@@ -580,7 +585,12 @@ namespace Content.Server.Communications
                 if (message.UseCustomTts)
                 {
                     voice = message.VoiceId?.Trim();
-                    if (string.IsNullOrEmpty(voice) || !_prototypeManager.HasIndex<TTSVoicePrototype>(voice))
+                    // DS14-start
+                    var invalidVoice = string.IsNullOrEmpty(voice) ||
+                        !_prototypeManager.TryIndex<TTSVoicePrototype>(voice, out var voicePrototype) ||
+                        voicePrototype.Provider != _cfg.GetCVar(TTSProviderCVars.Provider);
+                    // DS14-end
+                    if (invalidVoice) // DS14
                     {
                         SendEmagAccessState(uid, component, actor, error: EmagCommunicationsUiError.InvalidVoice);
                         return;

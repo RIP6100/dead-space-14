@@ -1,8 +1,10 @@
 using System.Linq;
 using System.Numerics;
+using Content.Client.DeadSpace.Stylesheets;
 using Content.Client.GameTicking.Managers;
 using Content.Client.Message;
 using Content.Client.Stylesheets;
+using Content.Client.Stylesheets.Palette;
 using Content.Client.UserInterface.Controls;
 using Content.Shared.Administration;
 using Content.Shared.DeadSpace.PatrolTablet;
@@ -16,6 +18,7 @@ using Robust.Client.UserInterface.CustomControls;
 using Robust.Client.UserInterface.XAML;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
+using Robust.Shared.Utility;
 
 namespace Content.Client.DeadSpace.PatrolTablet;
 
@@ -28,6 +31,9 @@ public sealed partial class PatrolTabletWindow : DefaultWindow
     [Dependency] private readonly IEntitySystemManager _entitySystem = default!;
     private readonly SpriteSystem _sprite;
     private readonly ClientGameTicker _gameTicker;
+    private TimeSpan _announcementBusyEnd;
+    private TimeSpan _announcementCooldownEnd;
+    private bool _squadManagementEnabled = true;
 
     public Action<string, string>? OnRenameSquad;
     public Action<string>? OnBulkAssignSquad;
@@ -35,6 +41,7 @@ public sealed partial class PatrolTabletWindow : DefaultWindow
     public Action<string>? OnClearSquad;
     public Action<string>? OnDeleteSquad;
     public Action<string, string>? OnCreateSquad;
+    public Action<string, string>? OnSendAnnouncement;
 
     public PatrolTabletWindow()
     {
@@ -48,8 +55,34 @@ public sealed partial class PatrolTabletWindow : DefaultWindow
         Title = Loc.GetString("patrol-tablet-title");
         ClearListButton.OnPressed += _ => OnClearList?.Invoke();
         CreateSquadButton.OnPressed += _ => OpenCreateSquadDialog();
+        SquadsTabButton.OnPressed += _ => SetAnnouncementTab(false);
+        AnnouncementTabButton.OnPressed += _ => SetAnnouncementTab(true);
+        SendAnnouncementButton.OnPressed += _ =>
+            OnSendAnnouncement?.Invoke(AnnouncementTitleInput.Text, Rope.Collapse(AnnouncementBodyInput.TextRope));
 
+        SetAnnouncementTab(false);
         UpdateShiftTime();
+        UpdateAnnouncementBusy();
+    }
+
+    private void SetAnnouncementTab(bool announcement)
+    {
+        if (!announcement && !_squadManagementEnabled)
+            announcement = true;
+        SquadsView.Visible = !announcement;
+        AnnouncementView.Visible = announcement;
+        SquadsTabButton.Disabled = !announcement;
+        AnnouncementTabButton.Disabled = announcement;
+        ClearListButton.Visible = !announcement && _squadManagementEnabled;
+    }
+
+    private void SetSquadManagementEnabled(bool enabled)
+    {
+        _squadManagementEnabled = enabled;
+        SquadsTabButton.Visible = enabled;
+
+        if (!enabled)
+            SetAnnouncementTab(true);
     }
 
     private void OpenCreateSquadDialog()
@@ -70,17 +103,49 @@ public sealed partial class PatrolTabletWindow : DefaultWindow
             ("time", stationTime.ToString(@"hh\:mm\:ss"))));
     }
 
+    private void UpdateAnnouncementBusy()
+    {
+        var globalRemaining = _announcementBusyEnd - _gameTiming.CurTime;
+        var cooldownRemaining = _announcementCooldownEnd - _gameTiming.CurTime;
+
+        if (globalRemaining > TimeSpan.Zero)
+        {
+            SendAnnouncementButton.Disabled = true;
+            SendAnnouncementButton.Text = Loc.GetString(
+                "patrol-tablet-announcement-send-active",
+                ("seconds", (int) Math.Ceiling(globalRemaining.TotalSeconds)));
+            return;
+        }
+
+        if (cooldownRemaining > TimeSpan.Zero)
+        {
+            SendAnnouncementButton.Disabled = true;
+            SendAnnouncementButton.Text = Loc.GetString(
+                "patrol-tablet-announcement-send-cooldown",
+                ("seconds", (int) Math.Ceiling(cooldownRemaining.TotalSeconds)));
+            return;
+        }
+
+        SendAnnouncementButton.Disabled = false;
+        SendAnnouncementButton.Text = Loc.GetString("patrol-tablet-announcement-send");
+    }
+
     public void UpdateState(PatrolTabletUpdateState state)
     {
+        SetSquadManagementEnabled(state.SquadManagementEnabled);
         UpdateShiftTime();
         UpdateOfficers(state.Officers);
         UpdateSquads(state.Squads);
+        _announcementBusyEnd = _gameTiming.CurTime + TimeSpan.FromSeconds(state.AnnouncementBusyRemaining);
+        _announcementCooldownEnd = _gameTiming.CurTime + TimeSpan.FromSeconds(state.AnnouncementCooldownRemaining);
+        UpdateAnnouncementBusy();
     }
 
     protected override void Draw(DrawingHandleScreen handle)
     {
         base.Draw(handle);
         UpdateShiftTime();
+        UpdateAnnouncementBusy();
     }
 
     private void UpdateOfficers(List<PatrolOfficerInfo> officers)
@@ -137,7 +202,7 @@ public sealed class CreateSquadDialog : DefaultWindow
         rootBox.AddChild(new Label
         {
             Text = Loc.GetString("patrol-tablet-squad-name-label"),
-            FontColorOverride = Color.FromHex("#00A2E8"),
+            StyleClasses = { DeadSpaceStyleClass.SectionTitle },
         });
 
         _nameInput = new LineEdit
@@ -150,7 +215,7 @@ public sealed class CreateSquadDialog : DefaultWindow
         rootBox.AddChild(new Label
         {
             Text = Loc.GetString("patrol-tablet-icon-label"),
-            FontColorOverride = Color.FromHex("#00A2E8"),
+            StyleClasses = { DeadSpaceStyleClass.SectionTitle },
         });
 
         var iconGrid = new GridContainer
@@ -258,24 +323,13 @@ public sealed partial class OfficerEntryControl : PanelContainer
 
         MinHeight = 36;
         Margin = new Thickness(0, 0, 0, 2);
+        AddStyleClass(DeadSpaceStyleClass.ListItem);
 
         BuildUI();
     }
 
     private void BuildUI()
     {
-        var styleBox = new StyleBoxFlat
-        {
-            BackgroundColor = Color.FromHex("#1a1a2e"),
-            BorderColor = Color.FromHex("#3F48CC"),
-            BorderThickness = new Thickness(1),
-            ContentMarginTopOverride = 6,
-            ContentMarginBottomOverride = 6,
-            ContentMarginLeftOverride = 8,
-            ContentMarginRightOverride = 8,
-        };
-        PanelOverride = styleBox;
-
         var mainBox = new BoxContainer
         {
             Orientation = BoxContainer.LayoutOrientation.Horizontal,
@@ -307,7 +361,6 @@ public sealed partial class OfficerEntryControl : PanelContainer
         var nameLabel = new Label
         {
             Text = _officer.Name,
-            FontColorOverride = Color.FromHex("#ffffff"),
             StyleClasses = { StyleClass.LabelKeyText },
             HorizontalExpand = true,
         };
@@ -316,7 +369,7 @@ public sealed partial class OfficerEntryControl : PanelContainer
         var jobLabel = new Label
         {
             Text = _officer.JobTitle,
-            FontColorOverride = Color.FromHex("#aaaaaa"),
+            StyleClasses = { DeadSpaceStyleClass.Subtitle },
             HorizontalExpand = true,
         };
         infoBox.AddChild(jobLabel);
@@ -351,6 +404,7 @@ public sealed partial class SquadEntryControl : PanelContainer
         _onRenameSquad = onRenameSquad;
         MinHeight = 44;
         Margin = new Thickness(0, 0, 0, 2);
+        AddStyleClass(DeadSpaceStyleClass.ListItem);
 
         BuildUI();
     }
@@ -364,18 +418,6 @@ public sealed partial class SquadEntryControl : PanelContainer
 
     private void BuildUI()
     {
-        var styleBox = new StyleBoxFlat
-        {
-            BackgroundColor = Color.FromHex("#1a1a2e"),
-            BorderColor = Color.FromHex("#3F48CC"),
-            BorderThickness = new Thickness(1),
-            ContentMarginTopOverride = 4,
-            ContentMarginBottomOverride = 4,
-            ContentMarginLeftOverride = 8,
-            ContentMarginRightOverride = 8,
-        };
-        PanelOverride = styleBox;
-
         var outerBox = new BoxContainer
         {
             Orientation = BoxContainer.LayoutOrientation.Vertical,
@@ -397,7 +439,7 @@ public sealed partial class SquadEntryControl : PanelContainer
         var expandArrow = new Label
         {
             Text = _expanded ? "▼" : "▶",
-            FontColorOverride = Color.FromHex("#00A2E8"),
+            FontColorOverride = DeadSpaceStylePalette.CyanBright,
             VerticalAlignment = VAlignment.Center,
             MinSize = new Vector2(16, 0),
         };
@@ -418,7 +460,6 @@ public sealed partial class SquadEntryControl : PanelContainer
         var nameLabel = new Label
         {
             Text = _squad.Name,
-            FontColorOverride = Color.FromHex("#ffffff"),
             HorizontalExpand = true,
         };
         topRowHBox.AddChild(nameLabel);
@@ -506,7 +547,7 @@ public sealed partial class SquadEntryControl : PanelContainer
             Text = _squad.AssignedCount > 0
                 ? Loc.GetString("patrol-tablet-squad-count", ("count", _squad.AssignedCount))
                 : Loc.GetString("patrol-tablet-squad-empty"),
-            FontColorOverride = _squad.AssignedCount > 0 ? Color.FromHex("#00ff88") : Color.FromHex("#666666"),
+            FontColorOverride = _squad.AssignedCount > 0 ? Palettes.Green.Text : DeadSpaceStylePalette.TextMuted,
             VerticalAlignment = VAlignment.Center,
         };
         bottomRow.AddChild(countLabel);
@@ -528,7 +569,7 @@ public sealed partial class SquadEntryControl : PanelContainer
                 var memberLabel = new Label
                 {
                     Text = "• " + memberName,
-                    FontColorOverride = Color.FromHex("#cccccc"),
+                    StyleClasses = { DeadSpaceStyleClass.Subtitle },
                 };
                 memberBox.AddChild(memberLabel);
             }
@@ -540,7 +581,7 @@ public sealed partial class SquadEntryControl : PanelContainer
             var emptyLabel = new Label
             {
                 Text = Loc.GetString("patrol-tablet-squad-empty"),
-                FontColorOverride = Color.FromHex("#666666"),
+                StyleClasses = { DeadSpaceStyleClass.Subtitle },
                 Margin = new Thickness(24, 2, 0, 0),
             };
             outerBox.AddChild(emptyLabel);

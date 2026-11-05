@@ -19,7 +19,7 @@ admin-verb-text-make-traitor = Сделать предателем
 admin-verb-text-make-initial-infected = Сделать нулевым пациентом
 admin-verb-text-make-zombie = Сделать зомби
 admin-verb-text-make-paradox-clone = Создать парадоксального клона
-admin-verb-text-make-changeling = Сделать генокрадом (WIP)
+admin-verb-text-make-changeling = Сделать генокрадом
 admin-verb-text-make-nuclear-operative = Сделать ядерным оперативником
 admin-verb-text-make-pirate = Сделать пиратом
 admin-verb-text-make-wizard = Сделать Магом
@@ -35,6 +35,8 @@ admin-overlay-antag-classic = АНТАГ
 #DS14-start
 admin-verb-text-make-dragon = Сделать цель Драконом
 admin-verb-make-dragon = Сделать Драконом
+admin-verb-text-make-circle-geist = Сделать цель Гейстом Круга
+admin-verb-make-circle-geist = Сделать Гейстом Круга
 admin-verb-text-make-ninja = Сделть цель Ниндзей
 admin-verb-make-ninja = Сделать Ниндзей
 admin-verb-text-make-renegade = Сделать цель Ренегатом

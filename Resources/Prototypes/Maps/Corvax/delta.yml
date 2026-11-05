@@ -1,4 +1,4 @@
-﻿- type: gameMap
+- type: gameMap
   id: CorvaxDelta
   mapName: 'Delta'
   mapPath: /Maps/corvax_delta.yml
@@ -78,4 +78,3 @@
             BorgSecurity: [ 1, 1 ]
             # etc
             ClownSponsor: [ 0, 2 ]
-            Zookeeper: [ 1, 1 ]

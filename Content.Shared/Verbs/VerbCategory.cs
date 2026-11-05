@@ -82,6 +82,8 @@ namespace Content.Shared.Verbs
 
         public static readonly VerbCategory PingSelect = new("verb-categories-ping-select", null); // DS14
 
+        public static readonly VerbCategory Microphone = new("verb-categories-microphon-state", null); // DS14
+
         public static readonly VerbCategory Lever = new("verb-categories-lever", null);
 
         public static readonly VerbCategory SelectType = new("verb-categories-select-type", null);
@@ -90,5 +92,8 @@ namespace Content.Shared.Verbs
 
         public static readonly VerbCategory Adjust =
             new("verb-categories-adjust", "/Textures/Interface/VerbIcons/screwdriver.png");
+
+        public static readonly VerbCategory Metabolizers =
+            new("verb-categories-select-target", "/Textures/Interface/VerbIcons/group.svg.192dpi.png");
     }
 }

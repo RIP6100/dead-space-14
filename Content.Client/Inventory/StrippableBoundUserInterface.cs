@@ -3,12 +3,17 @@ using System.Numerics;
 using Content.Client.Examine;
 using Content.Client.Hands.Systems;
 using Content.Client.Strip;
+using Content.Client.DeadSpace.Ninja.Systems; //DS-14
 using Content.Client.Stylesheets;
 using Content.Client.UserInterface.Controls;
 using Content.Client.UserInterface.Systems.Hands.Controls;
 using Content.Client.Verbs.UI;
+using Content.Shared.CCVar;
+using Content.Shared.Clothing.Components;
+using Content.Shared.Contraband;
 using Content.Shared.Cuffs;
 using Content.Shared.Cuffs.Components;
+using Content.Shared.DeadSpace.Administration;
 using Content.Shared.Ensnaring.Components;
 using Content.Shared.Hands.Components;
 using Content.Shared.IdentityManagement;
@@ -21,10 +26,14 @@ using Robust.Client.GameObjects;
 using Robust.Client.Player;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
+using Robust.Shared.Configuration;
 using Robust.Shared.Input;
 using Robust.Shared.Map;
+using Robust.Shared.Prototypes;
+using Robust.Shared.Utility;
 using static Content.Client.Inventory.ClientInventorySystem;
 using static Robust.Client.UserInterface.Control;
+using Robust.Shared.Containers; //DS-14
 
 namespace Content.Client.Inventory
 {
@@ -33,12 +42,44 @@ namespace Content.Client.Inventory
     {
         [Dependency] private readonly IPlayerManager _player = default!;
         [Dependency] private readonly IUserInterfaceManager _ui = default!;
+        // DS14-start - the current engine still uses the pre-source-generator IoC pattern.
+        [Dependency] private readonly IPrototypeManager _proto = default!;
+        [Dependency] private readonly IConfigurationManager _cvar = default!;
+        // DS14-end
 
         private readonly ExamineSystem _examine;
         private readonly HandsSystem _hands;
         private readonly InventorySystem _inv;
         private readonly SharedCuffableSystem _cuffable;
         private readonly StrippableSystem _strippable;
+        private readonly ContrabandSystem _contraband;
+
+        // Is the BUI in admin view? If in admin view, has custom UI elements to help admins see things
+        // (E.g contraband status icon, is the item chameleon etc...)
+        private bool _isAdminView;
+
+        // DS14-start
+        private bool IsAdminGhost =>
+            _player.LocalEntity is { } player && EntMan.HasComponent<AdminGhostVisibilityComponent>(player);
+        // DS14-end
+
+        #region Admin overlay vars
+
+        private readonly ResPath _chameleonClothingTexturePath =
+            new("/Textures/Interface/Default/Slots/ContrabandOverlay/camo.png");
+
+        private readonly Color _chameleonColor = new(147, 112, 219);
+
+        private readonly string _hasContrabandTexturePathBeginning =
+            "/Textures/Interface/Default/Slots/ContrabandOverlay/has_contra";
+
+        private readonly string _hasContrabandTexturePathEnding = ".png";
+        private readonly int _hasContrabandMaximumValue = 9;
+
+        private readonly ResPath _contrabandTexturePath =
+            new("/Textures/Interface/Default/Slots/ContrabandOverlay/contra.png");
+
+        #endregion
 
         [ViewVariables]
         private const int ButtonSeparation = 4;
@@ -48,6 +89,11 @@ namespace Content.Client.Inventory
 
         [ViewVariables]
         private StrippingMenu? _strippingMenu;
+
+        //DS14-start
+        [ViewVariables]
+        private bool _disguiseView;
+        //DS14-end
 
         [ViewVariables]
         private readonly EntityUid _virtualHiddenEntity;
@@ -71,8 +117,11 @@ namespace Content.Client.Inventory
             _inv = EntMan.System<InventorySystem>();
             _cuffable = EntMan.System<SharedCuffableSystem>();
             _strippable = EntMan.System<StrippableSystem>();
+            _contraband = EntMan.System<ContrabandSystem>();
 
             _virtualHiddenEntity = EntMan.SpawnEntity(HiddenPocketEntityId, MapCoordinates.Nullspace);
+
+            _isAdminView = _cvar.GetCVar(CCVars.AdminStripMenuOverlayDefault);
         }
 
         protected override void Open()
@@ -81,7 +130,8 @@ namespace Content.Client.Inventory
 
             _strippingMenu = this.CreateWindowCenteredLeft<StrippingMenu>();
             _strippingMenu.OnDirty += UpdateMenu;
-            _strippingMenu.Title = Loc.GetString("strippable-bound-user-interface-stripping-menu-title", ("ownerName", Identity.Name(Owner, EntMan)));
+            _strippingMenu.Title = Loc.GetString("strippable-bound-user-interface-stripping-menu-title",
+                ("ownerName", Identity.Name(Owner, EntMan)));
         }
 
         protected override void Dispose(bool disposing)
@@ -111,11 +161,20 @@ namespace Content.Client.Inventory
             _handCount = 0;
             _inventoryDimensions = Vector2i.Zero;
 
+            // DS14-start: a stasis cocoon hides the entire inventory, not only hands.
+            _disguiseView = EntMan.System<NinjaDisguiseClientSystem>().IsDisguised(Owner);
+
+            if (EntMan.TryGetComponent<HandsComponent>(Owner, out var targetHands) && !targetHands.CanBeStripped)
+                return;
+            // DS14-end
+
             if (EntMan.TryGetComponent<InventoryComponent>(Owner, out var inv))
             {
                 foreach (var slot in inv.Slots)
                 {
-                    AddInventoryButton(Owner, slot.Name, inv);
+                    if (!_inv.TryGetSlotContainer(Owner, slot.Name, out var container, out _))
+                        continue;
+                    AddInventoryButton(slot, container);
                 }
             }
 
@@ -162,6 +221,28 @@ namespace Content.Client.Inventory
                 _strippingMenu.SnareContainer.AddChild(button);
             }
 
+            if (IsAdminGhost) // DS14
+            {
+                var adminButton = new Button()
+                {
+                    Text = Loc.GetString("strippable-bound-user-interface-stripping-menu-admin-button"),
+                    ToggleMode = true,
+                    Pressed = _isAdminView,
+                    ToolTip = Loc.GetString("strippable-bound-user-interface-stripping-menu-admin-button-tooltip"),
+                    StyleClasses = { StyleClass.ButtonOpenRight }
+                };
+
+                adminButton.OnToggled += args =>
+                {
+                    _isAdminView = !_isAdminView;
+                    args.Button.Pressed = _isAdminView;
+                    UpdateMenu();
+                };
+
+                // DS14: keep the fork's styled auxiliary-button container.
+                _strippingMenu.SnareContainer.AddChild(adminButton);
+            }
+
             // TODO fix layout container measuring (its broken atm).
             // _strippingMenu.InvalidateMeasure();
             // _strippingMenu.Contents.Measure(Vector2Helpers.Infinity);
@@ -173,10 +254,14 @@ namespace Content.Client.Inventory
             // +20 horizontally and vertically from the ContentsContainer margin
             // +16 vertically from the BoxContainer margin
             // +27 vertically from the window header
-            var horizontalMenuSize = Math.Max(200, Math.Max(_handCount, _inventoryDimensions.X + 1) * (SlotControl.DefaultButtonSize + ButtonSeparation) + 20);
-            var verticalMenuSize = Math.Max(200, (_inventoryDimensions.Y + (_handCount > 0 ? 2 : 1)) * (SlotControl.DefaultButtonSize + ButtonSeparation) + 53);
-            if (snare?.IsEnsnared == true)
-                verticalMenuSize += 20;
+            var horizontalMenuSize = Math.Max(200,
+                Math.Max(_handCount, _inventoryDimensions.X + 1) * (SlotControl.DefaultButtonSize + ButtonSeparation) +
+                20);
+            var verticalMenuSize = Math.Max(200,
+                (_inventoryDimensions.Y + (_handCount > 0 ? 2 : 1)) *
+                (SlotControl.DefaultButtonSize + ButtonSeparation) + 53);
+            // DS14: account for the fork's styled auxiliary-button container.
+            verticalMenuSize += 25 * _strippingMenu.SnareContainer.Children.Count();
             _strippingMenu.SetSize = new Vector2(horizontalMenuSize, verticalMenuSize);
         }
 
@@ -196,7 +281,9 @@ namespace Content.Client.Inventory
 
             UpdateEntityIcon(button, heldEntity);
             _strippingMenu!.HandsContainer.AddChild(button);
-            LayoutContainer.SetPosition(button, new Vector2i(_handCount, 0) * (SlotControl.DefaultButtonSize + ButtonSeparation));
+
+            LayoutContainer.SetPosition(button,
+                new Vector2i(_handCount, 0) * (SlotControl.DefaultButtonSize + ButtonSeparation));
             _handCount++;
         }
 
@@ -226,26 +313,56 @@ namespace Content.Client.Inventory
             }
         }
 
-        private void AddInventoryButton(EntityUid invUid, string slotId, InventoryComponent inv)
+        // DS14-start
+        private void AddInventoryButton(SlotDefinition slotDef, ContainerSlot? container = null)
         {
-            if (!_inv.TryGetSlotContainer(invUid, slotId, out var container, out var slotDef, inv))
-                return;
+            EntityUid? entity = null;
 
-            var entity = container.ContainedEntity;
+            if (container != null)
+                entity = container.ContainedEntity;
+
+            if (_disguiseView)
+                entity = null;
+            // DS14-end
 
             // If this is a full pocket, obscure the real entity
             // this does not work for modified clients because they are still sent the real entity
             if (entity != null && _strippable.IsStripHidden(slotDef, _player.LocalEntity))
                 entity = _virtualHiddenEntity;
 
-            var button = new SlotButton(new SlotData(slotDef, container));
+            // DS14-start
+            var button = new SlotButton(new SlotData(slotDef, _disguiseView ? null : container));
+            // DS14-end
             button.Pressed += SlotPressed;
 
             _strippingMenu!.InventoryContainer.AddChild(button);
 
-            UpdateEntityIcon(button, entity);
+            // DS14-start
+            if (_disguiseView)
+            {
+                var ninjaDisguise = EntMan.System<NinjaDisguiseClientSystem>();
+                var isHidden = _strippable.IsStripHidden(slotDef, _player.LocalEntity);
+                if (ninjaDisguise.TryGetDisguiseSlotProxy(Owner, slotDef.Name, out var proxy))
+                    if (isHidden)
+                        UpdateEntityIcon(button, _virtualHiddenEntity);
+                    else
+                        UpdateEntityIcon(button, proxy);
+                else if (ninjaDisguise.TryGetDisguiseSlotProto(Owner, slotDef.Name, out var fakeProto) && _proto.HasIndex(fakeProto))
+                    if (isHidden)
+                        UpdateEntityIcon(button, _virtualHiddenEntity);
+                    else
+                        button.SetPrototype(fakeProto, false);
+                else
+                    UpdateEntityIcon(button, null);
+            }
+            else
+            {
+                UpdateEntityIcon(button, entity);
+            }
+            // DS14-end
 
-            LayoutContainer.SetPosition(button, slotDef.StrippingWindowPos * (SlotControl.DefaultButtonSize + ButtonSeparation));
+            LayoutContainer.SetPosition(button,
+                slotDef.StrippingWindowPos * (SlotControl.DefaultButtonSize + ButtonSeparation));
             if (slotDef.StrippingWindowPos.X > _inventoryDimensions.X)
                 _inventoryDimensions = new Vector2i(slotDef.StrippingWindowPos.X, _inventoryDimensions.Y);
             if (slotDef.StrippingWindowPos.Y > _inventoryDimensions.Y)
@@ -273,6 +390,39 @@ namespace Content.Client.Inventory
                 return;
 
             button.SetEntity(viewEnt);
+
+            if (IsAdminGhost && _isAdminView) // DS14
+            {
+                // overlay for chameleon clothing
+                if (EntMan.HasComponent<ChameleonClothingComponent>(entity))
+                {
+                    button.AddAdminOverlay(_chameleonClothingTexturePath, _chameleonColor);
+                }
+
+                // if the item has contraband, add a blue dotted outline (under the main contraband overlay if there is one)
+                if (_contraband.ContainerHasContraband(entity.Value, Owner, out var contraList))
+                {
+                    // Get the color of the "most important" contraband using O(n) shenanigans
+                    var hasContraColor = contraList
+                        .Select(x => _proto.Index(x))
+                        .MaxBy(x => x.Priority)!
+                        .Color;
+
+                    var path = new ResPath(_hasContrabandTexturePathBeginning +
+                                           Math.Min(_hasContrabandMaximumValue, contraList.Count) +
+                                           _hasContrabandTexturePathEnding);
+
+                    button.AddAdminOverlay(path, hasContraColor);
+                }
+
+                // overlay for items that are themselves contraband
+                if (_contraband.IsContraband(entity.Value, Owner, out var contraProtoId))
+                {
+                    button.AddAdminOverlay(_contrabandTexturePath, _proto.Index(contraProtoId).Color);
+                }
+
+                // more overlays can be added if needed...
+            }
         }
     }
 }

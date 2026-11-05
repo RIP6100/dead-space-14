@@ -8,8 +8,11 @@ using Content.Server.Speech.EntitySystems;
 using Content.Shared.Anomaly.Components;
 using Content.Shared.Armor;
 using Content.Shared.Bed.Sleep;
+using Content.Shared.Body.Systems;
 using Content.Shared.Cloning.Events;
 using Content.Shared.Chat;
+using Content.Shared.Damage.Components; // DS14
+using Content.Shared.Damage.Prototypes; // DS14
 using Content.Shared.Damage.Systems;
 using Content.Shared.Humanoid;
 using Content.Shared.Inventory;
@@ -29,11 +32,16 @@ using Robust.Shared.Timing;
 using Content.Shared.Movement.Systems;
 using Content.Shared.DeadSpace.Movement.Events;
 using Content.Shared.NPC.Components; // DS14
+using Robust.Shared.Player;//DS14
 
 namespace Content.Server.Zombies
 {
     public sealed partial class ZombieSystem : SharedZombieSystem
     {
+        // DS14-start
+        private static readonly ProtoId<DamageContainerPrototype> SiliconDamageContainer = "Silicon";
+        // DS14-end
+
         [Dependency] private readonly IGameTiming _timing = default!;
         [Dependency] private readonly IPrototypeManager _protoManager = default!;
         [Dependency] private readonly IRobustRandom _random = default!;
@@ -83,6 +91,8 @@ namespace Content.Server.Zombies
             SubscribeLocalEvent<ZombifyOnDeathComponent, MobStateChangedEvent>(OnDamageChanged);
 
             SubscribeLocalEvent<ZombieComponent, AttemptActivateJetpackHandledEvent>(OnJetpackAttempt); // DS14
+            SubscribeLocalEvent<ZombieComponent, PlayerDetachedEvent>(ActivateNPC); //DS14
+            SubscribeLocalEvent<ZombieComponent, PlayerAttachedEvent>(DeactivateNPC); //DS14
         }
 
         private void OnBeforeRemoveAnomalyOnDeath(Entity<PendingZombieComponent> ent, ref BeforeRemoveAnomalyOnDeathEvent args)
@@ -264,6 +274,12 @@ namespace Content.Server.Zombies
 
                 if (_mobState.IsAlive(uid, mobState))
                 {
+                    // DS14-start
+                    if (TryComp<DamageableComponent>(uid, out var damageable) &&
+                        damageable.DamageContainerID == SiliconDamageContainer)
+                        continue;
+                    // DS14-end
+
                     _damageable.TryChangeDamage(args.User, entity.Comp.HealingOnBite, true, false);
 
                     // If we cannot infect the living target, the zed will just heal itself.

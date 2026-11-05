@@ -183,7 +183,8 @@
   metabolisms:
     Poison:
       effects:
-      - !type:SatiateThirst
+      - !type:Satiate
+        satiationType: Thirst
         factor: -5 # This is basically industrial dessicant
       - !type:PopupMessage
         visualType: MediumCaution
@@ -214,7 +215,8 @@
       - !type:EvenHealthChange
         damage:
           Brute: -4
-      - !type:GenericStatusEffect
-        key: Adrenaline
-        component: IgnoreSlowOnDamage
+      - !type:ModifyStatusEffect
+        effectProto: StatusEffectAdrenaline
         time: 120
+      - !type:ModifyBleed #DS14
+        amount: -1.5

@@ -1,3 +1,5 @@
+using Content.Shared.DeadSpace.Weapons.Ranged.Components;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
@@ -12,6 +14,7 @@ using Content.Shared.Damage.Events;
 using Content.Shared.Damage.Systems;
 using Content.Shared.DeadSpace.Weapons.Parry;
 using Content.Shared.Database;
+using Content.Shared.EntityEffects;
 using Content.Shared.FixedPoint;
 using Content.Shared.Hands;
 using Content.Shared.Hands.Components;
@@ -67,6 +70,7 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
     [Dependency] protected readonly SharedTransformSystem TransformSystem = default!;
     [Dependency] private   readonly SharedStaminaSystem _stamina = default!;
     [Dependency] private   readonly DamageExamineSystem _damageExamine = default!;
+    [Dependency] private   readonly SharedEntityEffectsSystem _effects = default!;
 
     private const int AttackMask = (int) (CollisionGroup.MobMask | CollisionGroup.Opaque);
 
@@ -91,7 +95,7 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
         SubscribeLocalEvent<BonusMeleeDamageComponent, GetMeleeDamageEvent>(OnGetBonusMeleeDamage);
         SubscribeLocalEvent<BonusMeleeDamageComponent, GetHeavyDamageModifierEvent>(OnGetBonusHeavyDamageModifier);
         SubscribeLocalEvent<BonusMeleeAttackRateComponent, GetMeleeAttackRateEvent>(OnGetBonusMeleeAttackRate);
-
+        SubscribeLocalEvent<EntityEffectMeleeComponent, MeleeHitEvent>(EntityEffectMeleeHit); // DS14: explicit subscription for the current engine baseline.
         SubscribeLocalEvent<ItemToggleMeleeWeaponComponent, ItemToggledEvent>(OnItemToggle);
 
         SubscribeAllEvent<HeavyAttackEvent>(OnHeavyAttack);
@@ -110,8 +114,19 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
 #endif
     }
 
+    private void EntityEffectMeleeHit(Entity<EntityEffectMeleeComponent> ent, ref MeleeHitEvent args)
+    {
+        foreach (var entity in args.HitEntities)
+        {
+            _effects.ApplyEffects(entity, ent.Comp.Effects, 1f, args.User);
+        }
+    }
+
     private void OnMeleeShotAttempted(EntityUid uid, MeleeWeaponComponent comp, ref ShotAttemptedEvent args)
     {
+        if (HasComp<GunMeleeIndependentComponent>(uid)) // DS14
+            return; // DS14
+
         if (comp.NextAttack > Timing.CurTime)
             args.Cancel();
     }
@@ -120,6 +135,9 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
     {
         if (!TryComp<GunComponent>(uid, out var gun))
             return;
+
+        if (HasComp<GunMeleeIndependentComponent>(uid)) // DS14
+            return; // DS14
 
         if (gun.NextFire > component.NextAttack)
         {
@@ -160,6 +178,7 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
             return;
 
         component.NextAttack = minimum;
+        ResetUndamagedSwingsCount((uid, component));
         DirtyField(uid, component, nameof(MeleeWeaponComponent.NextAttack));
     }
 
@@ -227,6 +246,15 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
         {
             return;
         }
+
+        // DS14-start: Legionnaire knife RMB activates rage instead of making a wide attack.
+        if (HasComp<Content.Shared.DeadSpace.TheCircle.Legion.LegionKnifeComponent>(weaponUid))
+        {
+            var ev = new Content.Shared.DeadSpace.TheCircle.Legion.LegionKnifeRageAttemptEvent(user);
+            RaiseLocalEvent(weaponUid, ev);
+            return;
+        }
+        // DS14-end
 
         AttemptAttack(user, weaponUid, weapon, msg, args.SenderSession);
     }
@@ -549,19 +577,19 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
 
         // Sawmill.Debug($"Melee damage is {damage.Total} out of {component.Damage.Total}");
 
-        // Raise event before doing damage so we can cancel damage if the event is handled
-        var hitEvent = new MeleeHitEvent(new List<EntityUid> { target.Value }, user, meleeUid, damage, null);
-        RaiseLocalEvent(meleeUid, hitEvent);
-
-        if (hitEvent.Handled)
-            return;
-
         // DS14-start
         var parryEvent = new BeforeMeleeDamageEvent(user, meleeUid);
         RaiseLocalEvent(target.Value, ref parryEvent);
         if (parryEvent.Cancelled)
             return;
         // DS14-end
+
+        // Raise event before doing damage so we can cancel damage if the event is handled
+        var hitEvent = new MeleeHitEvent(new List<EntityUid> { target.Value }, user, meleeUid, damage, null);
+        RaiseLocalEvent(meleeUid, hitEvent);
+
+        if (hitEvent.Handled)
+            return;
 
         var targets = new List<EntityUid>(1)
         {
@@ -608,9 +636,17 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
 
         _meleeSound.PlayHitSound(target.Value, user, GetHighestDamageSound(modifiedDamage, _protoManager), hitEvent.HitSoundOverride, component);
 
-        if (damageResult.GetTotal() > FixedPoint2.Zero)
+        if (!TerminatingOrDeleted(target.Value))
         {
-            DoDamageEffect(targets, user, targetXform);
+            if (damageResult.GetTotal() > FixedPoint2.Zero)
+            {
+                DoDamageEffect(targets, user, targetXform);
+                ResetUndamagedSwingsCount((meleeUid, component));
+            }
+            else
+            {
+                UndamagedAttack((meleeUid, component), target.Value, user);
+            }
         }
     }
 
@@ -636,6 +672,9 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
         if (component.HeavyAttackResistanceBypass is { } heavyAttackResistanceBypass) // DS14
             resistanceBypass = heavyAttackResistanceBypass; // DS14
         var entities = GetEntityList(ev.Entities);
+        // DS14-start: the client may list entities the server does not know (client-side ones, or already deleted)
+        entities.RemoveAll(uid => !uid.IsValid() || TerminatingOrDeleted(uid));
+        // DS14-end
 
         if (entities.Count == 0)
         {
@@ -697,6 +736,29 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
             targets.Add(entity);
         }
 
+        var weapon = GetEntity(ev.Weapon);
+
+        // DS14-start
+        for (var i = targets.Count - 1; i >= 0; i--)
+        {
+            var target = targets[i];
+            // We raise an attack attempt here as well,
+            // primarily because this was an untargeted wideswing: if a subscriber to that event cared about
+            // the potential target (such as for pacifism), they need to be made aware of the target here.
+            // In that case, just continue.
+            if (!Blocker.CanAttack(user, target, (weapon, component)))
+            {
+                targets.RemoveAt(i);
+                continue;
+            }
+
+            var parryEvent = new BeforeMeleeDamageEvent(user, meleeUid, Wide: true);
+            RaiseLocalEvent(target, ref parryEvent);
+            if (parryEvent.Cancelled)
+                targets.RemoveAt(i);
+        }
+        // DS14-end
+
         // Sawmill.Debug($"Melee damage is {damage.Total} out of {component.Damage.Total}");
 
         // Raise event before doing damage so we can cancel damage if the event is handled
@@ -705,8 +767,6 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
 
         if (hitEvent.Handled)
             return true;
-
-        var weapon = GetEntity(ev.Weapon);
 
         Interaction.DoContactInteraction(user, weapon);
 
@@ -725,26 +785,6 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
         for (var i = targets.Count - 1; i >= 0; i--)
         {
             var entity = targets[i];
-            // We raise an attack attempt here as well,
-            // primarily because this was an untargeted wideswing: if a subscriber to that event cared about
-            // the potential target (such as for pacifism), they need to be made aware of the target here.
-            // In that case, just continue.
-            if (!Blocker.CanAttack(user, entity, (weapon, component)))
-            {
-                targets.RemoveAt(i);
-                continue;
-            }
-
-            // DS14-start
-            var parryEvent = new BeforeMeleeDamageEvent(user, meleeUid);
-            RaiseLocalEvent(entity, ref parryEvent);
-            if (parryEvent.Cancelled)
-            {
-                targets.RemoveAt(i);
-                continue;
-            }
-            // DS14-end
-
             var attackedEvent = new AttackedEvent(meleeUid, user, GetCoordinates(ev.Coordinates));
             RaiseLocalEvent(entity, attackedEvent);
             var modifiedDamage = DamageSpecifier.ApplyModifierSets(damage + hitEvent.BonusDamage + attackedEvent.BonusDamage, hitEvent.ModifiersList);
@@ -782,9 +822,17 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
             _meleeSound.PlayHitSound(target, user, GetHighestDamageSound(appliedDamage, _protoManager), hitEvent.HitSoundOverride, component);
         }
 
-        if (appliedDamage.GetTotal() > FixedPoint2.Zero)
+        if (targets.Count > 0)
         {
-            DoDamageEffect(targets, user, Transform(targets[0]));
+            if (appliedDamage.GetTotal() > FixedPoint2.Zero)
+            {
+                DoDamageEffect(targets, user, Transform(targets[0]));
+                ResetUndamagedSwingsCount((meleeUid, component));
+            }
+            else
+            {
+                UndamagedAttack((meleeUid, component), targets[0], user);
+            }
         }
 
         return true;
@@ -1100,4 +1148,18 @@ public abstract class SharedMeleeWeaponSystem : EntitySystem
             }
         }
     }
+
+    /// <summary>
+    /// Updates <see cref="MeleeWeaponComponent.UndamagedSwings"/> and triggers a message if it meets <see cref="MeleeWeaponComponent.UndamagedAlertThreshold"/>.
+    /// </summary>
+    /// <param name="ent">The weapon entity tracking swings.</param>
+    /// <param name="target">The target entity that was hit without damage.</param>
+    /// <param name="user">The user swinging the weapon.</param>
+    protected virtual void UndamagedAttack(Entity<MeleeWeaponComponent> ent, EntityUid target, EntityUid user) { }
+
+    /// <summary>
+    /// Resets the <see cref="MeleeWeaponComponent.UndamagedSwings"/>; necessary to not trigger undamaged attacks messages too often.
+    /// </summary>
+    /// <param name="ent">The weapon entity tracking swings.</param>
+    protected virtual void ResetUndamagedSwingsCount(Entity<MeleeWeaponComponent> ent) { }
 }

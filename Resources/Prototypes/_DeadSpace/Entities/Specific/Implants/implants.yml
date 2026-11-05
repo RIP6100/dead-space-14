@@ -44,10 +44,36 @@
     - state: iconAfter
 
 - type: entity
-  parent: BaseImplantOnlyImplanterSyndi
+  parent: BaseItem
+  id: MantisBladesImplant
+  name: военный имплант
+  description: Нелегальный военный имплант, производимый корпорацией Cybersun. Устанавливается в руку хирургией и выпускает клинки богомола.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Sprite
+    sprite: _DeadSpace/Objects/Specific/Medical/mantis_implanter.rsi
+    state: implanter1
+  - type: Item
+    sprite: _DeadSpace/Objects/Specific/Medical/mantis_implanter.rsi
+    size: Small
+  - type: LimbImplant
+    slots:
+    - ArmLeft
+    - ArmRight
+    implantAction: ActionRetractableItemMantisBladesImplant
+
+- type: entity
+  parent: MantisBladesImplant
   id: MantisBladesImplanter
-  name: имплантер
+  name: имплант клинков богомола
   suffix: клинки богомола
+
+- type: entity
+  parent: BaseImplantOnlyImplanterSyndi
+  id: MantisBladesLoneImplanter
+  name: имплантер
+  suffix: клинки богомола, соло
+  categories: [ HideSpawnMenu ]
   components:
   - type: Implanter
     implant: MantisBladesImplant
@@ -65,23 +91,36 @@
       map: [ "implantOnly" ]
 
 - type: entity
-  parent: BaseSubdermalImplant
-  id: MantisBladesImplant
+  parent: BaseItem
+  id: MonowireImplant
   name: военный имплант
-  description: Нелегальный военный имплант, производимый корпорацией Cybersun. Устанавливает в руки пару клинков богомола.
+  description: Нелегальный военный имплант, производимый корпорацией Cybersun. Устанавливается в руку хирургией и выпускает моноструну.
   categories: [ HideSpawnMenu ]
   components:
-  - type: SubdermalImplant
-    implantAction: ActionRetractableItemMantisBladesImplant
-    whitelist:
-      components:
-      - Hands
+  - type: Sprite
+    sprite: _DeadSpace/Objects/Specific/Medical/monowire_implanter.rsi
+    state: implanter1
+  - type: Item
+    sprite: _DeadSpace/Objects/Specific/Medical/monowire_implanter.rsi
+    size: Small
+  - type: LimbImplant
+    slots:
+    - ArmLeft
+    - ArmRight
+    implantAction: ActionRetractableItemMonowireImplant
+
+- type: entity
+  parent: MonowireImplant
+  id: MonowireImplanter
+  name: имплант моноструны
+  suffix: моноструна
 
 - type: entity
   parent: BaseImplantOnlyImplanterSyndi
-  id: MonowireImplanter
+  id: MonowireLoneImplanter
   name: имплантер
-  suffix: моноструна
+  suffix: моноструна, соло
+  categories: [ HideSpawnMenu ]
   components:
   - type: Implanter
     implant: MonowireImplant
@@ -97,19 +136,6 @@
       visible: true
     - state: implanter1
       map: [ "implantOnly" ]
-
-- type: entity
-  parent: BaseSubdermalImplant
-  id: MonowireImplant
-  name: военный имплант
-  description: Нелегальный военный имплант, производимый корпорацией Cybersun. Устанавливает в руки моноструну с держателями.
-  categories: [ HideSpawnMenu ]
-  components:
-  - type: SubdermalImplant
-    implantAction: ActionRetractableItemMonowireImplant
-    whitelist:
-      components:
-      - Hands
 
 - type: entity
   parent: BaseSubdermalImplant
@@ -130,6 +156,7 @@
     - Dead
   - type: RattleOnTrigger
     radioChannel: Taipan
+    targetUser: true
   - type: SuitSensor
     randomMode: false
     controlsLocked: true
@@ -173,11 +200,21 @@
     implant: RezervImplant
 
 - type: entity
-  parent: BaseSubdermalImplant
+  parent: BaseItem
   id: SandevistanImplant
+  name: имплант Сандевистан
+  description: Устанавливается в позвоночник хирургией.
   categories: [ HideSpawnMenu ]
   components:
-  - type: SubdermalImplant
+  - type: Sprite
+    sprite: _DeadSpace/Objects/Specific/Medical/sandevistan-implanter.rsi
+    state: implanter0
+  - type: Item
+    sprite: _DeadSpace/Objects/Specific/Medical/sandevistan-implanter.rsi
+    size: Small
+  - type: LimbImplant
+    slots:
+    - Back
     implantAction: ActionActivateSandevistanImplant
     implantComponents:
     - type: SandevistanBodyVisual
@@ -224,8 +261,29 @@
     popup: sandevistan-implant-activated
 
 - type: entity
+  parent: SandevistanImplant
+  id: SandevistanImplantDeathsquadSeal
+  components:
+  - type: SubdermalImplant
+    implantAction: ActionActivateSandevistanImplant
+    implantComponents:
+    - type: SandevistanBodyVisual
+  - type: SandevistanImplant
+    applyImplantTrauma: false
+    softcapPopups: []
+    softcapShouts: []
+    endWarningPopups: []
+    recoveryPopups: []
+    popup: null
+
+- type: entity
   id: SandevistanImplanter
   suffix: Сандевистан
+  parent: SandevistanImplant
+
+- type: entity
+  id: SandevistanLoneImplanter
+  suffix: Сандевистан, соло
   parent: BaseImplantOnlyImplanter
   categories: [ HideSpawnMenu ]
   components:
@@ -275,7 +333,7 @@
     - 0,0,1,0
     whitelist:
       components:
-      - Implanter
+      - SandevistanImplant
   - type: EntityTableContainerFill
     containers:
       storagebase: !type:EntSelector
@@ -285,5 +343,38 @@
       c1:
         whitelist:
           components:
-          - Implanter
+          - SandevistanImplant
   - type: Appearance
+  - type: EmitSoundOnPickup
+    sound:
+      path: /Audio/_DeadSpace/Items/Handing/evidence_bag_pickup.ogg
+  - type: EmitSoundOnDrop
+    sound:
+      path: /Audio/_DeadSpace/Items/Handing/evidence_bag_drop.ogg
+  - type: EmitSoundOnLand
+    sound:
+      path: /Audio/_DeadSpace/Items/Handing/evidence_bag_drop.ogg
+
+- type: entity
+  parent: BaseSubdermalImplant
+  id: SmartLinkImplant
+  name: имплант «Смартлинк»
+  description: Кибернетический имплант синхронизирующий баллистические данные умного оружия с нейроинтерфейсом владельца и проецирующий их прямо на сетчатку глаза. Позволяет использовать системы самонаведения и тактический интерфейс совместимого вооружения.
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: SubdermalImplant
+    whitelist:
+      components:
+      - Hands
+    implantComponents:
+    - type: SmartLinkImplant
+
+- type: entity
+  parent: BaseImplantOnlyImplanterSyndi
+  id: SmartLinkImplanter
+  suffix: смартлинк
+  name: имплантер
+  description: Одноразовый шприц, специально предназначенный для введения подкожных имплантов.
+  components:
+  - type: Implanter
+    implant: SmartLinkImplant

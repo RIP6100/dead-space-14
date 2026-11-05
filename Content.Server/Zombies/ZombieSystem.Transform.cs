@@ -51,7 +51,8 @@ using Content.Shared.NPC.Components; // DS14
 using System.Linq; // DS14
 using Content.Shared.Cuffs.Components; // DS14
 using Content.Shared.Temperature.Components;
-using Content.Shared.Damage.Components; // DS14
+using Content.Shared.StatusEffectNew; // DS14
+using Content.Shared.NPC; //DS14
 
 namespace Content.Server.Zombies;
 
@@ -81,10 +82,12 @@ public sealed partial class ZombieSystem
     [Dependency] private readonly PrisonSystem _prison = default!;
     [Dependency] private readonly VirusSystem _virus = default!; // DS14
     [Dependency] private readonly LanguageSystem _language = default!; // DS14
+    [Dependency] private readonly StatusEffectsSystem _newStatusEffects = default!; // DS14
 
     private static readonly ProtoId<TagPrototype> InvalidForGlobalSpawnSpellTag = "InvalidForGlobalSpawnSpell";
     private static readonly ProtoId<TagPrototype> CannotSuicideTag = "CannotSuicide";
     private static readonly ProtoId<LanguagePrototype> ZombieLanguage = "ZombieLanguage"; // DS14
+    private static readonly EntProtoId ZombieAdrenalineEffect = "StatusEffectZombieAdrenaline"; // DS14
     private static readonly ProtoId<NpcFactionPrototype> ZombieFaction = "Zombie";
     private static readonly string MindRoleZombie = "MindRoleZombie";
     private static readonly List<ProtoId<AntagPrototype>> BannableZombiePrototypes = ["Zombie"];
@@ -155,14 +158,13 @@ public sealed partial class ZombieSystem
         //get diseases, breath, be thirst, be hungry, die in space, get double sentience, have offspring or be paraplegic.
         RemComp<RespiratorComponent>(target);
         RemComp<BarotraumaComponent>(target);
-        RemComp<HungerComponent>(target);
-        RemComp<ThirstComponent>(target);
+        RemComp<SatiationComponent>(target);
         RemComp<ReproductiveComponent>(target);
         RemComp<ReproductivePartnerComponent>(target);
         RemComp<LegsParalyzedComponent>(target);
         RemComp<ComplexInteractionComponent>(target);
         RemComp<SentienceTargetComponent>(target);
-        EnsureComp<IgnoreSlowOnDamageComponent>(target); // DS14
+        _newStatusEffects.TrySetStatusEffectDuration(target, ZombieAdrenalineEffect); // DS14
 
         // DS14-start
         if (HasComp<VirusComponent>(target))
@@ -307,6 +309,7 @@ public sealed partial class ZombieSystem
         var htn = EnsureComp<HTNComponent>(target);
         htn.RootTask = new HTNCompoundTask() { Task = "SimpleHostileCompound" };
         htn.Blackboard.SetValue(NPCBlackboard.Owner, target);
+        EnsureComp<ActiveNPCComponent>(target);//DS14
         _npc.SleepNPC(target, htn);
 
         //He's gotta have a mind
@@ -370,4 +373,17 @@ public sealed partial class ZombieSystem
         _tag.AddTag(target, InvalidForGlobalSpawnSpellTag);
         _tag.AddTag(target, CannotSuicideTag);
     }
+    private void ActivateNPC(EntityUid uid, ZombieComponent component, ref PlayerDetachedEvent args)//DS14-start
+    {
+        var htn = EnsureComp<HTNComponent>(args.Entity);
+        htn.RootTask = new HTNCompoundTask() { Task = "SimpleHostileCompound" };
+        htn.Blackboard.SetValue(NPCBlackboard.Owner, args.Entity);
+        _npc.WakeNPC(args.Entity, htn);
+        EnsureComp<ActiveNPCComponent>(args.Entity);
+    }
+    private void DeactivateNPC(EntityUid uid, ZombieComponent component, ref PlayerAttachedEvent args)
+    {
+        RemCompDeferred<HTNComponent>(args.Entity);
+        RemCompDeferred<ActiveNPCComponent>(args.Entity);
+    }//DS14-end
 }

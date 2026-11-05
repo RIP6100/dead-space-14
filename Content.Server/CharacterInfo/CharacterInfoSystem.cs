@@ -1,13 +1,12 @@
-using Content.Server.DeadSpace.Skill;
 using Content.Server.Mind;
 using Content.Server.Roles;
 using Content.Server.Roles.Jobs;
 using Content.Shared.CharacterInfo;
-using Content.Shared.DeadSpace.Skills;
-using Content.Shared.DeadSpace.Skills.Components;
 using Content.Shared.Objectives;
 using Content.Shared.Objectives.Components;
 using Content.Shared.Objectives.Systems;
+using Content.Shared.Roles;
+using Robust.Shared.Prototypes;
 
 namespace Content.Server.CharacterInfo;
 
@@ -17,7 +16,6 @@ public sealed class CharacterInfoSystem : EntitySystem
     [Dependency] private readonly MindSystem _minds = default!;
     [Dependency] private readonly RoleSystem _roles = default!;
     [Dependency] private readonly SharedObjectivesSystem _objectives = default!;
-    [Dependency] private readonly SkillSystem _skill = default!;
 
     public override void Initialize()
     {
@@ -35,8 +33,8 @@ public sealed class CharacterInfoSystem : EntitySystem
         var entity = args.SenderSession.AttachedEntity.Value;
 
         var objectives = new Dictionary<string, List<ObjectiveInfo>>();
-        var jobTitle = Loc.GetString("character-info-no-profession");
         string? briefing = null;
+        ProtoId<JobPrototype>? job = null;
         if (_minds.TryGetMind(entity, out var mindId, out var mind))
         {
             // Get objectives
@@ -53,28 +51,13 @@ public sealed class CharacterInfoSystem : EntitySystem
                 objectives[issuer].Add(info.Value);
             }
 
-            if (_jobs.MindTryGetJobName(mindId, out var jobName))
-                jobTitle = jobName;
+            _jobs.MindTryGetJobId(mindId, out job);
 
             // Get briefing
             briefing = _roles.MindGetBriefing(mindId);
         }
 
-        // DS14-Skills-Start
-        var skills = new List<SkillInfo>();
 
-        if (TryComp<SkillComponent>(entity, out var skillComponent))
-        {
-            foreach (var skill in skillComponent.Skills)
-            {
-                var info = _skill.GetSkillInfo(entity, skill.Key);
-
-                if (info != null)
-                    skills.Add(info.Value);
-            }
-        }
-
-        RaiseNetworkEvent(new CharacterInfoEvent(GetNetEntity(entity), jobTitle, objectives, skills, briefing), args.SenderSession);
-        // DS14-Skills-End
+        RaiseNetworkEvent(new CharacterInfoEvent(GetNetEntity(entity), objectives, briefing, job), args.SenderSession);
     }
 }

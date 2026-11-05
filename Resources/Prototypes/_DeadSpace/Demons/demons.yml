@@ -97,6 +97,7 @@
   - type: ZombieImmune
   - type: ImmunitetInfectionDead
   - type: PassiveDamage
+    intervalHaltOnDamageTaken: 5s
     allowedStates:
     - Alive
     - Critical
@@ -109,7 +110,9 @@
         Brute: -2
         Burn: -2
   - type: TTS
-    voice: Avozu
+    voices:
+      silero: Avozu
+      ntts: NTTSDoomDota2
   - type: NoSlip
   - type: Reactive
     reactions:
@@ -588,7 +591,6 @@
     whitelist:
       components:
       - Door
-      tags:
       - Wall
   - type: Puller
     needsHands: false

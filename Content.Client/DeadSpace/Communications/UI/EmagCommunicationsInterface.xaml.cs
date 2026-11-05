@@ -1,4 +1,5 @@
 // Мёртвый Космос, Licensed under custom terms with restrictions on public hosting and commercial use, full text: https://raw.githubusercontent.com/dead-space-server/space-station-14-fobos/master/LICENSE.TXT
+using Content.Shared.DeadSpace.TTS;
 
 using System.Linq;
 using System.Numerics;
@@ -96,10 +97,6 @@ public sealed partial class EmagCommunicationsInterface : FancyWindow
         PreviewButton.OnPressed += _ => TogglePreview();
         ReturnToNormalButton.OnPressed += _ => ReturnToNormal();
         AnnounceButton.OnPressed += _ => SubmitAnnouncement();
-
-        AddDs14OptionStyles(SoundSelector, VoiceSelector, LanguageSelector);
-        EnableTtsCheckBox.Label.AddStyleClass(DeadSpaceMenuSheetlet.ProfileLabel);
-        UseCustomTtsCheckBox.Label.AddStyleClass(DeadSpaceMenuSheetlet.ProfileLabel);
 
         PopulateVoices();
         PopulateLanguages();
@@ -251,6 +248,7 @@ public sealed partial class EmagCommunicationsInterface : FancyWindow
     {
         var voices = _prototypeManager
             .EnumeratePrototypes<TTSVoicePrototype>()
+            .Where(voice => voice.Provider == _configuration.GetCVar(TTSProviderCVars.Provider))
             .OrderBy(voice => _localization.GetString(voice.Name));
 
         foreach (var voice in voices)
@@ -301,16 +299,6 @@ public sealed partial class EmagCommunicationsInterface : FancyWindow
         UpdateSelectedSound();
     }
 
-    private static void AddDs14OptionStyles(params OptionButton[] options)
-    {
-        foreach (var option in options)
-        {
-            option.AddStyleClass(DeadSpaceMenuSheetlet.ProfileControl);
-            if (!option.OptionStyleClasses.Contains(DeadSpaceMenuSheetlet.ProfileControl))
-                option.OptionStyleClasses.Add(DeadSpaceMenuSheetlet.ProfileControl);
-        }
-    }
-
     private void OnAttributionChanged(LineEdit input)
     {
         var sanitized = new string(input.Text.Where(character => !char.IsControl(character)).ToArray());
@@ -350,12 +338,12 @@ public sealed partial class EmagCommunicationsInterface : FancyWindow
     {
         var color = TryGetColor(out var selected)
             ? selected
-            : Color.FromHex("#0b1118");
+            : DeadSpaceStylePalette.Input;
 
         ColorPreview.StyleBoxOverride = new StyleBoxFlat
         {
             BackgroundColor = color,
-            BorderColor = Color.FromHex("#3b4e60"),
+            BorderColor = DeadSpaceStylePalette.BorderControl,
             BorderThickness = new Thickness(1),
         };
     }
@@ -414,15 +402,12 @@ public sealed partial class EmagCommunicationsInterface : FancyWindow
         {
             HorizontalExpand = true,
         };
-        AddDs14OptionStyles(_colorPaletteSelector);
 
         _colorPaletteList = new ItemList
         {
             HorizontalExpand = true,
             VerticalExpand = true,
         };
-        _colorPaletteList.AddStyleClass(DeadSpaceMenuSheetlet.TextArea);
-
         var content = new BoxContainer
         {
             Orientation = BoxContainer.LayoutOrientation.Vertical,
@@ -442,7 +427,7 @@ public sealed partial class EmagCommunicationsInterface : FancyWindow
             VerticalExpand = true,
             Children = { content },
         };
-        panel.AddStyleClass(DeadSpaceMenuSheetlet.PopupPanel);
+        panel.AddStyleClass(DeadSpaceStyleClass.Popup);
 
         _colorPalettePopup = new Popup
         {
@@ -644,7 +629,7 @@ public sealed partial class EmagCommunicationsInterface : FancyWindow
     {
         var errorText = localeKey == null ? string.Empty : _localization.GetString(localeKey);
         PasswordError.Visible = localeKey != null;
-        PasswordError.SetMessage(errorText, Color.FromHex("#E86767"));
+        PasswordError.SetMessage(errorText, DeadSpaceStylePalette.NegativeBorderHover);
         PasswordError.ToolTip = localeKey == null ? null : errorText;
     }
 
@@ -765,7 +750,7 @@ public sealed partial class EmagCommunicationsInterface : FancyWindow
             ? string.Empty
             : _localization.GetString(displayedErrorKey, ("maximum", _maxAnnouncementLength));
         FormStatus.Visible = displayedErrorKey != null;
-        FormStatus.SetMessage(displayedError, Color.FromHex("#E86767"));
+        FormStatus.SetMessage(displayedError, DeadSpaceStylePalette.NegativeBorderHover);
         FormStatus.ToolTip = displayedErrorKey == null ? null : displayedError;
 
         AnnounceButton.Disabled = _mode != EmagCommunicationsUiMode.Authorized ||

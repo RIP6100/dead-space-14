@@ -127,7 +127,7 @@
     components:
     - Vocal
     tags:
-    - FelinidEmotes
+    - CatEmotes
   blacklist:
     tags:
     - SiliconEmotes
@@ -169,3 +169,8 @@
   id: WorkOut
   name: chat-emote-name-workout
   chatMessages: ["chat-emote-msg-workout"]
+
+- type: emote
+  id: SpinGun
+  name: chat-emote-name-spingun
+  chatMessages: ["chat-emote-name-spingun"]

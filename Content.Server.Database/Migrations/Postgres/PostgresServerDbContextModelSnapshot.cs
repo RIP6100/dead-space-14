@@ -998,9 +998,21 @@ namespace Content.Server.Database.Migrations.Postgres
                         .HasColumnType("boolean")
                         .HasColumnName("disable_ooc_during_vote");
 
+                    b.Property<bool>("EnableLowPlayerPreset")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enable_low_player_preset");
+
                     b.Property<bool>("Enabled")
                         .HasColumnType("boolean")
                         .HasColumnName("enabled");
+
+                    b.Property<string>("LowPlayerPresetId")
+                        .HasColumnType("text")
+                        .HasColumnName("low_player_preset_id");
+
+                    b.Property<int>("LowPlayerThreshold")
+                        .HasColumnType("integer")
+                        .HasColumnName("low_player_threshold");
 
                     b.Property<int>("MaxRdmRow")
                         .HasColumnType("integer")
@@ -1310,6 +1322,12 @@ namespace Content.Server.Database.Migrations.Postgres
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("species");
+
+                    // DS14-start
+                    b.Property<JsonDocument>("TtsVoices")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("tts_voices");
+                    // DS14-end
 
                     b.Property<string>("Voice")
                         .IsRequired()

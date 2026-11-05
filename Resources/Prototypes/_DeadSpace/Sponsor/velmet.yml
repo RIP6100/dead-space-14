@@ -150,7 +150,7 @@
 
 #Gasmask
 - type: entity
-  parent: ClothingMaskGasSecurity
+  parent: ClothingMaskGasSponsor
   id: ClothingMaskVelmet
   name: баллистическая маска DMQ//66
   description: Выпущенная в единственном экземпляре маска была неограничена в стоимости своего производства, благодаря чему владелец обеспечен эргономичной посадкой на лице, продвинутыми системами фильтрации, защиты глаз от воздействия сварочного оборудования и прямого контакта со вспышками. Гарантированно сбережёт лицо от контакта с осколками, возможно сдержит пистолетный калибр.
@@ -200,7 +200,7 @@
     tags: [] # ignore "WhitelistChameleon" tag
 
 - type: entity
-  parent: [ ClothingHeadHardsuitBase, ClothingHeadSuitWithLightBase ]
+  parent: [ClothingHeadHardsuitBase, ClothingHeadSuitWithLightBase]
   id: ClothingHeadHelmetHardsuitVelmet
   name: шлем тактического разведывательного скафандра DMQ//66
   description: Его форма подчёркнута более строгими углами и дополнительными лицевыми пластинами, которые помимо защиты обладают встроенной системой охлаждения от недоразвитого склада ума откровенно глупых людей. Форма визора, напоминающая надменный взгляд, делает продолжительный зрительный контакт некомфортным.
@@ -535,7 +535,9 @@
     targetUser: true
     components:
     - type: TTS
-      voice: Overwatch
+      voices:
+        silero: Overwatch
+        ntts: NTTSSentrybot
 
 - type: entity
   parent: BaseItem

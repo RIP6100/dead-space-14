@@ -102,7 +102,7 @@
     tags: [] # ignore "WhitelistChameleon" tag
 
 - type: entity
-  parent: [ ClothingHeadHardsuitBase, ClothingHeadSuitWithLightBase ]
+  parent: [ClothingHeadHardsuitBase, ClothingHeadSuitWithLightBase]
   id: ClothingHeadHelmetHardsuitMysticalRayAlt
   categories: [ HideSpawnMenu ]
   name: шлем скафандра MAXARM
@@ -191,7 +191,7 @@
 
 # Mask
 - type: entity
-  parent: ClothingMaskGasSecurity
+  parent: ClothingMaskGasSponsor
   id: ClothingMaskMysticalRayAlt
   name: боевая маска MAXARM
   description: Укрепленная маска что бы  по морде не прилетело.
@@ -437,7 +437,9 @@
     targetUser: true
     components:
     - type: TTS
-      voice: Glowtron
+      voices:
+        silero: Glowtron
+        ntts: NTTSMisterHandyFl3
 
 #melee
 - type: entity
@@ -623,9 +625,8 @@
   - type: Sprite
     sprite: _DeadSpace/Sponsor/MysticalRayAlt/tools_holofanprojector.rsi
     state: icon
-  - type: HolosignProjector
+  - type: LimitedHolosignProjector
     signProto: HoloFan
-    chargeUse: 120
 
 # tools_rcd.rci
 - type: entity

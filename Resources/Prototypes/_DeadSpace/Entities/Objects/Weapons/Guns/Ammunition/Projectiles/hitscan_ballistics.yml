@@ -28,6 +28,10 @@
   - type: HitscanBasicEffects
     sound:
       path: /Audio/Weapons/Guns/Hits/bullet_hit.ogg
+  - type: LimbRound
+    bone: 8
+    organ: 0.65
+    bleed: 0.04
 
 - type: entity
   id: BulletUraniumTrace
@@ -54,6 +58,10 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 6
+    organ: 1.6
+    bleed: 0.14
   - type: HitscanBasicVisuals
     bullet:
       sprite:
@@ -65,6 +73,10 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 4
+    organ: 0.4
+    bleed: 0.03
   - type: PointLight
     enabled: true
     color: "#ff4300"
@@ -86,6 +98,10 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 0
+    organ: 0
+    bleed: 0
   - type: HitscanBasicVisuals
     bullet:
       sprite:
@@ -141,6 +157,10 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 14
+    organ: 1.05
+    bleed: 0.08
   - type: HitscanBasicDamage
     damage:
       types:
@@ -185,6 +205,10 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 12
+    organ: 1
+    bleed: 0.07
   - type: HitscanBasicDamage
     damage:
       types:
@@ -229,6 +253,10 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 22
+    organ: 1.2
+    bleed: 0.12
   - type: HitscanBasicDamage
     damage:
       types:
@@ -284,6 +312,10 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 28
+    organ: 1.35
+    bleed: 0.16
   - type: HitscanBasicDamage
     damage:
       types:
@@ -294,6 +326,10 @@
   parent: BulletIncendiaryTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 2
+    organ: 0.15
+    bleed: 0.01
   - type: HitscanBasicDamage
     damage:
       types:
@@ -307,6 +343,10 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 12
+    organ: 1
+    bleed: 0.07
   - type: HitscanBasicDamage
     damage:
       types:
@@ -323,10 +363,38 @@
         Blunt: 2
 
 - type: entity
+  parent: BulletTrace
+  id: BulletCaselessRiflePoisonedTrace
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: LimbRound
+    bone: 12
+    organ: 1
+    bleed: 0.07
+  - type: HitscanBasicDamage
+    damage:
+      types:
+        Piercing: 15
+  - type: SolutionContainerManager
+    solutions:
+      bullet:
+        maxVol: 1
+        reagents:
+        - ReagentId: Nociotoxin
+          Quantity: 1
+  - type: SolutionInjectOnProjectileHit
+    transferAmount: 1
+    solution: bullet
+
+- type: entity
   id: PelletShotgunSlugTrace
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 42
+    organ: 1.45
+    bleed: 0.2
   - type: HitscanBasicDamage
     damage:
       types:
@@ -338,6 +406,10 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 14
+    organ: 0
+    bleed: 0
   - type: HitscanBasicDamage
     damage:
       types:
@@ -350,6 +422,12 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    pellet: true
+    sever: true
+    bone: 2
+    organ: 0.15
+    bleed: 0.02
   - type: HitscanBasicDamage
     damage:
       types:
@@ -371,6 +449,12 @@
   parent: BulletIncendiaryTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    pellet: true
+    sever: true
+    bone: 2
+    organ: 0.1
+    bleed: 0.02
   - type: HitscanBasicDamage
     damage:
       types:
@@ -414,6 +498,12 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    pellet: true
+    sever: true
+    bone: 1
+    organ: 0.1
+    bleed: 0.02
   - type: HitscanBasicDamage
     damage:
       types:
@@ -435,6 +525,12 @@
   parent: BulletUraniumTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    pellet: true
+    sever: true
+    bone: 2
+    organ: 0.2
+    bleed: 0.03
   - type: HitscanBasicDamage
     damage:
       types:
@@ -456,6 +552,12 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    pellet: true
+    sever: true
+    bone: 4
+    organ: 0.25
+    bleed: 0.04
   - type: HitscanBasicDamage
     damage:
       types:
@@ -477,6 +579,10 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 24
+    organ: 1.25
+    bleed: 0.14
   - type: HitscanBasicDamage
     damage:
       types:
@@ -487,6 +593,10 @@
   parent: BulletAPTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 8
+    organ: 1.8
+    bleed: 0.16
   - type: HitscanBasicDamage
     ignoreResistances: true
     damage:
@@ -498,6 +608,10 @@
   parent: BulletIncendiaryTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 20
+    organ: 0.7
+    bleed: 0.08
   - type: HitscanBasicRaycast
     collisionMask: BulletImpassable
     maxDistance: 80
@@ -515,6 +629,10 @@
   parent: BulletUraniumTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 22
+    organ: 0.9
+    bleed: 0.1
   - type: HitscanBasicRaycast
     collisionMask: BulletImpassable
     maxDistance: 80
@@ -530,6 +648,10 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 36
+    organ: 1.4
+    bleed: 0.18
   - type: HitscanBasicRaycast
     collisionMask: BulletImpassable
     maxDistance: 80
@@ -544,6 +666,10 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 55
+    organ: 1.2
+    bleed: 0.28
   - type: HitscanBasicRaycast
     collisionMask: BulletImpassable
     maxDistance: 120
@@ -556,8 +682,8 @@
   - type: HitscanStaminaDamage
     staminaDamage: 60
   - type: HitscanPenetration
-    penetrationThreshold: 360
-    maxPenetratedTargets: 3
+    penetrationThreshold: 601
+    maxPenetratedTargets: 5
     maxDestroyedObstacles: 1
     obstacleSearchRadius: 0.35
     penetrationDamageTypeRequirement:
@@ -568,6 +694,10 @@
   parent: BulletAPTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 18
+    organ: 2.2
+    bleed: 0.24
   - type: HitscanBasicRaycast
     collisionMask: BulletImpassable
     maxDistance: 120
@@ -592,6 +722,12 @@
   parent: BulletAPTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    pellet: true
+    sever: true
+    bone: 4
+    organ: 0.35
+    bleed: 0.05
   - type: HitscanBasicDamage
     damage:
       types:
@@ -613,6 +749,10 @@
   parent: BulletTrace
   categories: [ HideSpawnMenu ]
   components:
+  - type: LimbRound
+    bone: 0
+    organ: 0
+    bleed: 0
   - type: HitscanBasicDamage
     damage:
       types:

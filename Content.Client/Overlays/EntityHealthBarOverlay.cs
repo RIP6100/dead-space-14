@@ -10,6 +10,7 @@ using Content.Shared.StatusIcon;
 using Content.Shared.StatusIcon.Components;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
+using Robust.Client.Player; //DS-14
 using Robust.Shared.Enums;
 using Robust.Shared.Prototypes;
 using static Robust.Shared.Maths.Color;
@@ -22,6 +23,8 @@ namespace Content.Client.Overlays;
 /// </summary>
 public sealed class EntityHealthBarOverlay : Overlay
 {
+    [Dependency] private readonly IPlayerManager _player = default!; //DS-14
+
     private readonly IEntityManager _entManager;
     private readonly IPrototypeManager _prototype;
 
@@ -31,6 +34,7 @@ public sealed class EntityHealthBarOverlay : Overlay
     private readonly StatusIconSystem _statusIconSystem;
     private readonly SpriteSystem _spriteSystem;
     private readonly ProgressColorSystem _progressColor;
+    private readonly Content.Client.DeadSpace.Surgery.SurgeryClientSystem _surgery; //DS-14
 
 
     public override OverlaySpace Space => OverlaySpace.WorldSpaceBelowFOV;
@@ -39,6 +43,7 @@ public sealed class EntityHealthBarOverlay : Overlay
 
     public EntityHealthBarOverlay(IEntityManager entManager, IPrototypeManager prototype)
     {
+        IoCManager.InjectDependencies(this); //DS-14
         _entManager = entManager;
         _prototype = prototype;
         _transform = _entManager.System<SharedTransformSystem>();
@@ -47,10 +52,16 @@ public sealed class EntityHealthBarOverlay : Overlay
         _statusIconSystem = _entManager.System<StatusIconSystem>();
         _spriteSystem = _entManager.System<SpriteSystem>();
         _progressColor = _entManager.System<ProgressColorSystem>();
+        _surgery = _entManager.System<Content.Client.DeadSpace.Surgery.SurgeryClientSystem>(); //DS-14
     }
 
     protected override void Draw(in OverlayDrawArgs args)
     {
+        //DS-14 start
+        if (!_entManager.TryGetComponent(_player.LocalEntity, out EyeComponent? playerEye) || args.Viewport.Eye != playerEye.Eye)
+            return;
+        //DS-14 end
+
         var handle = args.WorldHandle;
         var rotation = args.Viewport.Eye?.Rotation ?? Angle.Zero;
         var xformQuery = _entManager.GetEntityQuery<TransformComponent>();
@@ -82,6 +93,9 @@ public sealed class EntityHealthBarOverlay : Overlay
             {
                 continue;
             }
+
+            if (_surgery.Operating == uid) //DS-14
+                continue; //DS-14
 
             // we use the status icon component bounds if specified otherwise use sprite
             var bounds = _entManager.GetComponentOrNull<StatusIconComponent>(uid)?.Bounds ?? _spriteSystem.GetLocalBounds((uid, spriteComponent));
@@ -135,6 +149,17 @@ public sealed class EntityHealthBarOverlay : Overlay
     /// </summary>
     private (float ratio, bool inCrit)? CalcProgress(EntityUid uid, MobStateComponent component, DamageableComponent dmg, MobThresholdsComponent thresholds)
     {
+        // DS14-start: a boss that keeps its own health: the bar counts from it, not from the thresholds
+        if (_entManager.TryGetComponent<Content.Shared.DeadSpace.Lavaland.Components.LavalandHealthBarComponent>(uid, out var ownHealth) &&
+            ownHealth.MaxHealth > 0f)
+        {
+            if (ownHealth.Hidden)
+                return null;
+
+            return (Math.Clamp(1f - dmg.TotalDamage.Float() / ownHealth.MaxHealth, 0f, 1f), false);
+        }
+        // DS14-end
+
         if (_mobStateSystem.IsAlive(uid, component))
         {
             if (dmg.HealthBarThreshold != null && dmg.TotalDamage < dmg.HealthBarThreshold)

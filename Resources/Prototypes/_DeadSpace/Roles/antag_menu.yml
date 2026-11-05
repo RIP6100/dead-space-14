@@ -61,6 +61,7 @@
   - InitialInfected
   - SentientVirus
   - Blob
+  - Changeling
   subcategories:
   - displayName: Пауки ужаса
     outlineColor: "#8928ff"
@@ -95,4 +96,4 @@
     - displayName: Кардинал / Шок труперы
       antags:
       - CircleCommander
-      - CircleGeist
+      - CircleShockTrooper

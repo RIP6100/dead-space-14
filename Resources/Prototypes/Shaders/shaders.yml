@@ -95,6 +95,11 @@
   path: "/Textures/Shaders/stealth.swsl"
 
 - type: shader
+  id: CameraConceal
+  kind: source
+  path: "/Textures/Shaders/camera_conceal.swsl"
+
+- type: shader
   id: PaperStamp
   kind: source
   path: "/Textures/Shaders/paperstamp.swsl"
@@ -115,3 +120,8 @@
   id: Hologram
   kind: source
   path: "/Textures/Shaders/hologram.swsl"
+
+- type: shader
+  id: ScreechShockWave
+  kind: source
+  path: "/Textures/Shaders/screech_shock_wave.swsl"

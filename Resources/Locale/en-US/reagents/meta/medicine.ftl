@@ -72,7 +72,7 @@ reagent-name-stellibinin = stellibinin
 reagent-desc-stellibinin = A natual anti-toxin with particular effectiveness against amatoxin.
 
 reagent-name-synaptizine = synaptizine
-reagent-desc-synaptizine = A toxic chemical that halves the duration of stuns and knockdowns.
+reagent-desc-synaptizine = A toxic chemical that halves the duration of stuns and knockdowns. Restores speech and hearing.
 
 reagent-name-tranexamic-acid = tranexamic acid
 reagent-desc-tranexamic-acid = A blood-clotting medicine used to prevent profuse bleeding. Causes heavier bleeding on overdose. Commonly found in small doses within emergency medipens.
@@ -156,3 +156,7 @@ reagent-desc-haloperidol = Removes most stimulating and hallucinogenic drugs. Re
 
 reagent-name-heparin = heparin
 reagent-desc-heparin = Commonly used as an anticoagulant medication. Causes blood to have difficulty forming clots. Can cause internal bleeding when overdosed.
+
+reagent-name-chiyurizine = chiyurizine
+reagent-desc-chiyurizine = A mysterious medicine that closes wounds and clears a wide range of damage, from poisoning to burns. Every 15 metabolized units fixes one limb problem, one internal injury, and regrows one missing limb.
+reagent-effect-guidebook-chiyuri = Every { $dose } metabolized units fixes one limb problem (fracture, bleeding, shard), one internal injury, and regrows one missing limb

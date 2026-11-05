@@ -27,6 +27,8 @@
       - Slicing
     useSound:
       path: /Audio/Items/Culinary/chop.ogg
+  - type: LimbCut
+    factor: 0.4
   #DS14-Start
   - type: EmitSoundOnPickup
     sound:
@@ -45,6 +47,12 @@
   name: kitchen knife
   description: A general purpose Chef's Knife made by Asters Merchant Guild. Guaranteed to stay sharp for years to come..
   components:
+  - type: SurgeryTool
+    precision: 0.7
+    slip: 0.25
+    wobble: 22
+    verbs:
+    - Incise
   - type: Tag
     tags:
     - Knife
@@ -173,6 +181,7 @@
   id: SurvivalKnife
   description: Weapon of first and last resort for combatting space carp.
   components:
+  - type: KineticBayonet # DS14
   - type: Sprite
     sprite: Objects/Weapons/Melee/survival_knife.rsi
     state: icon
@@ -199,6 +208,34 @@
   - type: Item
     sprite: Objects/Weapons/Melee/kukri_knife.rsi
     storedSprite: null
+
+- type: entity
+  parent: [ CombatKnife, BaseXenoborgContraband ]
+  id: XenoborgBioKnife
+  name: bio knife
+  description: Melds itself to specific metabolizers and will deal extra damage to those targets!
+  components:
+  - type: Sprite
+    sprite: Objects/Weapons/Melee/bioknife.rsi
+    state: icon
+  - type: MeleeWeapon
+    attackRate: 1.0
+    damage:
+      types:
+        Slash: 10
+  - type: Item
+    sprite: Objects/Weapons/Melee/bioknife.rsi
+  - type: BonusDamageOnMetabolism
+    selectedMetabolizer: Human
+    excludedMetabolizers:
+    - Vox # Their biology is resistant to this!
+    # The rest of these are just so we don't clog up the menu with useless items.
+    - Bloodsucker
+    - Dragon
+    # DS14: Changelings use human metabolism on this content baseline.
+    damage:
+      types:
+        Poison: 10
 
 - type: entity
   parent: [ClothingHeadHatGreyFlatcap, BaseMinorContraband]

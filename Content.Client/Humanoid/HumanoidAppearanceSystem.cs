@@ -103,9 +103,13 @@ public sealed class HumanoidAppearanceSystem : SharedHumanoidAppearanceSystem
 
         var proto = _prototypeManager.Index<HumanoidSpeciesSpriteLayer>(protoId);
         component.BaseLayers[key] = proto;
+        layer.Visible = proto.BaseSprite != null && !IsHidden(component, key); // DS14 - hide stale species sprites on marking-only anchors.
 
         if (proto.MatchSkin)
             layer.Color = component.SkinColor.WithAlpha(proto.LayerAlpha);
+
+        if (color != null) //DS-14
+            layer.Color = color.Value.WithAlpha(proto.LayerAlpha); //DS-14
 
         if (proto.BaseSprite != null)
             _sprite.LayerSetSprite((entity.Owner, sprite), layerIndex, proto.BaseSprite);
@@ -243,9 +247,6 @@ public sealed class HumanoidAppearanceSystem : SharedHumanoidAppearanceSystem
     }
 
     // DS14-start
-    /// <summary>
-    /// Applies the compact, public round-end appearance DTO to a client-side preview entity.
-    /// </summary>
     public void ApplyRoundEndAppearance(
         EntityUid uid,
         RoundEndHumanoidAppearance appearance,
@@ -357,12 +358,10 @@ public sealed class HumanoidAppearanceSystem : SharedHumanoidAppearanceSystem
             return;
 
         // DS14-start
-        // Full-body markings may extend across adjacent limbs, but must remain below clothing.
-        // Layers after the jumpsuit anchor include clothing as well as appendages that are meant to render over it.
         var clothingLayer = int.MaxValue;
         _sprite.LayerMapTryGet((entity.Owner, sprite), "jumpsuit", out clothingLayer, false);
 
-        if (targetLayer < clothingLayer)
+        if (targetLayer < clothingLayer && markingPrototype.BodyPart != HumanoidVisualLayers.Head)
         {
             foreach (var bodyLayer in humanoid.BaseLayers.Keys)
             {
@@ -415,6 +414,18 @@ public sealed class HumanoidAppearanceSystem : SharedHumanoidAppearanceSystem
             if (humanoid.MarkingsDisplacement.TryGetValue(markingPrototype.BodyPart, out var displacementData) && markingPrototype.CanBeDisplaced)
                 _displacement.TryAddDisplacement(displacementData, (entity.Owner, sprite), targetLayer + j + 1, layerId, out _);
         }
+    }
+
+    /// <summary>
+    ///     Rebuilds the humanoid sprite layers from the current appearance data. Used when external code
+    ///     has tampered with the sprite (e.g. the ninja disguise) and needs to restore the humanoid parts.
+    /// </summary>
+    public void RefreshAppearance(EntityUid uid, HumanoidAppearanceComponent? humanoid = null)
+    {
+        if (!Resolve(uid, ref humanoid, false) || !TryComp<SpriteComponent>(uid, out var sprite))
+            return;
+
+        UpdateSprite((uid, humanoid, sprite));
     }
 
     public override void SetSkinColor(EntityUid uid, Color skinColor, bool sync = true, bool verify = true, HumanoidAppearanceComponent? humanoid = null)

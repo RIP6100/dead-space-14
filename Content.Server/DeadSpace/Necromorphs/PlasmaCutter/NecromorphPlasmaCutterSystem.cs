@@ -18,9 +18,11 @@ using Content.Shared.Mobs.Systems;
 using Content.Shared.Movement.Components;
 using Content.Shared.Movement.Systems;
 using Content.Shared.Speech.Muting;
+using Content.Shared.StatusEffectNew;
 using Content.Shared.Weapons.Hitscan.Events;
 using Robust.Shared.Containers;
 using Robust.Shared.Physics.Systems;
+using Robust.Shared.Prototypes;
 using System.Linq;
 using System.Numerics;
 
@@ -28,12 +30,15 @@ namespace Content.Server.DeadSpace.Necromorphs.PlasmaCutter;
 
 public sealed class NecromorphPlasmaCutterSystem : EntitySystem
 {
+    private static readonly EntProtoId MutedEffect = "StatusEffectNecromorphPlasmaCutterMuted";
+
     [Dependency] private readonly SharedBodySystem _body = default!;
     [Dependency] private readonly SharedContainerSystem _containers = default!;
     [Dependency] private readonly DamageableSystem _damage = default!;
     [Dependency] private readonly MobStateSystem _mobState = default!;
     [Dependency] private readonly MovementSpeedModifierSystem _movement = default!;
     [Dependency] private readonly SharedPhysicsSystem _physics = default!;
+    [Dependency] private readonly StatusEffectsSystem _statusEffects = default!;
 
     public override void Initialize()
     {
@@ -56,7 +61,8 @@ public sealed class NecromorphPlasmaCutterSystem : EntitySystem
             return;
         }
 
-        if (!HasComp<HumanoidAppearanceComponent>(target) || !HasComp<BodyComponent>(target))
+        if ((!HasComp<HumanoidAppearanceComponent>(target) && !HasComp<NecromorphPlasmaCutterDismemberableComponent>(target)) ||
+            !HasComp<BodyComponent>(target))
         {
             DamageByPercentage(target, CompOrNull<NecromorphPlasmaCutterReducedDamageComponent>(target));
             return;
@@ -67,8 +73,9 @@ public sealed class NecromorphPlasmaCutterSystem : EntitySystem
         var oneLegWalkSpeed = movement?.BaseWalkSpeed ?? 0f;
         var oneLegSprintSpeed = movement?.BaseSprintSpeed ?? 0f;
         var oneLegAcceleration = movement?.BaseAcceleration ?? 0f;
-        if (wounds.RemovedLegs < 2 && TryDetachFirstPart(target, BodyPartType.Leg, args.Data.ShotDirection, ent.Comp.DetachedPartImpulse))
+        if (wounds.RemovedLegs < 2 && TryDetachFirstPart(target, BodyPartType.Leg, args.Data.ShotDirection, ent.Comp.DetachedPartImpulse, out var leg))
         {
+            MarkSevered(target, leg?.Symmetry == BodyPartSymmetry.Left ? NecromorphSeveredPart.LegLeft : NecromorphSeveredPart.LegRight);
             if (wounds.RemovedLegs == 0 && movement != null)
             {
                 wounds.OriginalWalkSpeed = movement.BaseWalkSpeed;
@@ -86,16 +93,30 @@ public sealed class NecromorphPlasmaCutterSystem : EntitySystem
             return;
         }
 
-        if (!TryDetachFirstPart(target, BodyPartType.Head, args.Data.ShotDirection, ent.Comp.DetachedPartImpulse))
+        if (!TryDetachFirstPart(target, BodyPartType.Head, args.Data.ShotDirection, ent.Comp.DetachedPartImpulse, out _))
             return;
+
+        MarkSevered(target, NecromorphSeveredPart.Head);
 
         EnsureComp<NecromorphMissingHeadComponent>(target);
         _mobState.ChangeMobState(target, MobState.Dead);
     }
 
-    private bool TryDetachFirstPart(EntityUid target, BodyPartType type, Vector2 shotDirection, float impulse)
+    /// <summary>The part is gone from its sprite too - a suit or a helmet would keep drawing it.</summary>
+    private void MarkSevered(EntityUid target, NecromorphSeveredPart part)
+    {
+        var severed = EnsureComp<NecromorphSeveredPartsComponent>(target);
+        severed.Severed |= part;
+        severed.Layout = CompOrNull<NecromorphPlasmaCutterDismemberableComponent>(target)?.Layout ??
+                         NecromorphSpriteLayout.Humanoid;
+        Dirty(target, severed);
+    }
+
+    private bool TryDetachFirstPart(EntityUid target, BodyPartType type, Vector2 shotDirection, float impulse,
+        out BodyPartComponent? detached)
     {
         var part = _body.GetBodyChildrenOfType(target, type).FirstOrDefault();
+        detached = part.Component;
         if (part.Id == EntityUid.Invalid ||
             !_containers.TryGetContainingContainer((part.Id, null, null), out var container))
         {
@@ -157,10 +178,10 @@ public sealed class NecromorphPlasmaCutterSystem : EntitySystem
             DamageDict = { ["Heat"] = FixedPoint2.New(damageAmount) }
         };
 
-        var wasMutedForDamage = HasComp<MutedComponent>(target);
-        EnsureComp<MutedComponent>(target);
+        var wasMutedForDamage = _statusEffects.HasStatusEffect(target, MutedEffect);
+        _statusEffects.TrySetStatusEffectDuration(target, MutedEffect);
         _damage.TryChangeDamage(target, damage, true, false);
         if (!wasMutedForDamage)
-            RemCompDeferred<MutedComponent>(target);
+            _statusEffects.TryRemoveStatusEffect(target, MutedEffect);
     }
 }

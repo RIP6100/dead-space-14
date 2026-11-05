@@ -25,6 +25,9 @@ public abstract partial class SharedGunSystem
 
     private void OnBasicEntityTakeAmmo(Entity<BasicEntityAmmoProviderComponent> ent, ref TakeAmmoEvent args)
     {
+        if (UsesAmmoSlot(ent)) // DS14
+            return; // DS14
+
         for (var i = 0; i < args.Shots; i++)
         {
             if (ent.Comp.Count <= 0)
@@ -44,6 +47,9 @@ public abstract partial class SharedGunSystem
 
     private void OnBasicEntityAmmoCount(Entity<BasicEntityAmmoProviderComponent> ent, ref GetAmmoCountEvent args)
     {
+        if (UsesAmmoSlot(ent)) // DS14
+            return; // DS14
+
         args.Capacity = ent.Comp.Capacity ?? int.MaxValue;
         args.Count = ent.Comp.Count ?? int.MaxValue;
         // DS14-start
@@ -58,6 +64,7 @@ public abstract partial class SharedGunSystem
             return;
 
         Appearance.SetData(ent, AmmoVisuals.HasAmmo, ent.Comp.Count != 0, appearance);
+        Appearance.SetData(ent, AmmoVisuals.IsFull, ent.Comp.Count == ent.Comp.Capacity, appearance);
         Appearance.SetData(ent, AmmoVisuals.AmmoCount, ent.Comp.Count ?? int.MaxValue, appearance);
         Appearance.SetData(ent, AmmoVisuals.AmmoMax, ent.Comp.Capacity ?? int.MaxValue, appearance);
     }

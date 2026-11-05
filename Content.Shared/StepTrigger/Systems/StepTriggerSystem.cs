@@ -59,22 +59,10 @@ public sealed class StepTriggerSystem : EntitySystem
             return true;
         }
 
-        if (component.Blacklist != null && TryComp<MapGridComponent>(transform.GridUid, out var grid))
-        {
-            var positon = _map.LocalToTile(transform.GridUid.Value, grid, transform.Coordinates);
-            var anch = _map.GetAnchoredEntitiesEnumerator(uid, grid, positon);
-
-            while (anch.MoveNext(out var ent))
-            {
-                if (ent == uid)
-                    continue;
-
-                if (_whitelistSystem.IsWhitelistPass(component.Blacklist, ent.Value))
-                {
-                    return false;
-                }
-            }
-        }
+        //DS-14 start
+        if (IsBlacklistBlocked(uid, component, transform))
+            return false;
+        //DS-14 end
 
         foreach (var otherUid in component.Colliding)
         {
@@ -130,6 +118,33 @@ public sealed class StepTriggerSystem : EntitySystem
         Dirty(uid, component);
     }
 
+    //DS-14 start
+    public bool IsBlacklistBlocked(EntityUid uid, StepTriggerComponent? component = null, TransformComponent? transform = null)
+    {
+        if (!Resolve(uid, ref component, false) || component.Blacklist == null)
+            return false;
+
+        if (!Resolve(uid, ref transform, false) || transform.GridUid is not { } gridUid)
+            return false;
+
+        if (!TryComp(gridUid, out MapGridComponent? grid))
+            return false;
+
+        var position = _map.LocalToTile(gridUid, grid, transform.Coordinates);
+        var anchored = _map.GetAnchoredEntitiesEnumerator(gridUid, grid, position);
+        while (anchored.MoveNext(out var ent))
+        {
+            if (ent == uid)
+                continue;
+
+            if (_whitelistSystem.IsWhitelistPass(component.Blacklist, ent.Value))
+                return true;
+        }
+
+        return false;
+    }
+    //DS-14 end
+
     private bool CanTrigger(EntityUid uid, EntityUid otherUid, StepTriggerComponent component)
     {
         if (!component.Active || component.CurrentlySteppedOn.Contains(otherUid))
@@ -156,9 +171,8 @@ public sealed class StepTriggerSystem : EntitySystem
         if (!args.OtherFixture.Hard)
             return;
 
-        if (!CanTrigger(uid, otherUid, component))
-            return;
-
+        // Temporary immunity can end while the entities remain in contact.
+        // UpdateColliding checks whether a tracked contact may trigger.
         EnsureComp<StepTriggerActiveComponent>(uid);
 
         if (component.Colliding.Add(otherUid))
@@ -174,10 +188,10 @@ public sealed class StepTriggerSystem : EntitySystem
         if (!component.Colliding.Remove(otherUid))
             return;
 
-        component.CurrentlySteppedOn.Remove(otherUid);
+        var wasSteppedOn = component.CurrentlySteppedOn.Remove(otherUid);
         Dirty(uid, component);
 
-        if (component.StepOn)
+        if (component.StepOn && wasSteppedOn)
         {
             var evStepOff = new StepTriggeredOffEvent(uid, otherUid);
             RaiseLocalEvent(uid, ref evStepOff);
@@ -234,6 +248,8 @@ public sealed class StepTriggerSystem : EntitySystem
             return;
 
         component.Active = active;
+        if (active && component.Colliding.Count != 0)
+            EnsureComp<StepTriggerActiveComponent>(uid);
         Dirty(uid, component);
     }
 }

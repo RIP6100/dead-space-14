@@ -45,6 +45,48 @@
       whitelist:
         components:
         - IdCard
+    # DS14-start: slot used to register the thief's ВорПРО program.
+    # Accepts the same tools that fit into a utility tool belt.
+    toolSlot:
+      priority: -3
+      name: device-pda-slot-component-slot-name-tool
+      ejectSound: /Audio/Items/unsheath.ogg
+      insertSound: /Audio/Items/sheath.ogg
+      whitelist:
+        tags:
+        - Powerdrill
+        - Wirecutter
+        - Crowbar
+        - Screwdriver
+        - Flashlight
+        - Wrench
+        - GeigerCounter
+        - Flare
+        - CableCoil
+        - CigPack
+        - Radio
+        - HolofanProjector
+        - Multitool
+        - AppraisalTool
+        - JawsOfLife
+        - GPS
+        - WeldingMask
+        - RemoteSignaller
+        - UtilityKnife
+        components:
+        - StationMap
+        - SprayPainter
+        - SprayPainterAmmo
+        - NetworkConfigurator
+        - RCD
+        - RCDAmmo
+        - Welder
+        - PowerCell
+        - Geiger
+        - TrayScanner
+        - GasAnalyzer
+        - HandLabeler
+    # DS14-end
   - type: PdaVisuals
   - type: Item
     size: Small
@@ -53,6 +95,7 @@
       PDA-id: !type:ContainerSlot {}
       PDA-pen: !type:ContainerSlot {}
       PDA-pai: !type:ContainerSlot {}
+      PDA-tool: !type:ContainerSlot {}
       Cartridge-Slot: !type:ContainerSlot {}
       program-container: !type:Container
   - type: ItemSlots
@@ -79,6 +122,7 @@
     range: 500
   - type: CartridgeLoader
     uiKey: enum.PdaUiKey.Key
+    diskSpace: 99 # DS14
     preinstalled:
       - CrewManifestCartridge
       - NotekeeperCartridge
@@ -86,6 +130,7 @@
       - NewsReaderCartridge
       - MessengerCartridge
       - BankCartridge
+      - PdaGamesCartridge
     cartridgeSlot:
       priority: -1
       name: device-pda-slot-component-slot-name-cartridge
@@ -174,6 +219,7 @@
     - WantedListCartridge
     - BankCartridge # DS14
     - MessengerCartridge
+    - PdaGamesCartridge # DS14
 
 - type: entity
   parent: BasePDA
@@ -190,6 +236,7 @@
       - MedTekCartridge
       - MessengerCartridge
       - BankCartridge # DS14
+      - PdaGamesCartridge # DS14
 
 - type: entity
   parent: BasePDA
@@ -437,6 +484,7 @@
     preinstalled:
     - CrewManifestCartridge
     - NewsReaderCartridge
+    - PdaGamesCartridge # DS14
   - type: Appearance
     appearanceDataInit:
      enum.PdaVisuals.PdaType:
@@ -447,7 +495,9 @@
     accentHColor: "#333333"
   - type: Icon
     state: pda-mime
-  - type: Muted # for random sentience event
+  - type: PermanentStatusEffects # for random sentience event
+    statusEffects:
+    - TraitStatusEffectMuted
 
 - type: entity
   name: chaplain PDA
@@ -504,6 +554,7 @@
     - NewsReaderCartridge
     - AstroNavCartridge
     - MessengerCartridge
+    - PdaGamesCartridge # DS14
 
 - type: entity
   parent: BasePDA
@@ -550,6 +601,7 @@
       - NewsReaderCartridge
       - AstroNavCartridge
       - MessengerCartridge
+      - PdaGamesCartridge # DS14
 
 - type: entity
   parent: BasePDA
@@ -715,6 +767,7 @@
       - MessengerCartridge
       - BankCartridge
       - ScannerProgramCartridge
+      - PdaGamesCartridge # DS14
 
 - type: entity
   parent: BasePDA
@@ -912,6 +965,7 @@
     - LogProbeCartridge
     - BankCartridge # DS14
     - MessengerCartridge
+    - PdaGamesCartridge # DS14
 
 - type: entity
   parent: BaseSecurityPDA
@@ -985,6 +1039,7 @@
       - LogProbeCartridge
       - AstroNavCartridge
       - MessengerCartridge
+      - PdaGamesCartridge # DS14
 
 - type: entity
   parent: CentcomPDA
@@ -1013,6 +1068,7 @@
       - AstroNavCartridge
       - BankCartridge
       - MessengerCartridge
+      - PdaGamesCartridge # DS14
   - type: Tag #  Ignore Chameleon tags
     tags:
     - DoorBumpOpener
@@ -1164,6 +1220,7 @@
       - NanoTaskCartridge
       - BankCartridge
       - MedTekCartridge #DS-14
+      - PdaGamesCartridge # DS14
 
 - type: entity
   parent: [ SyndiPDA, BaseSyndicateContraband ]
@@ -1202,6 +1259,7 @@
       - NotekeeperCartridge
       - NanoTaskCartridge
       - MedTekCartridge
+      - PdaGamesCartridge # DS14
 
 - type: entity
   parent: [ SyndiOperativePDA, BaseSyndicateContraband ]
@@ -1256,6 +1314,7 @@
       - WantedListCartridge
       - LogProbeCartridge
       - AstroNavCartridge
+      - PdaGamesCartridge # DS14
 
 - type: entity
   parent: ERTLeaderPDA
@@ -1431,6 +1490,7 @@
     - WantedListCartridge
     - LogProbeCartridge
     - MessengerCartridge
+    - PdaGamesCartridge # DS14
 
 - type: entity
   parent: BaseMedicalPDA
@@ -1460,6 +1520,7 @@
     - WantedListCartridge
     - MedTekCartridge
     - MessengerCartridge
+    - PdaGamesCartridge # DS14
 
 - type: entity
   parent: ClownPDA
@@ -1601,6 +1662,8 @@
         pda-ninja
   - type: Icon
     state: pda-ninja
+  - type: NinjaAppearanceItem
+    itemType: Color
 
 - type: entity
   parent: [ BaseMajorContraband, SyndiPDA ]

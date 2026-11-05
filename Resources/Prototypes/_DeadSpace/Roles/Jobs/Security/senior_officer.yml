@@ -37,13 +37,7 @@
   #end-backmen: currency
   special:
   - !type:AddImplantSpecial
-    implants: [ MindShieldImplant ]
-  - !type:AddComponentSpecial
-    components:
-    # DS14-Start
-    - type: Skill
-      group: BasicAndShuttleControl
-    # DS14-End
+    implants: [ MindShieldImplant, CombatAdrenalineImplant ]
 
 - type: startingGear
   id: SeniorOfficerGear

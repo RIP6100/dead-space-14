@@ -6,3 +6,12 @@
   components:
   - type: Sprite
     state: plant-31
+
+- type: entity
+  id: PottedPlantDS2
+  parent: PottedPlantBase
+  name: бонсай
+  description: Истинный путь лишь тот, который ты выбрал сам.
+  components:
+  - type: Sprite
+    state: plant-32

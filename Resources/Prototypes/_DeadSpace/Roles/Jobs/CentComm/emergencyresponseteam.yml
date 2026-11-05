@@ -32,12 +32,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTLeaderGearAmber
@@ -100,12 +94,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTLeaderGearRed
@@ -166,12 +154,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTLeaderGearGamma
@@ -194,7 +176,7 @@
     back:
     - ERTloadoutGammaPrimary
     - ERTloadoutGammaSecondary
-    - BoxCardboardERT
+    - BoxCardboardERTGamma
     - PinpointerNuclear
     - CrowbarRed
     - BSAACombatKitFilled
@@ -229,12 +211,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTSecurityGearAmber
@@ -295,12 +271,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTSecurityGearRed
@@ -355,12 +325,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTSecurityGearGamma
@@ -381,7 +345,7 @@
     back:
     - ERTloadoutGammaPrimary
     - ERTloadoutGammaSecondary
-    - BoxCardboardERT
+    - BoxCardboardERTGamma
     - CrowbarRed
     - PinpointerNuclear
     - BSAACombatKitFilled
@@ -416,12 +380,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTMedicalGearAmber
@@ -456,6 +414,8 @@
     - ADTCombatHypo
     - ChemistryBottleOmnizine
     - ChemistryBottleEpinephrine
+    - LimbRestorerERT
+    - FieldChemistryBox
 
 ## Red
 - type: job
@@ -484,12 +444,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTMedicalGearRed
@@ -522,6 +476,8 @@
     - ChemistryBottleOmnizine
     - ChemistryBottleBruizine
     - ChemistryBottlePyrazine
+    - LimbRestorerERT
+    - FieldChemistryBox
 
 ## Gamma
 - type: job
@@ -550,12 +506,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTMedicalGearGamma
@@ -577,7 +527,7 @@
     - ERTloadoutGammaPrimary
     - ERTloadoutGammaSecondary
     - ERTloadoutMelee
-    - BoxCardboardERT
+    - BoxCardboardERTGamma
     - DefibrillatorCompact
     - PinpointerNuclear
     - JugTheCircleOmnizine
@@ -585,6 +535,8 @@
     - CrowbarRed
     - BSAACombatKitFilled
     - InjectorCaseERTFilled
+    - LimbRestorerERT
+    - FieldChemistryBox
 
 # Engineer
 ## Amber
@@ -614,12 +566,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTEngineerGearAmber
@@ -682,12 +628,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTEngineerGearRed
@@ -744,12 +684,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTEngineerGearGamma
@@ -771,7 +705,7 @@
     - ERTloadoutGammaPrimary
     - ERTloadoutGammaSecondary
     - ERTloadoutMelee
-    - BoxCardboardERT
+    - BoxCardboardERTGamma
     - BoxC4ERT
     - RCDRecharging
     - RCDAmmo
@@ -806,12 +740,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTJanitorGearAmber
@@ -867,12 +795,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTJanitorGearRed
@@ -927,12 +849,6 @@
   special:
   - !type:AddImplantSpecial
     implants: [ MindShieldImplant, TrackingImplant ]
-  - !type:AddComponentSpecial
-    components:
-      # DS14-Start
-      - type: Skill
-        group: ALL
-      # DS14-End
 
 - type: startingGear
   id: ERTJanitorGearGamma
@@ -954,7 +870,7 @@
     - ERTloadoutGammaPrimary
     - ERTloadoutGammaSecondary
     - ERTloadoutMelee
-    - BoxCardboardERT
+    - BoxCardboardERTGamma
     - BoxLightMixed
     - BoxGrenadeCleanade
     - AdvMopItem

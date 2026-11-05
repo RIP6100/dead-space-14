@@ -17,7 +17,6 @@
       time: 40h
     - !type:AgeRequirement
       requiredAge: 24
-  weight: 10
   startingGear: QuartermasterGear
   icon: "JobIconQuarterMaster"
   supervisors: job-supervisors-captain
@@ -41,14 +40,10 @@
   #end-backmen: currency
   special:
   - !type:AddImplantSpecial
-    implants: [ MindShieldImplant ]
+    implants: [ MindShieldImplant, CombatAdrenalineImplant ] # DS14
   - !type:AddComponentSpecial
     components:
       - type: CommandStaff
-      # DS14-Start
-      - type: Skill
-        group: BasicAndShuttleControl
-      # DS14-End
 
 - type: startingGear
   id: QuartermasterGear

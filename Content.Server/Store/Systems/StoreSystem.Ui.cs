@@ -3,6 +3,7 @@ using Content.Server.Actions;
 using Content.Server.Administration.Logs;
 using Content.Server.Stack;
 using Content.Server.DeadSpace.Administration;
+using Content.Server.GameTicking; // DS14
 using Content.Server.Store.Components;
 using Content.Shared.Actions;
 using Content.Shared.Database;
@@ -34,6 +35,7 @@ public sealed partial class StoreSystem
     [Dependency] private readonly StackSystem _stack = default!;
     [Dependency] private readonly UserInterfaceSystem _ui = default!;
     [Dependency] private readonly NpcFactionSystem _npcFaction = default!;
+    [Dependency] private readonly GameTicker _gameTicker = default!; // DS14
 
     private void InitializeUi()
     {
@@ -147,6 +149,11 @@ public sealed partial class StoreSystem
         if (!ListingHasCategory(listing, component.Categories))
             return;
 
+        // DS14-start: the restock delay was only enforced by the client's buy button.
+        if (listing.RestockTime > _gameTicker.RoundDuration())
+            return;
+        // DS14-end
+
         //condition checking because why not
         if (listing.Conditions != null)
         {
@@ -191,6 +198,13 @@ public sealed partial class StoreSystem
             }
         }
          // end-backmen: currency
+
+        // Apply components from a dummy prototype directly to the buyer.
+        if (listing.ProductComponents != null &&
+            _proto.TryIndex<EntityPrototype>(listing.ProductComponents, out var productComponents))
+        {
+            EntityManager.AddComponents(buyer, productComponents.Components);
+        }
 
         //spawn entity
         if (listing.ProductEntity != null)

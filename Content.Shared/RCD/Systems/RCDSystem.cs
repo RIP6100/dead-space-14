@@ -1,4 +1,5 @@
 using Content.Shared.Administration.Logs;
+using Content.Shared.DeadSpace.RCD; //DS-14
 using Content.Shared.Charges.Systems;
 using Content.Shared.Construction;
 using Content.Shared.Database;
@@ -27,6 +28,7 @@ using System.Linq;
 
 namespace Content.Shared.RCD.Systems;
 
+// DS14 - pre-v288 engine
 public sealed class RCDSystem : EntitySystem
 {
     [Dependency] private readonly INetManager _net = default!;
@@ -46,12 +48,14 @@ public sealed class RCDSystem : EntitySystem
     [Dependency] private readonly SharedMapSystem _mapSystem = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
     [Dependency] private readonly TagSystem _tags = default!;
+    [Dependency] private readonly RcdBuildSiteSystem _sites = default!; //DS-14
 
     private readonly int _instantConstructionDelay = 0;
     private readonly EntProtoId _instantConstructionFx = "EffectRCDConstruct0";
     private readonly ProtoId<RCDPrototype> _deconstructTileProto = "DeconstructTile";
     private readonly ProtoId<RCDPrototype> _deconstructLatticeProto = "DeconstructLattice";
     private static readonly ProtoId<TagPrototype> CatwalkTag = "Catwalk";
+    private static readonly LocId DefaultPrototypeNameLocId = "generic-unknown-title";
 
     private HashSet<EntityUid> _intersectingEntities = new();
 
@@ -68,22 +72,45 @@ public sealed class RCDSystem : EntitySystem
         SubscribeNetworkEvent<RCDConstructionGhostRotationEvent>(OnRCDconstructionGhostRotationEvent);
     }
 
+    /// <summary>
+    /// Gets the display name of a given RCDPrototype.
+    /// </summary>
+    public string GetPrototypeName(RCDPrototype prototype)
+    {
+        if (prototype.SetName != null)
+            return Loc.GetString(prototype.SetName);
+        else if (prototype.Prototype != null) // DS14 - current engine baseline has no EntitySystem.ProtoMan shortcut.
+            return _protoManager.Index(prototype.Prototype).Name; // already localized
+        else
+            return Loc.GetString(DefaultPrototypeNameLocId);
+    }
+
     #region Event handling
 
     private void OnMapInit(EntityUid uid, RCDComponent component, MapInitEvent args)
     {
+        InitializeDevice((uid, component));
+    }
+
+    // DS14-start
+    public void InitializeDevice(Entity<RCDComponent> ent)
+    {
+        if (_net.IsClient)
+            return;
+
         // On init, set the RCD to its first available recipe
-        if (component.AvailablePrototypes.Count > 0)
+        if (ent.Comp.AvailablePrototypes.Count > 0)
         {
-            component.ProtoId = component.AvailablePrototypes.ElementAt(0);
-            Dirty(uid, component);
+            ent.Comp.ProtoId = ent.Comp.AvailablePrototypes.ElementAt(0);
+            Dirty(ent);
 
             return;
         }
 
         // The RCD has no valid recipes somehow? Get rid of it
-        QueueDel(uid);
+        QueueDel(ent);
     }
+    // DS14-end
 
     private void OnRCDSystemMessage(EntityUid uid, RCDComponent component, RCDSystemMessage args)
     {
@@ -109,18 +136,14 @@ public sealed class RCDSystem : EntitySystem
 
         var prototype = _protoManager.Index(component.ProtoId);
 
-        var msg = Loc.GetString("rcd-component-examine-mode-details", ("mode", Loc.GetString(prototype.SetName)));
+        var displayName = GetPrototypeName(prototype);
+
+        string msg;
 
         if (prototype.Mode == RcdMode.ConstructTile || prototype.Mode == RcdMode.ConstructObject)
-        {
-            var name = Loc.GetString(prototype.SetName);
-
-            if (prototype.Prototype != null &&
-                _protoManager.TryIndex(prototype.Prototype, out var proto)) // don't use Resolve because this can be a tile
-                name = proto.Name;
-
-            msg = Loc.GetString("rcd-component-examine-build-details", ("name", name));
-        }
+            msg = Loc.GetString("rcd-component-examine-build-details", ("name", displayName));
+        else
+            msg = Loc.GetString("rcd-component-examine-mode-details", ("mode", displayName));
 
         args.PushMarkup(msg);
     }
@@ -216,15 +239,35 @@ public sealed class RCDSystem : EntitySystem
 
         #endregion
 
+        // DS14-start
+        if (prototype.Mode != RcdMode.Deconstruct)
+        {
+            var constructionEffect = delay <= 0
+                ? component.InstantConstructionEffect
+                : component.ConstructionEffect;
+            effectPrototype = constructionEffect ?? effectPrototype;
+        }
+        // DS14-end
+
+        //DS-14 start
+        var fullDelay = delay;
+        if (delay > 0)
+            delay = _sites.RemainingDelay(gridUid.Value, position, prototype, component.ConstructionDirection, target, delay);
+
+        EntityUid? effect = null;
+        var deviceEffect = prototype.Mode != RcdMode.Deconstruct && component.ConstructionEffect != null;
+        if (fullDelay <= 0 || deviceEffect)
+            effect = Spawn(effectPrototype, _mapSystem.ToCenterCoordinates(tile, mapGrid));
+        //DS-14 end
+
         // Try to start the do after
-        var effect = Spawn(effectPrototype, _mapSystem.ToCenterCoordinates(tile, mapGrid));
         var ev = new RCDDoAfterEvent(
             GetNetCoordinates(location),
             GetNetEntity(gridUid.Value),
             component.ConstructionDirection,
             component.ProtoId,
             cost,
-            GetNetEntity(effect));
+            effect == null ? null : GetNetEntity(effect.Value));
         var doAfterArgs = new DoAfterArgs(EntityManager, user, delay, ev, uid, target: target, used: uid) // DS14
         {
             BreakOnDamage = true,
@@ -238,7 +281,16 @@ public sealed class RCDSystem : EntitySystem
         args.Handled = true;
 
         if (!_doAfter.TryStartDoAfter(doAfterArgs))
-            QueueDel(effect);
+        {
+            if (effect != null)
+                QueueDel(effect.Value);
+            return;
+        }
+
+        //DS-14 start
+        if (fullDelay > 0 && delay > 0)
+            _sites.Begin(gridUid.Value, mapGrid, tile, position, prototype, component.ConstructionDirection, target, user, uid, fullDelay);
+        //DS-14 end
     }
 
     // DS14-start
@@ -313,7 +365,11 @@ public sealed class RCDSystem : EntitySystem
         {
             // Delete the effect entity if the do-after was cancelled (server-side only)
             if (_net.IsServer)
-                QueueDel(GetEntity(args.Effect));
+            {
+                if (args.Effect != null)
+                    QueueDel(GetEntity(args.Effect));
+                _sites.Pause(GetEntity(args.TargetGridId), GetCoordinates(args.Location), args.StartingProtoId, args.Direction, args.Target); //DS-14
+            }
             return;
         }
 
@@ -334,11 +390,13 @@ public sealed class RCDSystem : EntitySystem
         // Ensure the RCD operation is still valid
         if (!IsRCDOperationStillValid(uid, component, gridUid, mapGrid, tile, position, args.Direction, args.Target, args.User))
         {
+            _sites.Pause(gridUid, location, args.StartingProtoId, args.Direction, args.Target); //DS-14
             return;
         }
 
         // Finalize the operation (this should handle prediction properly)
         FinalizeRCDOperation(uid, component, gridUid, mapGrid, tile, position, args.Direction, args.Target, args.User);
+        _sites.Clear(gridUid, position, args.StartingProtoId, args.Direction, args.Target); //DS-14
 
         // Play audio and consume charges
         _audio.PlayPredicted(component.SuccessSound, uid, args.User);

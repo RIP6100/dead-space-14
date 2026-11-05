@@ -239,8 +239,10 @@ namespace Content.Server.Atmos.EntitySystems
                                 break; // We're done here now. Let's not do more work than needed.
 
                             var otherTile2 = otherTile.AdjacentTiles[k];
-                            if (otherTile2 == null || otherTile2.MonstermosInfo.LastQueueCycle != queueCycle) continue;
-                            DebugTools.Assert(otherTile2.AdjacentBits.IsFlagSet((AtmosDirection) (1 << (k ^ 1)))); // DS14
+                            // DS14-start: a neighbour that no longer links back (cut off, or trimmed from the grid) is no
+                            // way for the gas to go.
+                            if (otherTile2 == null || !otherTile2.AdjacentBits.IsFlagSet((AtmosDirection) (1 << (k ^ 1))) || otherTile2.MonstermosInfo.LastQueueCycle != queueCycle) continue;
+                            // DS14-end
                             if (otherTile2.MonstermosInfo.LastSlowQueueCycle == queueCycleSlow) continue;
                             _equalizeQueue[queueLength++] = otherTile2;
                             otherTile2.MonstermosInfo.LastSlowQueueCycle = queueCycleSlow;
@@ -310,8 +312,7 @@ namespace Content.Server.Atmos.EntitySystems
                             var otherTile2 = otherTile.AdjacentTiles[k];
 
                             if (taker.MonstermosInfo.MoleDelta >= 0) break; // We're done here now. Let's not do more work than needed.
-                            if (otherTile2 == null || otherTile2.AdjacentBits == 0 || otherTile2.MonstermosInfo.LastQueueCycle != queueCycle) continue;
-                            DebugTools.Assert(otherTile2.AdjacentBits.IsFlagSet((AtmosDirection) (1 << (k ^ 1)))); // DS14
+                            if (otherTile2 == null || !otherTile2.AdjacentBits.IsFlagSet((AtmosDirection) (1 << (k ^ 1))) || otherTile2.MonstermosInfo.LastQueueCycle != queueCycle) continue; // DS14
                             if (otherTile2.MonstermosInfo.LastSlowQueueCycle == queueCycleSlow) continue;
                             _equalizeQueue[queueLength++] = otherTile2;
                             otherTile2.MonstermosInfo.LastSlowQueueCycle = queueCycleSlow;
@@ -778,7 +779,7 @@ namespace Content.Server.Atmos.EntitySystems
         }
 
         // DS14-start: Monstermos finalization transfers gas very often; avoid per-transfer GasMixture allocation.
-        private void TransferGas(GasMixture receiver, GasMixture giver, float amount)
+        internal void TransferGas(GasMixture receiver, GasMixture giver, float amount)
         {
             var ratio = amount / giver.TotalMoles;
             switch (ratio)
@@ -793,6 +794,10 @@ namespace Content.Server.Atmos.EntitySystems
             Span<float> removedMoles = stackalloc float[Atmospherics.AdjustedNumberOfGases];
             var giverMoles = giver.Moles;
             var receiverMoles = receiver.Moles;
+            // Preserve Iprit age across direct mole-array updates. Kofeecheks: LicenseRef-Kofeecheks
+            var ipritIndex = (int) Gas.Iprit;
+            var giverIpritDeadline = giver.IpritDecayDeadline;
+            var receiverIpritMoles = receiverMoles[ipritIndex];
             var mixTemperatures = MathF.Abs(receiver.Temperature - giver.Temperature) >
                                   Atmospherics.MinimumTemperatureDeltaToConsider;
             var removedHeatCapacity = 0f;
@@ -820,6 +825,8 @@ namespace Content.Server.Atmos.EntitySystems
                     receiverHeatCapacity += receiverMoles[i] * gasHeatCapacity;
             }
 
+            giver.ResetIpritDecayDeadlineIfEmpty();
+
             if (receiver.Immutable)
                 return;
 
@@ -840,6 +847,11 @@ namespace Content.Server.Atmos.EntitySystems
             {
                 receiverMoles[i] += removedMoles[i];
             }
+
+            receiver.BlendIpritDecayDeadline(
+                receiverIpritMoles,
+                giverIpritDeadline,
+                removedMoles[ipritIndex]);
         }
         // DS14-end
 

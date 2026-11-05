@@ -364,6 +364,8 @@ namespace Content.Server.Database
         public string Gender { get; set; } = null!;
         public string Species { get; set; } = null!;
         public string Voice { get; set; } = null!; // Corvax-TTS
+
+        [Column(TypeName = "jsonb")] public JsonDocument? TtsVoices { get; set; } // DS14
         [Column(TypeName = "jsonb")] public JsonDocument? Markings { get; set; } = null!;
         public string HairName { get; set; } = null!;
         public string HairColor { get; set; } = null!;
@@ -1181,6 +1183,13 @@ namespace Content.Server.Database
         public bool CheckPlayerLimit { get; set; }
 
         public string WhitelistModesJson { get; set; } = string.Empty;
+
+        public bool EnableLowPlayerPreset { get; set; }
+
+        public int LowPlayerThreshold { get; set; }
+
+        public string? LowPlayerPresetId { get; set; }
+
     }
     // DS14-end
 

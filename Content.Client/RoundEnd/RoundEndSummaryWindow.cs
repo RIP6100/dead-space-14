@@ -1,9 +1,10 @@
 using System.Linq;
 using System.Numerics;
 using Content.Client.DeadSpace.RoundEnd;
+using Content.Client.DeadSpace.Stylesheets;
 using Content.Client.Message;
 using Content.Client.UserInterface.Controls;
-using Content.Shared.DeadSpace.Arena; 
+using Content.Shared.DeadSpace.Arena;
 using Content.Shared.DeadSpace.RoundEnd;
 using Content.Shared.GameTicking;
 using Robust.Client.GameObjects;
@@ -76,7 +77,7 @@ namespace Content.Client.RoundEnd
             // DS14-start
             var background = new PanelContainer
             {
-                StyleClasses = { "BackgroundPanelDark" },
+                StyleClasses = { DeadSpaceStyleClass.SurfaceFlat },
                 HorizontalExpand = true,
                 VerticalExpand = true,
             };
@@ -130,7 +131,7 @@ namespace Content.Client.RoundEnd
             // DS14-start
             var background = new PanelContainer
             {
-                StyleClasses = { "BackgroundPanelDark" },
+                StyleClasses = { DeadSpaceStyleClass.SurfaceFlat },
                 HorizontalExpand = true,
                 VerticalExpand = true,
             };
@@ -175,13 +176,10 @@ namespace Content.Client.RoundEnd
         }
 
         // DS14-start
-        private static readonly Color ManifestBodyBackground = Color.FromHex("#0d1117");
-        private static readonly Color ManifestPanelBorder = Color.FromHex("#30363d");
-        private static readonly Color ObjectiveSuccessColor = Color.FromHex("#3fb950");
+        private static readonly Color ObjectiveSuccessColor = DeadSpaceStylePalette.PositiveBorderHover;
         private static readonly Color ObjectivePartialSuccessColor = Color.FromHex("#d29922");
         private static readonly Color ObjectivePartialFailureColor = Color.FromHex("#f0883e");
-        private static readonly Color ObjectiveFailureColor = Color.FromHex("#f85149");
-        private static readonly Color ManifestCardSeparatorColor = Color.FromHex("#30363d");
+        private static readonly Color ObjectiveFailureColor = DeadSpaceStylePalette.NegativeBorderHover;
         private static readonly Vector2 DefaultWindowSize = new(920, 720);
         private const float RoundEndSummaryWindowHorizontalPadding = 160f;
         private const float AntagManifestCardHorizontalPadding = 20f;
@@ -278,7 +276,7 @@ namespace Content.Client.RoundEnd
         {
             var panel = new PanelContainer
             {
-                StyleClasses = { "PanelDark" },
+                StyleClasses = { DeadSpaceStyleClass.SurfaceDark },
                 HorizontalExpand = true,
             };
 
@@ -320,7 +318,7 @@ namespace Content.Client.RoundEnd
         {
             var panel = new PanelContainer
             {
-                StyleClasses = { "PanelDark" },
+                StyleClasses = { DeadSpaceStyleClass.SurfaceDark },
                 HorizontalExpand = true,
             };
 
@@ -355,7 +353,7 @@ namespace Content.Client.RoundEnd
         {
             var panel = new PanelContainer
             {
-                StyleClasses = { "PanelDark" },
+                StyleClasses = { DeadSpaceStyleClass.SurfaceDark },
                 HorizontalExpand = true,
             };
 
@@ -388,7 +386,7 @@ namespace Content.Client.RoundEnd
         {
             var panel = new PanelContainer
             {
-                StyleClasses = { "PanelDark" },
+                StyleClasses = { DeadSpaceStyleClass.SurfaceDark },
                 HorizontalExpand = true,
             };
 
@@ -412,13 +410,7 @@ namespace Content.Client.RoundEnd
                 VerticalExpand = true,
             };
 
-            content.AddChild(new Label
-            {
-                Text = playerInfo.PlayerICName ?? Loc.GetString("generic-unknown-title"),
-                StyleClasses = { playerInfo.Antag ? "LabelBig" : "LabelHeading" },
-                ClipText = true,
-                HorizontalExpand = true,
-            });
+            content.AddChild(MakeManifestName(playerInfo, playerInfo.Antag)); // DS-14
 
             var roleText = GetPlayerManifestRoleText(playerInfo);
 
@@ -484,10 +476,7 @@ namespace Content.Client.RoundEnd
                 MinHeight = 1,
                 HorizontalExpand = true,
                 Margin = new Thickness(8, 0),
-                PanelOverride = new StyleBoxFlat
-                {
-                    BackgroundColor = ManifestCardSeparatorColor,
-                },
+                StyleClasses = { DeadSpaceStyleClass.AccentDim },
             };
         }
 
@@ -495,7 +484,7 @@ namespace Content.Client.RoundEnd
         {
             var panel = new PanelContainer
             {
-                StyleClasses = { "PanelDark" },
+                StyleClasses = { DeadSpaceStyleClass.SurfaceDark },
                 HorizontalExpand = true,
             };
 
@@ -530,11 +519,53 @@ namespace Content.Client.RoundEnd
             return panel;
         }
 
+        // DS-14-Start
+        private static Control MakeManifestName(RoundEndMessageEvent.RoundEndPlayerInfo playerInfo, bool antag)
+        {
+            var name = playerInfo.PlayerICName ?? Loc.GetString("generic-unknown-title");
+            var container = new BoxContainer
+            {
+                Orientation = LayoutOrientation.Vertical,
+                HorizontalExpand = true,
+            };
+
+            if (!string.IsNullOrWhiteSpace(playerInfo.PlayerPseudonym))
+            {
+                container.AddChild(new Label
+                {
+                    Text = playerInfo.PlayerPseudonym,
+                    StyleClasses = { antag ? "LabelBig" : "LabelHeading" },
+                    ClipText = true,
+                    HorizontalExpand = true,
+                });
+                container.AddChild(new Label
+                {
+                    Text = name,
+                    StyleClasses = { "LabelSubText" },
+                    ClipText = true,
+                    HorizontalExpand = true,
+                });
+            }
+            else
+            {
+                container.AddChild(new Label
+                {
+                    Text = name,
+                    StyleClasses = { antag ? "LabelBig" : "LabelHeading" },
+                    ClipText = true,
+                    HorizontalExpand = true,
+                });
+            }
+
+            return container;
+        }
+        // DS-14-End
+
         private Control MakeAntagManifestCard(RoundEndMessageEvent.RoundEndPlayerInfo playerInfo)
         {
             var panel = new PanelContainer
             {
-                StyleClasses = { "PanelDark" },
+                StyleClasses = { DeadSpaceStyleClass.SurfaceDark },
                 HorizontalExpand = true,
             };
 
@@ -563,13 +594,7 @@ namespace Content.Client.RoundEnd
                 Orientation = LayoutOrientation.Horizontal,
                 HorizontalExpand = true,
             };
-            nameRow.AddChild(new Label
-            {
-                Text = playerInfo.PlayerICName ?? Loc.GetString("generic-unknown-title"),
-                StyleClasses = { "LabelBig" },
-                ClipText = true,
-                HorizontalExpand = true,
-            });
+            nameRow.AddChild(MakeManifestName(playerInfo, true)); // DS-14
             if (playerInfo.IsDead)
             {
                 var badgeLabel = new RichTextLabel
@@ -814,7 +839,7 @@ namespace Content.Client.RoundEnd
 
             var background = new PanelContainer
             {
-                StyleClasses = { "BackgroundPanelDark" },
+                StyleClasses = { DeadSpaceStyleClass.SurfaceFlat },
                 HorizontalExpand = true,
                 VerticalExpand = true,
             };
@@ -866,12 +891,7 @@ namespace Content.Client.RoundEnd
         {
             var panel = new PanelContainer
             {
-                PanelOverride = new StyleBoxFlat
-                {
-                    BackgroundColor = ManifestBodyBackground,
-                    BorderColor = ManifestPanelBorder,
-                    BorderThickness = new Thickness(1),
-                },
+                StyleClasses = { DeadSpaceStyleClass.SurfaceDark },
                 MinWidth = 200,
                 HorizontalExpand = true,
             };
@@ -905,7 +925,6 @@ namespace Content.Client.RoundEnd
                     ? Loc.GetString("arena-manifest-unknown-player")
                     : player.PlayerName,
                 StyleClasses = { "LabelHeading" },
-                FontColorOverride = Color.White,
                 HorizontalAlignment = HAlignment.Center,
                 HorizontalExpand = true,
             });
@@ -927,7 +946,7 @@ namespace Content.Client.RoundEnd
         {
             var panel = new PanelContainer
             {
-                StyleClasses = { "PanelDark" },
+                StyleClasses = { DeadSpaceStyleClass.SurfaceDark },
                 HorizontalExpand = true,
             };
 
@@ -960,7 +979,7 @@ namespace Content.Client.RoundEnd
         {
             var panel = new PanelContainer
             {
-                StyleClasses = { "PanelDark" },
+                StyleClasses = { DeadSpaceStyleClass.SurfaceDark },
                 HorizontalExpand = true,
             };
 
@@ -1025,8 +1044,8 @@ namespace Content.Client.RoundEnd
                 SetSize = panelSize,
                 PanelOverride = new StyleBoxFlat
                 {
-                    BackgroundColor = ManifestBodyBackground,
-                    BorderColor = ManifestPanelBorder,
+                    BackgroundColor = DeadSpaceStylePalette.SurfaceInset,
+                    BorderColor = DeadSpaceStylePalette.BorderInset,
                     BorderThickness = new Thickness(1),
                 },
             };
@@ -1050,7 +1069,7 @@ namespace Content.Client.RoundEnd
         {
             var panel = new PanelContainer
             {
-                StyleClasses = { "PanelDark" },
+                StyleClasses = { DeadSpaceStyleClass.SurfaceDark },
                 HorizontalExpand = true,
             };
 

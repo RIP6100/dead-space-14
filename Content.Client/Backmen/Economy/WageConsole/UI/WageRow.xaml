@@ -1,6 +1,6 @@
 ﻿<PanelContainer xmlns="https://spacestation14.io"
-                xmlns:gfx="clr-namespace:Robust.Client.Graphics;assembly=Robust.Client"
-                HorizontalExpand="True">
+                HorizontalExpand="True"
+                StyleClasses="DeadSpaceListItem"> <!-- DS14 -->
     <BoxContainer Orientation="Vertical"
                   HorizontalExpand="True">
         <BoxContainer Orientation="Horizontal"
@@ -8,6 +8,9 @@
             <Label Name="ToName"
                    Access="Public"
                    HorizontalExpand="True" />
+            <Label Name="ToBalance"
+                   Access="Public"
+                   HorizontalAlignment="Right" />
         </BoxContainer>
         <BoxContainer Orientation="Horizontal"
                       HorizontalExpand="True"
@@ -15,19 +18,20 @@
             <Label Name="FromName"
                    Access="Public"
                    MinSize="32 32"/>
+            <Label Name="FromBalance"
+                   Access="Public"
+                   HorizontalAlignment="Right" />
             <Label Name="Wage"
                    Access="Public"
                    HorizontalExpand="True" />
             <Button Name="EditBtn"
                     Access="Public"
                     ToolTip=""
-                    Text="{Loc wageconsole-edit}"
-                    StyleClasses="LabelSubText" />
+                    Text="{Loc wageconsole-edit}" />
             <Button Name="BonusBtn"
                     Access="Public"
                     ToolTip="{Loc wageconsole-bonus}"
-                    Text="+"
-                    StyleClasses="LabelSubText" />
+                    Text="+" />
         </BoxContainer>
     </BoxContainer>
 </PanelContainer>

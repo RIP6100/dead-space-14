@@ -74,7 +74,7 @@
     sprintModifier: 0.9
 
 - type: entity
-  parent: [ ClothingHeadHardsuitBase, ClothingHeadSuitWithLightBase ]
+  parent: [ClothingHeadHardsuitBase, ClothingHeadSuitWithLightBase]
   id: ClothingHeadHelmetHardsuitfffgfgggg
   categories: [ HideSpawnMenu ]
   name: шлем смерти
@@ -134,7 +134,7 @@
 
 # Mask
 - type: entity
-  parent: ClothingMaskGasSyndicate
+  parent: ClothingMaskGasSponsor
   id: ClothingMaskfffgfgggg
   name: чёрно-красный респиратор
   description: Чёрно-красный респиратор, защитит от пыли и... Всё.

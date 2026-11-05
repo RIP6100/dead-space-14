@@ -58,28 +58,15 @@ namespace Content.Client.LateJoin
 
             Title = Loc.GetString("late-join-gui-title");
 
-            // DS14-start
-            TitleClass = DeadSpaceMenuSheetlet.Title;
-            HeaderClass = DeadSpaceMenuSheetlet.Header;
-            // DS14-end
-
             _base = new BoxContainer()
             {
                 Orientation = LayoutOrientation.Vertical,
                 VerticalExpand = true,
-                Margin = new Thickness(10),
+                Margin = new Thickness(20), // DS14: preserve the old shell plus content inset without nesting windows.
                 SeparationOverride = 8,
             };
 
-            // DS14-start
-            ContentsContainer.AddChild(new PanelContainer
-            {
-                StyleClasses = { DeadSpaceMenuSheetlet.Shell },
-                HorizontalExpand = true,
-                VerticalExpand = true,
-                Children = { _base },
-            });
-            // DS14-end
+            ContentsContainer.AddChild(_base); // DS14
 
             _jobRequirements.Updated += RebuildUI;
             RebuildUI();
@@ -106,7 +93,9 @@ namespace Content.Client.LateJoin
             if (!_gameTicker.DisallowedLateJoin && _gameTicker.StationNames.Count == 0)
                 _sawmill.Warning("No stations exist, nothing to display in late-join GUI");
 
-            foreach (var (id, name) in _gameTicker.StationNames)
+            // DS14-start: the station first (opened), lavaland with the ash walkers below it
+            foreach (var (id, name) in _gameTicker.StationNames.OrderBy(pair => IsLavalandOnly(pair.Key) ? 1 : 0).ToList())
+            // DS14-end
             {
                 var jobList = new BoxContainer
                 {
@@ -140,7 +129,7 @@ namespace Content.Client.LateJoin
                 // DS14-start
                 _base.AddChild(new PanelContainer
                 {
-                    StyleClasses = { DeadSpaceMenuSheetlet.ListHeader },
+                    StyleClasses = { DeadSpaceStyleClass.ListHeader },
                     Children =
                     {
                         new BoxContainer
@@ -152,7 +141,7 @@ namespace Content.Client.LateJoin
                             {
                                 new Label()
                                 {
-                                    StyleClasses = { DeadSpaceMenuSheetlet.ListHeader },
+                                    StyleClasses = { DeadSpaceStyleClass.ListHeader },
                                     Text = name,
                                     HorizontalExpand = true,
                                     Align = Label.AlignMode.Center,
@@ -169,8 +158,7 @@ namespace Content.Client.LateJoin
                 {
                     var crewManifestButton = new Button()
                     {
-                        Text = Loc.GetString("crew-manifest-button-label"),
-                        StyleClasses = { DeadSpaceMenuSheetlet.ProfileControl }
+                        Text = Loc.GetString("crew-manifest-button-label")
                     };
                     crewManifestButton.OnPressed += _ => _crewManifest.RequestCrewManifest(id);
 
@@ -186,7 +174,7 @@ namespace Content.Client.LateJoin
                 // DS14-start
                 var jobListPanel = new PanelContainer
                 {
-                    StyleClasses = { DeadSpaceMenuSheetlet.Inset },
+                    StyleClasses = { DeadSpaceStyleClass.Inset },
                     VerticalExpand = true,
                     Visible = false,
                     Children = { jobListScroll },
@@ -245,7 +233,13 @@ namespace Content.Client.LateJoin
                         jobsAvailable.Add(_prototypeManager.Index<JobPrototype>(jobId));
                     }
 
-                    jobsAvailable.Sort(JobUIComparer.Instance);
+                    if (JobUIComparer.TryCreate(
+                            _prototypeManager,
+                            _gameTicker.JobWeightsByStation.GetValueOrDefault(id),
+                            out var comparer))
+                    {
+                        jobsAvailable.Sort(comparer);
+                    }
 
                     // Do not display departments with no jobs available.
                     if (jobsAvailable.Count == 0)
@@ -271,21 +265,23 @@ namespace Content.Client.LateJoin
                         });
                     }
 
+                    // DS14-start
                     category.AddChild(new PanelContainer
                     {
-                        StyleClasses = { DeadSpaceMenuSheetlet.ListHeader },
+                        StyleClasses = { DeadSpaceStyleClass.ListHeader },
                         Margin = new Thickness(0, 0, 0, 4),
                         Children =
                         {
                             new Label
                             {
-                                StyleClasses = { DeadSpaceMenuSheetlet.ListHeader },
+                                StyleClasses = { DeadSpaceStyleClass.ListHeader },
                                 Text = Loc.GetString("late-join-gui-department-jobs-label", ("departmentName", departmentName)),
                                 Align = Label.AlignMode.Center,
                                 HorizontalExpand = true,
                             }
                         }
                     });
+                    // DS14-end
 
                     _jobCategories[id][department.ID] = category;
                     jobList.AddChild(category);
@@ -299,13 +295,10 @@ namespace Content.Client.LateJoin
                         {
                             Margin = new Thickness(5f, 0, 0, 0),
                             VerticalAlignment = VAlignment.Center,
-                            StyleClasses = { DeadSpaceMenuSheetlet.ProfileLabel },
                         };
 
                         var jobButton = new JobButton(jobLabel, prototype.ID, prototype.LocalizedName, value);
-                        jobButton.AddStyleClass(rowIndex++ % 2 == 0
-                            ? DeadSpaceMenuSheetlet.ListRow
-                            : DeadSpaceMenuSheetlet.ListRowAlt);
+                        jobButton.AddStyleClass(GetJobRowStyleClass(rowIndex++)); // DS14
 
                         var jobSelector = new BoxContainer
                         {
@@ -314,15 +307,8 @@ namespace Content.Client.LateJoin
                             SeparationOverride = 6,
                         };
 
-                        var icon = new TextureRect
-                        {
-                            TextureScale = new Vector2(2, 2),
-                            VerticalAlignment = VAlignment.Center,
-                            Margin = new Thickness(4, 0, 0, 0),
-                        };
-
                         var jobIcon = _prototypeManager.Index(prototype.Icon);
-                        icon.Texture = _sprites.Frame0(jobIcon.Icon);
+                        var icon = CreateJobIcon(_sprites.Frame0(jobIcon.Icon)); // DS14
                         jobSelector.AddChild(icon);
 
                         jobSelector.AddChild(jobLabel);
@@ -367,8 +353,59 @@ namespace Content.Client.LateJoin
             }
         }
 
+        // DS14-start
+        private static readonly ProtoId<DepartmentPrototype> LavalandDepartment = "Lavaland";
+
+        /// <summary>A "station" whose every job is of the Lavaland department (the ash walkers).</summary>
+        private bool IsLavalandOnly(NetEntity station)
+        {
+            if (!_gameTicker.JobsAvailable.TryGetValue(station, out var jobs) || jobs.Count == 0 ||
+                !_prototypeManager.TryIndex(LavalandDepartment, out var lavaland))
+            {
+                return false;
+            }
+
+            return jobs.Keys.All(job => lavaland.Roles.Contains(job));
+        }
+        // DS14-end
+
+        // DS14-start
+        internal static string GetJobRowStyleClass(int rowIndex)
+        {
+            // Every row must use identical list geometry. Previously only odd rows received a list class, so even
+            // rows inherited the wider/shorter generic button margins and moved both the icon and the label.
+            return rowIndex % 2 == 0
+                ? DeadSpaceStyleClass.ListItem
+                : DeadSpaceStyleClass.ListItemAlternate;
+        }
+
+        internal static TextureRect CreateJobIcon(Texture texture)
+        {
+            // Job icon prototypes are not required to share a source resolution. A fixed cell prevents custom icons
+            // from changing the label offset or row height while KeepAspectCentered preserves their proportions.
+            return new TextureRect
+            {
+                Texture = texture,
+                TextureScale = new Vector2(2, 2),
+                MinSize = new Vector2(16, 16),
+                MaxSize = new Vector2(16, 16),
+                CanShrink = true,
+                Stretch = TextureRect.StretchMode.KeepAspectCentered,
+                VerticalAlignment = VAlignment.Center,
+                Margin = new Thickness(4, 0, 0, 0),
+            };
+        }
+        // DS14-end
+
         private void JobsAvailableUpdated(IReadOnlyDictionary<NetEntity, Dictionary<ProtoId<JobPrototype>, int?>> updatedJobs)
         {
+            if (!_jobButtons.Keys.ToHashSet().SetEquals(updatedJobs.Keys) ||
+                updatedJobs.Any(station => station.Value.Keys.Any(job => !_jobButtons[station.Key].ContainsKey(job))))
+            {
+                RebuildUI();
+                return;
+            }
+
             foreach (var stationEntries in updatedJobs)
             {
                 if (_jobButtons.ContainsKey(stationEntries.Key))
@@ -386,8 +423,18 @@ namespace Content.Client.LateJoin
                                 if (matchingJobButton.Amount != updatedJobValue)
                                 {
                                     matchingJobButton.RefreshLabel(updatedJobValue);
-                                    matchingJobButton.Disabled |= matchingJobButton.Amount == 0;
+                                    matchingJobButton.Disabled = matchingJobButton.Amount == 0 ||
+                                        !_jobRequirements.IsAllowed(_prototypeManager.Index<JobPrototype>(matchingJobButton.JobId),
+                                            (HumanoidCharacterProfile?)_preferencesManager.Preferences?.SelectedCharacter, out _);
                                 }
+                            }
+                        }
+                        else
+                        {
+                            foreach (var matchingJobButton in existingJobEntry.Value)
+                            {
+                                matchingJobButton.RefreshLabel(0);
+                                matchingJobButton.Disabled = true;
                             }
                         }
                     }

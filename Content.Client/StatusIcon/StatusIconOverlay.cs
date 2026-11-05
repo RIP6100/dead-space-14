@@ -2,6 +2,7 @@ using Content.Shared.StatusIcon;
 using Content.Shared.StatusIcon.Components;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
+using Robust.Client.Player; //DS-14
 using Robust.Shared.Enums;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
@@ -16,10 +17,12 @@ public sealed class StatusIconOverlay : Overlay
     [Dependency] private readonly IEntityManager _entity = default!;
     [Dependency] private readonly IPrototypeManager _prototype = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
+    [Dependency] private readonly IPlayerManager _player = default!; //DS-14
 
     private readonly SpriteSystem _sprite;
     private readonly TransformSystem _transform;
     private readonly StatusIconSystem _statusIcon;
+    private readonly Content.Client.DeadSpace.Surgery.SurgeryClientSystem _surgery; //DS-14
     private readonly ShaderInstance _unshadedShader;
 
     public override OverlaySpace Space => OverlaySpace.WorldSpaceBelowFOV;
@@ -31,11 +34,17 @@ public sealed class StatusIconOverlay : Overlay
         _sprite = _entity.System<SpriteSystem>();
         _transform = _entity.System<TransformSystem>();
         _statusIcon = _entity.System<StatusIconSystem>();
+        _surgery = _entity.System<Content.Client.DeadSpace.Surgery.SurgeryClientSystem>(); //DS-14
         _unshadedShader = _prototype.Index(UnshadedShader).Instance();
     }
 
     protected override void Draw(in OverlayDrawArgs args)
     {
+        //DS-14 start
+        if (!_entity.TryGetComponent(_player.LocalEntity, out EyeComponent? playerEye) || args.Viewport.Eye != playerEye.Eye)
+            return;
+        //DS-14 end
+
         var handle = args.WorldHandle;
 
         var eyeRot = args.Viewport.Eye?.Rotation ?? default;
@@ -49,6 +58,9 @@ public sealed class StatusIconOverlay : Overlay
         {
             if (xform.MapID != args.MapId || !sprite.Visible)
                 continue;
+
+            if (_surgery.Operating == uid) //DS-14
+                continue; //DS-14
 
             var bounds = comp.Bounds ?? _sprite.GetLocalBounds((uid, sprite));
 

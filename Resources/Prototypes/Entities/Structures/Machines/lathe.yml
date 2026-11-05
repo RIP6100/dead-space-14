@@ -271,6 +271,7 @@
     dynamicPacks:
     - EngineeringBoards
     - CargoBoards
+    - BluespaceBoards # DS14
     - MedicalBoards
     - ServiceBoards
     - ScienceBoards
@@ -372,6 +373,7 @@
     - SecurityWeaponsStatic
     - SecurityBorgModulesStatic # DS14
     - SecDetailTechFab # DS14
+    - DeadSpaceSecurityImplantsStatic # DS14
     dynamicPacks:
     - SalvageSecurityBoards
     - SalvageSecurityWeapons
@@ -387,6 +389,7 @@
     - SecurityBorgModulesTierTwo # DS14
     - SecurityBorgModulesTierThree # DS14
     - StunBola # DS14
+    - SecurityHolographicMatrix # DS14
   - type: EmagLatheRecipes
     emagStaticPacks:
     - SyndicateAmmoStatic
@@ -465,6 +468,7 @@
     - MedicalClothingStatic
     - EmptyMedkitsStatic
     - SurgeryStatic
+    - DeadSpaceSurgeryStatic # DS14
     dynamicPacks:
     - Chemistry
     - MedicalDynamic # DS14
@@ -505,6 +509,7 @@
     - ClothingMedical
     - ClothingScience
     - ClothingSecurity
+    - ClothingIAAOfficer # DS14
     - ClothingService
     - WinterCoats
     - Ties

@@ -319,6 +319,7 @@
     - SalvageExpeditionsComputerCircuitboard # Corvax-Cringe
     - BorgModuleAdvancedMining # DS14
     - BluespaceHandHeldMassScannerEmpty # DS14
+    - BluespaceMinerMachineCircuitboard # DS14
   mosaicBoard:
     radius: 1
     endpoints:
@@ -346,6 +347,7 @@
   - ClothingBackpackSatchelHolding
   - ClothingBackpackDuffelHolding
   - StorageModuleItem #DS14
+  - BluespaceMinerMachineCircuitboard # DS14
   mosaicBoard:
     radius: 1
     endpoints:

@@ -1,4 +1,6 @@
 // Мёртвый Космос, Licensed under custom terms with restrictions on public hosting and commercial use, full text: https://raw.githubusercontent.com/dead-space-server/space-station-14-fobos/master/LICENSE.TXT
+using Content.Shared.DeadSpace.TTS;
+using Robust.Shared.Configuration;
 
 using System.Linq;
 using System.Diagnostics.CodeAnalysis;
@@ -21,6 +23,8 @@ using Content.Shared.DeadSpace.AdminToy;
 using Content.Shared.DeadSpace.Languages.Components;
 using Content.Shared.DeadSpace.Languages.Prototypes;
 using Content.Shared.GameTicking;
+using Content.Shared.Follower;
+using Content.Shared.Follower.Components;
 using Content.Shared.Light;
 using Content.Shared.Light.Components;
 using Content.Shared.Mind;
@@ -72,6 +76,7 @@ public sealed class AdminToySystem : EntitySystem
     [Dependency] private readonly MetaDataSystem _metadata = default!;
     [Dependency] private readonly SharedPointLightSystem _pointLight = default!;
     [Dependency] private readonly SharedRgbLightControllerSystem _rgb = default!;
+    [Dependency] private readonly FollowerSystem _follower = default!;
     [Dependency] private readonly LanguageSystem _language = default!;
     [Dependency] private readonly IAdminLogManager _adminLogger = default!;
     [Dependency] private readonly IReplayRecordingManager _replay = default!;
@@ -303,7 +308,7 @@ public sealed class AdminToySystem : EntitySystem
             return;
 
         var tts = EnsureComp<TTSComponent>(toy);
-        tts.VoicePrototypeId = voice;
+        tts.Voices[IoCManager.Resolve<IConfigurationManager>().GetCVar(TTSProviderCVars.Provider)] = voice;
         Dirty(toy, tts);
     }
 
@@ -314,14 +319,16 @@ public sealed class AdminToySystem : EntitySystem
 
         if (!string.IsNullOrEmpty(trimmed))
         {
-            if (!_prototype.HasIndex<TTSVoicePrototype>(trimmed))
+            if (!_prototype.TryIndex<TTSVoicePrototype>(trimmed, out var prototype) ||
+                prototype.Provider != IoCManager.Resolve<IConfigurationManager>().GetCVar(TTSProviderCVars.Provider))
                 return false;
 
             resolvedVoice = trimmed;
             return true;
         }
 
-        var voices = _prototype.EnumeratePrototypes<TTSVoicePrototype>().ToList();
+        var voices = _prototype.EnumeratePrototypes<TTSVoicePrototype>()
+            .Where(voice => voice.Provider == IoCManager.Resolve<IConfigurationManager>().GetCVar(TTSProviderCVars.Provider)).ToList();
         if (voices.Count == 0)
             return true;
 
@@ -466,7 +473,10 @@ public sealed class AdminToySystem : EntitySystem
             lexiconMessage = _language.TransformWord(message, selectedLanguage);
         }
 
-        var wrappedMessage = Loc.GetString(speech.Bold ? "chat-manager-entity-say-bold-wrap-message-lang" : "chat-manager-entity-say-wrap-message-lang",
+        var showLanguage = _language.ShowInChat(selectedLanguage);
+        var wrappedMessage = Loc.GetString(speech.Bold
+                ? showLanguage ? "chat-manager-entity-say-bold-wrap-message-lang" : "chat-manager-entity-say-bold-wrap-message"
+                : showLanguage ? "chat-manager-entity-say-wrap-message-lang" : "chat-manager-entity-say-wrap-message",
             ("entityName", name),
             ("verb", verb),
             ("language", langName),
@@ -674,6 +684,9 @@ public sealed class AdminToySystem : EntitySystem
 
         if (component.AdminUserId is { } adminUserId)
             _adminToys.Remove(adminUserId);
+
+        if (TryComp<FollowerComponent>(uid, out var follower))
+            _follower.StopFollowingEntity(uid, follower.Following);
 
         if (unvisit && component.AdminMindId is {Valid: true} mindId && TryComp<MindComponent>(mindId, out var mind))
         {

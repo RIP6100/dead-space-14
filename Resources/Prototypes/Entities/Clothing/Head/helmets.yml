@@ -39,6 +39,10 @@
         Slash: 0.9
         Piercing: 0.9
         Heat: 0.9
+  # DS14
+  - type: LimbCover
+    zones:
+    - Head
 
 #Basic Helmet (Security Helmet)
 - type: entity
@@ -55,6 +59,11 @@
     tags:
     - WhitelistChameleon
     - SecurityHelmet
+  # DS14
+  - type: LimbCover
+    zones:
+    - Head
+    ricochet: true
 
 #Mercenary Helmet
 - type: entity
@@ -91,6 +100,12 @@
         Heat: 0.80
         Radiation: 0.80
         Caustic: 0.95
+  # DS14
+  - type: LimbCover
+    zones:
+    - Head
+    face: true
+    ricochet: true
   - type: ExplosionResistance
     damageCoefficient: 0.75
   - type: HideLayerClothing
@@ -153,6 +168,13 @@
         Blunt: 0.95
         Slash: 0.95
         Piercing: 0.95
+  # DS14
+  - type: LimbCover
+    face: true
+    sever: true
+    stopsFire: true
+    zones:
+    - Head
   - type: HideLayerClothing
     layers:
       Hair: HEAD
@@ -199,14 +221,28 @@
 
 #Space Ninja Helmet
 - type: entity
-  parent: [ClothingHeadEVAHelmetBase, BaseHighlyIllegalContraband]
+  parent: [ClothingHeadBase, BaseHighlyIllegalContraband]
   id: ClothingHeadHelmetSpaceNinja
   name: space ninja helmet
   description: What may appear to be a simple black garment is in fact a highly sophisticated nano-weave helmet. Standard issue ninja gear.
   components:
+  - type: BreathMask
+  - type: Item
+    size: Normal
+  - type: PressureProtection
+    highPressureMultiplier: 0.6
+    lowPressureMultiplier: 1000
+  - type: ToggleableClothingStorageBlocker # DS14
+  - type: TemperatureProtection
+    heatingCoefficient: 0.2
+    coolingCoefficient: 0.2
   - type: Sprite
     sprite: Clothing/Head/Helmets/spaceninja.rsi
   - type: Clothing
+    equipSound: /Audio/Mecha/mechmove03.ogg
+    unequipSound: /Audio/Mecha/mechmove03.ogg
+    equipDelay: 2
+    unequipDelay: 2
 #DS14-start
     clothingVisuals:
       head:
@@ -225,13 +261,27 @@
       - state: equipped-HELMET-reptilian
       - state: equipped-head-unshaded-reptilian
         shader: unshaded
-#DS14-end
+  - type: NinjaAppearanceItem
+    itemType: Helmet
+  - type: NinjaSuitItem
+  - type: LimbCover
+    face: true
+    sever: true
+    stopsFire: true
+    zones:
+    - Head
+  #DS14-end
   - type: Tag
     tags:
     - WhitelistChameleon
-  - type: IngestionBlocker
   - type: IdentityBlocker
   - type: HideLayerClothing
+    slots:
+    - Hair
+    - Snout
+    - HeadTop
+    - HeadSide
+    - FacialHair
     layers:
       Hair: HEAD
       Snout: HEAD
@@ -304,8 +354,15 @@
   components:
   - type: Sprite
     sprite: Clothing/Head/Helmets/firehelmet.rsi
+  - type: ToggleableVisuals
+    clothingVisuals:
+      head:
+      - state: equipped-helmet-light
+        shader: unshaded
   - type: Clothing
-    sprite: Clothing/Head/Helmets/firehelmet.rsi
+    clothingVisuals:
+      head:
+      - state: equipped-helmet
     quickEquip: true
   - type: IngestionBlocker
   - type: TemperatureProtection
@@ -313,6 +370,13 @@
     coolingCoefficient: 0.8
   - type: FireProtection
     reduction: 0.15 # not fully sealed so less protection
+  # DS14
+  - type: LimbCover
+    face: true
+    sever: true
+    stopsFire: true
+    zones:
+    - Head
   - type: IdentityBlocker
   - type: Tag
     tags:
@@ -322,6 +386,12 @@
     layers:
       Hair: HEAD
       Snout: HEAD
+  - type: Item
+    inhandVisuals:
+      left:
+      - state: inhand-left
+      right:
+      - state: inhand-right
 
 #Atmos Fire Helmet
 - type: entity
@@ -332,9 +402,17 @@
   components:
   - type: Sprite
     sprite: Clothing/Head/Helmets/atmos_firehelmet.rsi
+  - type: ToggleableVisuals
+    clothingVisuals:
+      head:
+      - state: equipped-helmet-light
+        shader: unshaded
   - type: Clothing
     sprite: Clothing/Head/Helmets/atmos_firehelmet.rsi
     quickEquip: true
+    clothingVisuals:
+      head:
+      - state: equipped-helmet
   - type: IngestionBlocker
   - type: TemperatureProtection
     heatingCoefficient: 0.3
@@ -344,6 +422,13 @@
   - type: PressureProtection
     highPressureMultiplier: 0.25
     lowPressureMultiplier: 1000
+  # DS14
+  - type: LimbCover
+    face: true
+    sever: true
+    stopsFire: true
+    zones:
+    - Head
   - type: IdentityBlocker
   - type: Tag
     tags:
@@ -354,6 +439,12 @@
       Hair: HEAD
       Snout: HEAD
   - type: BreathMask
+  - type: Item
+    inhandVisuals:
+      left:
+      - state: inhand-left
+      right:
+      - state: inhand-right
 
 #Chitinous Helmet
 - type: entity

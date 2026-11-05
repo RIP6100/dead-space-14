@@ -119,6 +119,7 @@
   parent: [ClothingOuterStorageFoldableBaseOpened, ClothingOuterCoatMaelstormAlt]
   id: ClothingOuterCoatMaelstormAltOpened
   name: зимняя парадная шинель НКВБ
+  categories: [ HideSpawnMenu ]
 
 # Перчи
 - type: entity
@@ -179,7 +180,7 @@
     clothingPrototype: ClothingHeadHelmetHardsuitMaelstormAlt
 
 - type: entity
-  parent: ClothingHeadHelmetHardsuitBlueShield
+  parent: [ClothingHeadHelmetHardsuitBlueShield]
   id: ClothingHeadHelmetHardsuitMaelstormAlt
   categories: [ HideSpawnMenu ]
   name: шлем экспериментального скафандра ВОХР КГБ
