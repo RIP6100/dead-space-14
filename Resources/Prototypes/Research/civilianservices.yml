@@ -117,6 +117,7 @@
   recipeUnlocks:
   - FatExtractorMachineCircuitboard
   - BiomassReclaimerMachineCircuitboard
+  - OrganPrinterMachineCircuitboard
   mosaicBoard:
     radius: 1
     endpoints:

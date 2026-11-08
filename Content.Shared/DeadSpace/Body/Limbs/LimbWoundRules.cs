@@ -39,17 +39,24 @@ public static class LimbWoundRules
     public const float MinSever = 10f;
 
     public const float SmallZoneChance = 0.34f;
-    public const float BareDropChance = 0.65f;
-    public const float GripDropChance = 0.2f;
+    public const float BareDropChance = 0.35f;
+    public const float GripDropChance = 0.1f;
+    public const float DropBlunt = 10f;
+    public const float CrackShare = 0.5f;
+    public const float CrackHeavyShare = 0.8f;
+    public const float CrackLightChance = 0.05f;
+    public const float CrackHeavyChance = 0.1f;
     public const float EmbedChance = 0.08f;
     public const float AimedEmbedChance = 0.18f;
     public const float AimedShatterChance = 0.12f;
     public const float BehindArmorFlesh = 0.35f;
     public const float BehindArmorBone = 0.6f;
+    public const float BehindArmorChance = 0.1f;
     public const float CloseSeverRange = 1f;
     public const float BlastSeverFar = 5f;
-    public const float BlastSeverNearChance = 0.9f;
-    public const float BlastSeverDamage = 30f;
+    public const float BlastSeverNearChance = 0.4f;
+    public const float BlastSeverDamage = 40f;
+    public const int BlastSeverMax = 2;
     public const int PelletSeverCount = 4;
     public const float PelletWindow = 0.4f;
     public const float ClothingBurn = 3f;
@@ -202,9 +209,44 @@ public static class LimbWoundRules
         return 0;
     }
 
+    public static bool Limbless(IReadOnlyList<LimbZoneState> zones)
+    {
+        foreach (var zone in new[] { LimbZone.ArmLeft, LimbZone.ArmRight, LimbZone.LegLeft, LimbZone.LegRight })
+        {
+            var index = Index(zone);
+            if ((uint) index >= (uint) zones.Count || !zones[index].Severed)
+                return false;
+        }
+
+        return true;
+    }
+
     public static bool Useless(in LimbZoneState state)
     {
         return state.Severed || state.Atrophied || state.Health <= 0f;
+    }
+
+    public static float LostShare(in LimbZoneState state, float pool)
+    {
+        return pool <= 0f ? 0f : Math.Clamp(1f - state.Health / pool, 0f, 1f);
+    }
+
+    public static float CrackChance(float lost)
+    {
+        if (lost > CrackHeavyShare)
+            return CrackHeavyChance;
+
+        return lost > CrackShare ? CrackLightChance : 0f;
+    }
+
+    public static bool RollCrack(ref LimbZoneState state, float lost, float roll)
+    {
+        if (roll >= CrackChance(lost))
+            return false;
+
+        state.Bone = MathF.Max(state.Bone, state.Bone >= StrainBone ? BreakBone : StrainBone);
+        state.Splinted = false;
+        return true;
     }
 
     public static bool Spend(ref LimbZoneState state, float loss)
@@ -793,6 +835,14 @@ public static class LimbWoundRules
         return pierce >= HeavyPoint;
     }
 
+    public static bool BehindArmorTrauma(LimbStrike strike)
+    {
+        return strike.BehindArmor
+            && strike.Mark == LimbMark.Point
+            && strike.Amount >= HeavyPoint
+            && strike.SecondaryRoll < BehindArmorChance;
+    }
+
     public static bool HeavyLimb(LimbZone zone)
     {
         return zone is LimbZone.ArmLeft or LimbZone.ArmRight or LimbZone.LegLeft or LimbZone.LegRight;
@@ -901,7 +951,7 @@ public static class LimbWoundRules
                 break;
             case LimbMark.Point:
                 state.Pierce += amount;
-                if (strike.BehindArmor && strike.Amount >= HeavyPoint)
+                if (BehindArmorTrauma(strike))
                 {
                     state.Flesh += amount * BehindArmorFlesh;
                     if (soft)
@@ -977,6 +1027,7 @@ public static class LimbWoundRules
 
         var drop = strike.Mark == LimbMark.Blunt
                    && strike.Zone is LimbZone.HandLeft or LimbZone.HandRight
+                   && strike.Amount >= DropBlunt
                    && strike.Roll < (strike.Grip ? GripDropChance : BareDropChance);
 
         var severed = false;
@@ -1057,7 +1108,7 @@ public static class LimbWoundRules
         if (adrenaline)
             return false;
 
-        return arm.Bone >= BreakBone || hand.Bone >= BreakBone;
+        return !arm.Splinted && arm.Bone >= BreakBone || !hand.Splinted && hand.Bone >= BreakBone;
     }
 
     public static float MoveSpeed(bool limp, int legsMissing)

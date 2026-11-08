@@ -269,7 +269,7 @@ public sealed class LimbWoundTest
         {
             var human = server.EntMan.SpawnEntity("MobHuman", new MapCoordinates(Vector2.Zero, map.MapId));
             var wounds = server.EntMan.System<LimbWoundSystem>();
-            var strike = new LimbStrike(LimbZone.Torso, LimbMark.Point, 40f, 0.9f, 40f, true, false, false, false, false, 1f);
+            var strike = new LimbStrike(LimbZone.Torso, LimbMark.Point, 40f, 0.9f, 40f, false, false, false, false, false, 1f);
             wounds.Strike(human, strike);
             var heart = server.EntMan.GetComponent<LimbBodyComponent>(human).Organs[(int) LimbOrgan.Heart];
 
@@ -422,7 +422,7 @@ public sealed class LimbWoundTest
             Assert.Multiple(() =>
             {
                 Assert.That(server.EntMan.GetComponent<DamageableComponent>(dead).TotalDamage, Is.EqualTo(FixedPoint2.Zero));
-                Assert.That(server.EntMan.GetComponent<DamageableComponent>(alive).TotalDamage, Is.EqualTo(FixedPoint2.New(13)));
+                Assert.That(server.EntMan.GetComponent<DamageableComponent>(alive).TotalDamage, Is.EqualTo(FixedPoint2.New(20)));
                 Assert.That(wounds.BleedTotal(dead), Is.EqualTo(0f));
             });
         });
@@ -431,7 +431,7 @@ public sealed class LimbWoundTest
     }
 
     [Test]
-    public async Task FireBurnsClothesButNotArmor()
+    public async Task FireDoesNotDeleteClothes()
     {
         await using var pair = await PoolManager.GetServerClient();
         var server = pair.Server;
@@ -463,7 +463,7 @@ public sealed class LimbWoundTest
         {
             Assert.Multiple(() =>
             {
-                Assert.That(server.EntMan.Deleted(suit), Is.True, "the jumpsuit burns");
+                Assert.That(server.EntMan.Deleted(suit), Is.False, "the jumpsuit does not burn away");
                 Assert.That(server.EntMan.Deleted(vest), Is.False, "the armor vest does not burn");
             });
         });
@@ -534,6 +534,26 @@ public sealed class LimbWoundTest
             Assert.That(shield.Ricochet, Is.False);
             var metal = Cover(proto, factory, metalId);
             Assert.That(metal.Ricochet, Is.True);
+        });
+
+        await pair.CleanReturnAsync();
+    }
+
+    [Test]
+    public async Task AGhostKeepsNoLimbAim()
+    {
+        await using var pair = await PoolManager.GetServerClient();
+        var server = pair.Server;
+        var map = await pair.CreateTestMap();
+
+        await server.WaitAssertion(() =>
+        {
+            var ghost = server.EntMan.SpawnEntity("MobObserver", new MapCoordinates(Vector2.Zero, map.MapId));
+            var wounds = server.EntMan.System<LimbWoundSystem>();
+            wounds.SetTarget(ghost, LimbZone.Head);
+            wounds.SetAiming(ghost, true);
+            Assert.That(server.EntMan.HasComponent<LimbTargetComponent>(ghost), Is.False);
+            Assert.That(server.EntMan.HasComponent<LimbAimComponent>(ghost), Is.False);
         });
 
         await pair.CleanReturnAsync();
